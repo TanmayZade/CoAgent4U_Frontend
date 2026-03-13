@@ -3,17 +3,26 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Shield, Slack } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Shield, Slack, AlertCircle } from "lucide-react"
 import gsap from "gsap"
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+
+  // Check for error parameter in URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const errorParam = params.get("error")
+    
+    if (errorParam === "access_denied") {
+      setError("Sign in was cancelled")
+    } else if (errorParam) {
+      setError("Sign in failed")
+    }
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -33,10 +42,8 @@ export default function SignInPage() {
     setIsLoading(true)
     setError(null)
     try {
-      // In production, this would call: GET /auth/slack/start
-      // which redirects to Slack OAuth with proper PKCE flow
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      router.push("/onboarding")
+      // Redirect to Slack OAuth endpoint
+      window.location.href = "https://api.coagent4u.com/auth/slack/start"
     } catch (err) {
       setError("Failed to connect with Slack. Please try again.")
       setIsLoading(false)
@@ -45,20 +52,21 @@ export default function SignInPage() {
 
   return (
     <main ref={containerRef} className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Theme toggle - floating */}
-      <div className="absolute top-6 right-6 z-50">
-        <ThemeToggle />
-      </div>
-
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/20" />
+      {/* Deep charcoal background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
       
-      {/* Subtle accent light */}
+      {/* Glassmorphic glow effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-[600px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-5 dark:opacity-10"
+        {/* Electric blue accent glow - top left */}
+        <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full opacity-20 blur-3xl"
           style={{
-            background: "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)",
+            background: "radial-gradient(circle, #0EA5E9 0%, transparent 70%)",
+          }}
+        />
+        {/* Navy accent - bottom right */}
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-15 blur-3xl"
+          style={{
+            background: "radial-gradient(circle, #1E40AF 0%, transparent 70%)",
           }}
         />
       </div>
@@ -68,28 +76,29 @@ export default function SignInPage() {
         {/* Logo Section */}
         <div className="text-center mb-12">
           <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-              <span className="text-lg font-bold text-primary">⚡</span>
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center group-hover:border-cyan-400/60 transition-colors backdrop-blur-sm">
+              <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">⚡</span>
             </div>
-            <span className="text-xl font-semibold text-foreground hidden sm:inline">CoAgent4U</span>
+            <span className="text-xl font-semibold text-slate-100 hidden sm:inline">CoAgent4U</span>
           </Link>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Sign In</h1>
-          <p className="text-foreground/60">Connect your personal agent with Slack</p>
+          <h1 className="text-3xl font-bold text-slate-50 mb-2">Sign In</h1>
+          <p className="text-slate-400">Connect with Slack to access your scheduling agent</p>
         </div>
 
-        {/* Sign In Card */}
-        <div className="p-8 bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+        {/* Glassmorphic Card */}
+        <div className="p-8 rounded-2xl border border-white/10 backdrop-blur-xl bg-white/5 shadow-2xl hover:shadow-3xl transition-shadow hover:border-white/20">
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-foreground mb-1">Welcome Back</h2>
-            <p className="text-sm text-foreground/60">
+            <h2 className="text-lg font-semibold text-slate-50 mb-1">Welcome Back</h2>
+            <p className="text-sm text-slate-400">
               Sign in with your Slack workspace to access CoAgent4U
             </p>
           </div>
 
-          {/* Error message */}
+          {/* Error message - Red alert */}
           {error && (
-            <div className="mb-6 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
-              {error}
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3 backdrop-blur-sm">
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-300 font-medium">{error}</p>
             </div>
           )}
 
@@ -98,11 +107,11 @@ export default function SignInPage() {
             onClick={handleSlackSignIn}
             disabled={isLoading}
             size="lg"
-            className="w-full font-semibold py-6 rounded-lg transition-all duration-200"
+            className="w-full font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
                 <span>Connecting...</span>
               </div>
             ) : (
@@ -114,20 +123,20 @@ export default function SignInPage() {
           </Button>
 
           {/* Security note */}
-          <div className="flex items-center justify-center gap-2 mt-6 text-xs text-foreground/50">
+          <div className="flex items-center justify-center gap-2 mt-6 text-xs text-slate-500">
             <Shield className="w-4 h-4" />
-            <span>Secure login via Slack OAuth</span>
+            <span>Secure OAuth 2.0 login</span>
           </div>
         </div>
 
         {/* Terms */}
-        <p className="text-center text-xs text-foreground/50 mt-8">
+        <p className="text-center text-xs text-slate-500 mt-8">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="text-primary hover:underline transition-colors">
+          <Link href="/terms" className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-primary hover:underline transition-colors">
+          <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium">
             Privacy Policy
           </Link>
         </p>
