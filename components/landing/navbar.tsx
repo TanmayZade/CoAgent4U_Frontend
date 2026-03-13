@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
+import gsap from "gsap"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {

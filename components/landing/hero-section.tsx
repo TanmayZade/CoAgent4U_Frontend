@@ -30,13 +30,13 @@ export function HeroSection() {
       const { TextPlugin } = await import("gsap/TextPlugin")
       gsap.registerPlugin(TextPlugin)
 
+      // Set initial state (hidden)
+      gsap.set([logoRef.current, subheadlineRef.current, cta1Ref.current, cta2Ref.current], { opacity: 0 })
+      gsap.set([line1Ref.current, line2Ref.current, line3Ref.current], { opacity: 0 })
+      gsap.set([cursor1Ref.current, cursor2Ref.current, cursor3Ref.current], { opacity: 0 })
+
       const lineRefs = [line1Ref, line2Ref, line3Ref]
       const cursorRefs = [cursor1Ref, cursor2Ref, cursor3Ref]
-
-      // Make the h1 wrapper visible immediately (lines start hidden)
-      cursorRefs.forEach(c => {
-        if (c.current) gsap.set(c.current, { opacity: 1 })
-      })
 
       const tl = gsap.timeline()
       const CHAR_SPEED = 0.055
@@ -131,7 +131,6 @@ export function HeroSection() {
           <div
             ref={logoRef}
             className="flex items-center justify-center gap-5 mb-14"
-            style={{ opacity: 0 }}
           >
             <Image
               src="/images/logo.png"
@@ -154,31 +153,28 @@ export function HeroSection() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.2] mb-8">
             {/* Line 1 */}
             <div className="block min-h-[1.2em]">
-              <span ref={line1Ref} style={{ opacity: 0 }} />
+              <span ref={line1Ref} />
               <span
                 ref={cursor1Ref}
                 aria-hidden="true"
-                style={{ opacity: 0 }}
                 className="inline-block w-[3px] h-[0.82em] bg-foreground align-middle ml-[2px] translate-y-[-0.06em]"
               />
             </div>
             {/* Line 2 */}
             <div className="block min-h-[1.2em]">
-              <span ref={line2Ref} style={{ opacity: 0 }} />
+              <span ref={line2Ref} />
               <span
                 ref={cursor2Ref}
                 aria-hidden="true"
-                style={{ opacity: 0 }}
                 className="inline-block w-[3px] h-[0.82em] bg-foreground align-middle ml-[2px] translate-y-[-0.06em]"
               />
             </div>
             {/* Line 3 */}
             <div className="block min-h-[1.2em]">
-              <span ref={line3Ref} style={{ opacity: 0 }} />
+              <span ref={line3Ref} />
               <span
                 ref={cursor3Ref}
                 aria-hidden="true"
-                style={{ opacity: 0 }}
                 className="inline-block w-[3px] h-[0.82em] bg-foreground align-middle ml-[2px] translate-y-[-0.06em]"
               />
             </div>
@@ -188,7 +184,6 @@ export function HeroSection() {
           <p
             ref={subheadlineRef}
             className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mb-10"
-            style={{ opacity: 0 }}
           >
             The Coordination Platform for Personal Agents
           </p>
@@ -199,7 +194,6 @@ export function HeroSection() {
               ref={cta1Ref}
               href="/signin"
               className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              style={{ opacity: 0 }}
             >
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -208,7 +202,6 @@ export function HeroSection() {
               ref={cta2Ref}
               href="#use-cases"
               className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
-              style={{ opacity: 0 }}
             >
               View Demo
             </Link>
