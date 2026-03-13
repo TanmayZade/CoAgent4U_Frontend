@@ -73,10 +73,12 @@ function FloatingIconItem({ icon, mouseX, mouseY }: {
   )
 
   return (
+    // Outer div: absolute positioning (non-static) so Framer Motion can compute scroll offsets
     <div
       className="absolute pointer-events-none"
-      style={{ left: `${icon.x}%`, top: `${icon.y}%` }}
+      style={{ left: `${icon.x}%`, top: `${icon.y}%`, position: "absolute" }}
     >
+      {/* Inner motion.div: only transform-based motion values (x/y), no left/top mixing */}
       <motion.div
         style={{ x: xSpring, y: ySpring }}
         initial={{ opacity: 0, scale: 0 }}
@@ -103,10 +105,16 @@ function FloatingIconItem({ icon, mouseX, mouseY }: {
 }
 
 export function FloatingIcons({ className = "" }: { className?: string }) {
+  const [mounted, setMounted] = useState(false)
   const [icons] = useState(() => generateIcons(18))
   const containerRef = useRef<HTMLDivElement>(null)
   const mouseX = useMotionValue(0.5)
   const mouseY = useMotionValue(0.5)
+
+  // Only render icons after hydration to avoid SSR/client mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -125,7 +133,7 @@ export function FloatingIcons({ className = "" }: { className?: string }) {
       ref={containerRef}
       className={`absolute inset-0 overflow-hidden ${className}`}
     >
-      {icons.map((icon) => (
+      {mounted && icons.map((icon) => (
         <FloatingIconItem 
           key={icon.id} 
           icon={icon} 
