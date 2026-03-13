@@ -8,7 +8,9 @@ import {
   ChevronRight, 
   Calendar, 
   Lock,
-  Sparkles
+  Sparkles,
+  AlertCircle,
+  Slack
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import gsap from "gsap"
@@ -19,11 +21,56 @@ const steps = [
   { id: 3, title: "Agent Ready", description: "Your agent is live" },
 ]
 
+interface SessionData {
+  authenticated: boolean
+  slack_name?: string
+  slack_workspace?: string
+  slack_user_id?: string
+  error?: string
+}
+
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1)
+  const [sessionData, setSessionData] = useState<SessionData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+
+  // Fetch session on mount and check for google=success param
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const response = await fetch("https://api.coagent4u.com/auth/session", {
+          method: "GET",
+          credentials: "include",
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch session")
+        }
+        
+        const data: SessionData = await response.json()
+        setSessionData(data)
+        console.log("[v0] Session data:", data)
+
+        // Check URL for google=success parameter and auto-skip to step 3
+        const params = new URLSearchParams(window.location.search)
+        if (params.get("google") === "success") {
+          console.log("[v0] Google Calendar connected, skipping to step 3")
+          setCurrentStep(3)
+        }
+      } catch (err) {
+        console.error("[v0] Failed to fetch session:", err)
+        setError("Failed to load your profile. Please try again.")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchSession()
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -39,17 +86,42 @@ export default function OnboardingPage() {
     return () => ctx.revert()
   }, [])
 
-  const handleConnectCalendar = async () => {
+  const handleConnectCalendar = () => {
     setIsConnecting(true)
-    // Simulate connecting to Google Calendar
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsConnecting(false)
-    setCurrentStep(3)
+    // Perform full browser redirect to Google Calendar OAuth
+    window.location.href = "https://api.coagent4u.com/integrations/google/authorize"
   }
 
   const handleComplete = () => {
     // Redirect to dashboard
     window.location.href = "/dashboard"
+  }
+
+  // Extract initials from slack name for avatar
+  const getInitials = (name?: string) => {
+    if (!name) return "?"
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center relative overflow-hidden py-12">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20 blur-3xl" style={{ background: "radial-gradient(circle, #0EA5E9 0%, transparent 70%)" }} />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full opacity-15 blur-3xl" style={{ background: "radial-gradient(circle, #1E40AF 0%, transparent 70%)" }} />
+        </div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-300 text-sm font-medium">Loading your profile...</p>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -120,6 +192,14 @@ export default function OnboardingPage() {
 
         {/* Step Content - Glassmorphic Card */}
         <div className="p-8 rounded-2xl border border-white/10 backdrop-blur-xl bg-white/5 shadow-2xl">
+          {/* Error state */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3 backdrop-blur-sm">
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-300 font-medium">{error}</p>
+            </div>
+          )}
+
           {/* Step 1: Slack Connected */}
           {currentStep === 1 && (
             <div className="text-center">
@@ -138,15 +218,20 @@ export default function OnboardingPage() {
               <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-6">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center">
-                    <span className="text-sm font-bold text-slate-200">AJ</span>
+                    <span className="text-sm font-bold text-slate-200">{getInitials(sessionData?.slack_name)}</span>
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-slate-50">Alex Johnson</p>
-                    <p className="text-sm text-slate-400 font-mono">@alex.johnson</p>
+                    <p className="font-medium text-slate-50">{sessionData?.slack_name || "User"}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Slack className="w-3 h-3 text-slate-400" />
+                      <p className="text-sm text-slate-400">
+                        {sessionData?.slack_workspace || "Slack Workspace"}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="text-xs text-slate-500 font-mono pt-4 border-t border-white/10">
-                  Workspace: Acme Corp
+                  ID: {sessionData?.slack_user_id?.slice(0, 8) || "..."}
                 </div>
               </div>
 
@@ -209,12 +294,12 @@ export default function OnboardingPage() {
                   {isConnecting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
-                      <span>Connecting...</span>
+                      <span>Redirecting...</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5" />
-                      <span>Connect Calendar</span>
+                      <span>Connect Google Calendar</span>
                     </div>
                   )}
                 </Button>
@@ -241,7 +326,7 @@ export default function OnboardingPage() {
                 <div className="absolute -inset-2 rounded-full border border-cyan-400/30 animate-spin" style={{ animationDuration: '3s' }} />
               </div>
 
-              <h2 className="text-2xl font-bold text-slate-50 mb-2">Your Agent is Live</h2>
+              <h2 className="text-2xl font-bold text-slate-50 mb-2">Your Agent is Ready</h2>
               <p className="text-slate-400 mb-8">Start scheduling through Slack right away</p>
 
               {/* Agent status visualization */}
@@ -250,7 +335,7 @@ export default function OnboardingPage() {
                   {/* Slack */}
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-2 backdrop-blur-sm">
-                      <span className="text-sm font-bold text-slate-300">💬</span>
+                      <Slack className="w-5 h-5 text-slate-300" />
                     </div>
                     <span className="text-xs text-slate-400">Slack</span>
                   </div>
@@ -275,7 +360,7 @@ export default function OnboardingPage() {
                   {/* Calendar */}
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-2 backdrop-blur-sm">
-                      <span className="text-sm font-bold text-slate-300">📅</span>
+                      <Calendar className="w-5 h-5 text-slate-300" />
                     </div>
                     <span className="text-xs text-slate-400">Calendar</span>
                   </div>
