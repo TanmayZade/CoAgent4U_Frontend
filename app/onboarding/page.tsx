@@ -349,10 +349,18 @@ export default function OnboardingPage() {
 
               {/* User info card */}
               <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center">
-                    <span className="text-sm font-bold text-slate-200">{getInitials(sessionData?.slack_name)}</span>
-                  </div>
+                <div className="flex items-center gap-4">
+                  {sessionData?.slack_avatar_url ? (
+                    <img 
+                      src={sessionData.slack_avatar_url} 
+                      alt={sessionData?.slack_name || "User avatar"}
+                      className="w-12 h-12 rounded-lg object-cover border border-cyan-400/40"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center">
+                      <span className="text-sm font-bold text-slate-200">{getInitials(sessionData?.slack_name)}</span>
+                    </div>
+                  )}
                   <div className="text-left">
                     <p className="font-medium text-slate-50">{sessionData?.slack_name || "User"}</p>
                     <div className="flex items-center gap-1 mt-1">
@@ -362,9 +370,6 @@ export default function OnboardingPage() {
                       </p>
                     </div>
                   </div>
-                </div>
-                <div className="text-xs text-slate-500 font-mono pt-4 border-t border-white/10">
-                  ID: {sessionData?.slack_user_id?.slice(0, 8) || "..."}
                 </div>
               </div>
 
