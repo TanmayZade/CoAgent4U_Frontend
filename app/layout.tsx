@@ -1,34 +1,15 @@
-import type { Metadata, Viewport } from 'next'
-import { Poppins, JetBrains_Mono, Playfair_Display } from 'next/font/google'
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
-const poppins = Poppins({ 
-  subsets: ["latin"],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-sans',
-  display: 'swap',
-})
-
-const jetbrainsMono = JetBrains_Mono({ 
-  subsets: ["latin"],
-  variable: '--font-mono',
-  display: 'swap',
-})
-
-// The Seasons-style elegant serif font for brand name
-const playfairDisplay = Playfair_Display({ 
-  subsets: ["latin"],
-  weight: ['400', '500', '600'],
-  variable: '--font-serif',
-  display: 'swap',
-})
+const _geist = Geist({ subsets: ["latin"] });
+const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'CoAgent4U | Your Personal Agent That Coordinates Your Time',
-  description: 'A coordination platform where personal agents represent users and collaborate to manage commitments, schedules, and shared time. Human-in-the-loop control.',
-  keywords: ['personal agent', 'coordination', 'scheduling', 'calendar', 'AI assistant', 'productivity'],
+  title: 'v0 App',
+  description: 'Created with v0',
+  generator: 'v0.app',
   icons: {
     icon: [
       {
@@ -48,28 +29,15 @@ export const metadata: Metadata = {
   },
 }
 
-export const viewport: Viewport = {
-  themeColor: '#FFFFFF',
-  width: 'device-width',
-  initialScale: 1,
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} ${jetbrainsMono.variable} ${playfairDisplay.variable} font-sans antialiased bg-background text-foreground transition-colors duration-300`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange={false}
-        >
-          {children}
-        </ThemeProvider>
+    <html lang="en">
+      <body className="font-sans antialiased">
+        {children}
         <Analytics />
       </body>
     </html>
