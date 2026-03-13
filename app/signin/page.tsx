@@ -12,16 +12,37 @@ export default function SignInPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
-  // Check for error parameter in URL on mount
+  // On mount: check session and redirect if already authenticated
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const errorParam = params.get("error")
-    
-    if (errorParam === "access_denied") {
-      setError("Sign in was cancelled")
-    } else if (errorParam) {
-      setError("Sign in failed")
+    const checkSession = async () => {
+      // Check URL error params first
+      const params = new URLSearchParams(window.location.search)
+      const errorParam = params.get("error")
+      if (errorParam === "access_denied") {
+        setError("Sign in was cancelled")
+      } else if (errorParam) {
+        setError("Sign in failed")
+      }
+
+      try {
+        const res = await fetch("https://api.coagent4u.com/auth/session", {
+          credentials: "include",
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.authenticated === true) {
+          if (data.pendingRegistration === true) {
+            window.location.replace("/onboarding")
+          } else {
+            window.location.replace("/dashboard")
+          }
+        }
+      } catch {
+        // Not authenticated or network error — stay on signin
+      }
     }
+
+    checkSession()
   }, [])
 
   useEffect(() => {
