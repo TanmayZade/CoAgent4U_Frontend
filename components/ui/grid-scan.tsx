@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface GridScanProps {
   sensitivity?: number
@@ -18,8 +18,6 @@ interface GridScanProps {
   scanDuration?: number
   scanDelay?: number
   scanOnClick?: boolean
-  width?: number
-  height?: number
 }
 
 export function GridScan({
@@ -38,22 +36,38 @@ export function GridScan({
   scanDuration = 2,
   scanDelay = 2,
   scanOnClick = false,
-  width = 1080,
-  height = 1080,
 }: GridScanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>()
-  const startTimeRef = useRef<number>(Date.now())
-  const isHoveredRef = useRef(false)
+  const startTimeRef = useRef<number>(0)
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+
+  // Handle resize and set dimensions on client only
+  useEffect(() => {
+    startTimeRef.current = Date.now()
+    
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        setDimensions({ width: rect.width, height: rect.height })
+      }
+    }
+
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas || dimensions.width === 0 || dimensions.height === 0) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1
+    const { width, height } = dimensions
+    const dpr = window.devicePixelRatio || 1
     canvas.width = width * dpr
     canvas.height = height * dpr
     ctx.scale(dpr, dpr)
@@ -132,7 +146,20 @@ export function GridScan({
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
     }
-  }, [width, height, gridScale, lineThickness, linesColor, scanColor, scanOpacity, lineStyle, lineJitter, scanDirection, noiseIntensity, scanGlow, scanSoftness, scanDuration, scanDelay, scanOnClick])
+  }, [dimensions, gridScale, lineThickness, linesColor, scanColor, scanOpacity, lineStyle, lineJitter, scanDirection, noiseIntensity, scanGlow, scanSoftness, scanDuration, scanDelay, scanOnClick])
 
-  return <canvas ref={canvasRef} style={{ width, height, display: 'block' }} />
+  return (
+    <div ref={containerRef} className="absolute inset-0 w-full h-full">
+      {dimensions.width > 0 && dimensions.height > 0 && (
+        <canvas 
+          ref={canvasRef} 
+          style={{ 
+            width: dimensions.width, 
+            height: dimensions.height, 
+            display: 'block' 
+          }} 
+        />
+      )}
+    </div>
+  )
 }
