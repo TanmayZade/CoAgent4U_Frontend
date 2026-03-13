@@ -60,32 +60,30 @@ function FloatingIconItem({ icon, mouseX, mouseY }: {
   mouseX: ReturnType<typeof useMotionValue<number>>
   mouseY: ReturnType<typeof useMotionValue<number>>
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  
   // Mouse parallax effect
   const springConfig = { damping: 25, stiffness: 150 }
-  const x = useSpring(useTransform(mouseX, [0, 1], [-15, 15]), springConfig)
-  const y = useSpring(useTransform(mouseY, [0, 1], [-15, 15]), springConfig)
-  
+  const xSpring = useSpring(useTransform(mouseX, [0, 1], [-15, 15]), springConfig)
+  const ySpring = useSpring(useTransform(mouseY, [0, 1], [-15, 15]), springConfig)
+
   // Multiply effect based on icon position
   const parallaxMultiplier = 0.3 + (icon.y / 100) * 0.7
-  
+  const parallaxX = useTransform(xSpring, v => v * parallaxMultiplier)
+  const parallaxY = useTransform(ySpring, v => v * parallaxMultiplier)
+
   return (
     <motion.div
-      ref={ref}
       className="absolute pointer-events-none"
       style={{
         left: `${icon.x}%`,
         top: `${icon.y}%`,
-        x: useTransform(x, v => v * parallaxMultiplier),
-        y: useTransform(y, v => v * parallaxMultiplier),
+        x: parallaxX,
+        y: parallaxY,
       }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ 
         opacity: [0.15, 0.35, 0.15],
         scale: [1, 1.1, 1],
         rotate: [-icon.rotationRange / 2, icon.rotationRange / 2, -icon.rotationRange / 2],
-        y: [0, -20, 0],
       }}
       transition={{
         duration: icon.duration,
