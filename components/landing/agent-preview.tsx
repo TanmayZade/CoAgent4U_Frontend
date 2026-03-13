@@ -1,37 +1,99 @@
 "use client"
 
 import { Bot, Calendar, CheckCircle2 } from "lucide-react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { TextPlugin } from "gsap/TextPlugin"
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger)
+  gsap.registerPlugin(ScrollTrigger, TextPlugin)
 }
 
 export function AgentPreview() {
   const sectionRef = useRef<HTMLElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const userMessageRef = useRef<HTMLDivElement>(null)
+  const userTextRef = useRef<HTMLSpanElement>(null)
+  const agentResponseRef = useRef<HTMLDivElement>(null)
+  const approvalRequestRef = useRef<HTMLDivElement>(null)
+  const approveButtonRef = useRef<HTMLButtonElement>(null)
+  const meetingConfirmedRef = useRef<HTMLDivElement>(null)
+  const [approveClicked, setApproveClicked] = useState(false)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Card scroll animation
-      gsap.fromTo(
-        cardRef.current,
-        { opacity: 0, y: 80, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 1.2,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: cardRef.current,
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          }
+      // Initial states - hide all messages
+      gsap.set([userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current], {
+        opacity: 0,
+        y: 20,
+      })
+
+      // Create master timeline triggered by scroll
+      const masterTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: cardRef.current,
+          start: "top 75%",
+          end: "bottom 20%",
+          toggleActions: "play none none reverse",
         }
-      )
+      })
+
+      // Step 1: Show user message container and simulate typing
+      masterTl.to(userMessageRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "power2.out",
+      })
+
+      // Type the user message
+      const userMessage = "@CoAgent4U schedule meeting with @Sarah Friday afternoon"
+      masterTl.to(userTextRef.current, {
+        duration: userMessage.length * 0.04,
+        text: { value: userMessage, delimiter: "" },
+        ease: "none",
+      }, "+=0.2")
+
+      // Step 2: Agent response appears
+      masterTl.to(agentResponseRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      }, "+=0.5")
+
+      // Step 3: Approval request slides in
+      masterTl.to(approvalRequestRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      }, "+=0.6")
+
+      // Step 4: Simulate approve button click
+      masterTl.to(approveButtonRef.current, {
+        scale: 0.95,
+        duration: 0.1,
+        ease: "power2.in",
+      }, "+=0.8")
+
+      masterTl.to(approveButtonRef.current, {
+        scale: 1,
+        backgroundColor: "#15803d", // darker green to show clicked
+        duration: 0.15,
+        ease: "power2.out",
+        onComplete: () => setApproveClicked(true),
+      })
+
+      // Step 5: Meeting confirmed appears
+      masterTl.to(meetingConfirmedRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out",
+      }, "+=0.4")
+
     }, sectionRef)
 
     return () => ctx.revert()
@@ -63,9 +125,12 @@ export function AgentPreview() {
             </div>
 
             {/* Content - Slack-style message thread */}
-            <div className="bg-zinc-900 p-4 lg:p-6 space-y-1">
+            <div className="bg-zinc-900 p-4 lg:p-6 space-y-1 min-h-[400px]">
               {/* User Message */}
-              <div className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors">
+              <div 
+                ref={userMessageRef}
+                className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors"
+              >
                 <div className="w-9 h-9 rounded-md bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
                   TZ
                 </div>
@@ -75,13 +140,17 @@ export function AgentPreview() {
                     <span className="text-zinc-500 text-xs">4:24 PM</span>
                   </div>
                   <p className="text-zinc-200 text-sm mt-0.5">
-                    <span className="text-blue-400 hover:underline cursor-pointer">@CoAgent4U</span> schedule meeting with <span className="text-blue-400 hover:underline cursor-pointer">@Sarah</span> Friday afternoon
+                    <span ref={userTextRef} className="whitespace-pre-wrap"></span>
+                    <span className="inline-block w-0.5 h-4 bg-zinc-400 ml-0.5 animate-pulse align-middle" />
                   </p>
                 </div>
               </div>
 
               {/* Agent Response */}
-              <div className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors">
+              <div 
+                ref={agentResponseRef}
+                className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors"
+              >
                 <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
@@ -102,7 +171,10 @@ export function AgentPreview() {
               </div>
 
               {/* Meeting Approval Request */}
-              <div className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors">
+              <div 
+                ref={approvalRequestRef}
+                className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors"
+              >
                 <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
@@ -131,11 +203,21 @@ export function AgentPreview() {
                     </div>
                     <p className="text-zinc-500 text-xs mb-3">Approve or reject this meeting time.</p>
                     <div className="flex items-center gap-2">
-                      <button className="flex items-center gap-1.5 px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white text-xs font-medium rounded transition-colors">
+                      <button 
+                        ref={approveButtonRef}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
+                          approveClicked ? 'bg-green-800' : 'bg-green-700 hover:bg-green-600'
+                        }`}
+                      >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Approve
+                        {approveClicked ? 'Approved' : 'Approve'}
                       </button>
-                      <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white text-xs font-medium rounded transition-colors">
+                      <button 
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
+                          approveClicked ? 'opacity-50 cursor-not-allowed bg-zinc-700' : 'bg-red-700 hover:bg-red-600'
+                        }`}
+                        disabled={approveClicked}
+                      >
                         <span>✕</span>
                         Reject
                       </button>
@@ -145,7 +227,10 @@ export function AgentPreview() {
               </div>
 
               {/* Meeting Confirmed */}
-              <div className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors">
+              <div 
+                ref={meetingConfirmedRef}
+                className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition-colors"
+              >
                 <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
@@ -172,13 +257,14 @@ export function AgentPreview() {
                         <span className="text-blue-400">@Sarah</span>
                       </li>
                     </ul>
-                    <div className="flex items-center gap-2 text-zinc-400 text-xs mb-2">
+                    <div className="flex items-center gap-2 text-zinc-400 text-xs mb-1">
                       <Calendar className="w-3.5 h-3.5" />
                       <span>Fri, 14 Mar 2026</span>
                     </div>
-                    <button className="text-blue-400 hover:text-blue-300 text-xs transition-colors">
-                      See more
-                    </button>
+                    <div className="flex items-center gap-2 text-zinc-400 text-xs">
+                      <span className="text-sm">🕐</span>
+                      <span>03:00 PM - 04:00 PM</span>
+                    </div>
                   </div>
                 </div>
               </div>
