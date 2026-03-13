@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
 import { TextPlugin } from "gsap/TextPlugin"
@@ -20,6 +19,8 @@ export function HeroSection() {
   const logoRef = useRef<HTMLDivElement>(null)
   const subheadlineRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
+  const cta1Ref = useRef<HTMLAnchorElement>(null)
+  const cta2Ref = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
     // Check if user has seen intro animation
@@ -34,7 +35,8 @@ export function HeroSection() {
       }
       if (logoRef.current) logoRef.current.style.opacity = "1"
       if (subheadlineRef.current) subheadlineRef.current.style.opacity = "1"
-      if (ctaRef.current) ctaRef.current.style.opacity = "1"
+      if (cta1Ref.current) cta1Ref.current.style.opacity = "1"
+      if (cta2Ref.current) cta2Ref.current.style.opacity = "1"
       if (cursorRef.current) cursorRef.current.style.display = "none"
       return
     }
@@ -109,18 +111,21 @@ export function HeroSection() {
     )
 
     // Phase 3.3: CTA buttons reveal (starts at 4.2s, with stagger)
-    timeline.fromTo(
-      ctaRef.current?.querySelectorAll("button"),
-      { opacity: 0, scale: 0.9 },
-      {
-        opacity: 1,
-        scale: 1,
-        duration: 0.6,
-        ease: "back.out(1.7)",
-        stagger: 0.15,
-      },
-      4.2
-    )
+    const ctaElements = [cta1Ref.current, cta2Ref.current].filter(Boolean)
+    if (ctaElements.length > 0) {
+      timeline.fromTo(
+        ctaElements,
+        { opacity: 0, scale: 0.9 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: "back.out(1.7)",
+          stagger: 0.15,
+        },
+        4.2
+      )
+    }
 
     // Set localStorage when animation completes
     timeline.call(() => {
@@ -193,28 +198,23 @@ export function HeroSection() {
           {/* CTAs */}
           <div
             ref={ctaRef}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0"
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Button
-              size="lg"
-              className="h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              asChild
+            <Link
+              ref={cta1Ref}
+              href="/signin"
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 opacity-0"
             >
-              <Link href="/signin">
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
-              asChild
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+            <Link
+              ref={cta2Ref}
+              href="#use-cases"
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105 opacity-0"
             >
-              <Link href="#use-cases">
-                View Demo
-              </Link>
-            </Button>
+              View Demo
+            </Link>
           </div>
         </div>
       </div>
