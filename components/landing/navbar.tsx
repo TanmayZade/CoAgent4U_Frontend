@@ -3,18 +3,13 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
-import gsap from "gsap"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const navRef = useRef<HTMLElement>(null)
-  const logoRef = useRef<HTMLAnchorElement>(null)
-  const linksRef = useRef<HTMLDivElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
 
   // Scroll detection for navbar background
   useEffect(() => {
@@ -25,33 +20,7 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Initial animation
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        logoRef.current,
-        { opacity: 0, x: -30 },
-        { opacity: 1, x: 0, duration: 0.8, ease: "power3.out", delay: 0.1 }
-      )
 
-      const links = linksRef.current?.querySelectorAll("a")
-      if (links) {
-        gsap.fromTo(
-          links,
-          { opacity: 0, y: -15 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power3.out", delay: 0.3 }
-        )
-      }
-
-      gsap.fromTo(
-        ctaRef.current?.children || [],
-        { opacity: 0, x: 30 },
-        { opacity: 1, x: 0, duration: 0.5, stagger: 0.12, ease: "power3.out", delay: 0.5 }
-      )
-    }, navRef)
-
-    return () => ctx.revert()
-  }, [])
 
   // Mobile menu animation
   useEffect(() => {
@@ -66,7 +35,6 @@ export function Navbar() {
 
   return (
     <header 
-      ref={navRef}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled 
           ? "bg-background/95 backdrop-blur-lg border-b border-border/40 shadow-sm" 
@@ -76,7 +44,7 @@ export function Navbar() {
       <nav className="mx-auto max-w-6xl px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
-          <Link ref={logoRef} href="/" className="flex items-center gap-4 group">
+          <Link href="/" className="flex items-center gap-4 group">
             <Image 
               src="/images/logo.png" 
               alt="CoAgent4U Logo" 
@@ -91,7 +59,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div ref={linksRef} className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-10">
             <Link 
               href="#capabilities" 
               className="text-base text-muted-foreground hover:text-foreground transition-colors duration-300 underline-hover"
@@ -119,7 +87,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop CTA */}
-          <div ref={ctaRef} className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             <ThemeToggle />
             <Button variant="ghost" size="lg" className="text-base transition-all duration-300 hover:scale-105" asChild>
               <Link href="/signin">Sign In</Link>

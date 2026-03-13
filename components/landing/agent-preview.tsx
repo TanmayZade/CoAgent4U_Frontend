@@ -19,11 +19,11 @@ export function AgentPreview() {
       gsap.fromTo(
         cardRef.current,
         { opacity: 0, y: 80, scale: 0.95 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          scale: 1, 
-          duration: 1.2, 
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1.2,
           ease: "power3.out",
           scrollTrigger: {
             trigger: cardRef.current,
@@ -41,7 +41,7 @@ export function AgentPreview() {
     <section ref={sectionRef} className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6">
         {/* Agent Preview Card */}
-        <div 
+        <div
           ref={cardRef}
           className="max-w-4xl mx-auto"
         >
@@ -71,24 +71,84 @@ export function AgentPreview() {
                     <Bot className="w-4 h-4 text-foreground" />
                     Agent Interaction
                   </div>
-                  
+
                   {/* Command input */}
                   <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground mb-2">You said:</p>
                     <p className="text-foreground font-medium">
-                      @CoAgent4U schedule meeting with @Sarah Friday evening
+                      @CoAgent4U schedule meeting with @Sarah Friday afternoon
                     </p>
                   </div>
-                  
+
                   {/* Agent response */}
                   <div className="rounded-xl border border-foreground/20 bg-foreground/[0.02] p-4">
                     <p className="text-sm text-foreground font-medium mb-2">Agent Response:</p>
                     <p className="text-foreground/80 text-sm leading-relaxed">
-                      Coordinating with Sarah&apos;s agent. Common availability found: 6:00 PM - 7:00 PM. Awaiting Sarah&apos;s approval before confirming.
+                      Coordinating with Sarah&apos;s agent. Common availability found: 2:00 PM - 5:00 PM. Awaiting Sarah&apos;s approval before confirming.
                     </p>
                     <div className="mt-3 flex items-center gap-2 text-xs text-green-600">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Agent-to-agent coordination in progress
+                    </div>
+                  </div>
+
+                  {/* Meeting Approval Request - Slack style */}
+                  <div className="rounded-xl border border-border/60 bg-zinc-900 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">📋</div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-semibold mb-2">Meeting Approval Request</h4>
+                        <p className="text-zinc-300 text-sm mb-2">
+                          <span className="text-blue-400">@Sarah</span> selected a meeting slot.
+                        </p>
+                        <div className="flex items-center gap-2 text-zinc-300 text-sm mb-1">
+                          <span className="text-base">📅</span>
+                          <span>Fri, 14 Mar 2026</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-zinc-300 text-sm mb-3">
+                          <span className="text-base">🕐</span>
+                          <span>03:00 PM - 04:00 PM</span>
+                        </div>
+                        <p className="text-zinc-400 text-sm mb-3">Approve or reject this meeting time.</p>
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white text-sm font-medium rounded border border-green-600 transition-colors">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Approve
+                          </button>
+                          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white text-sm font-medium rounded border border-red-600 transition-colors">
+                            <span className="text-sm">✕</span>
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Meeting Confirmed - Slack style */}
+                  <div className="rounded-xl border border-border/60 bg-zinc-900 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl text-green-500">✅</div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-semibold mb-2">Meeting Confirmed</h4>
+                        <p className="text-zinc-400 text-sm mb-1">Participants:</p>
+                        <ul className="text-sm mb-2 space-y-0.5">
+                          <li className="flex items-center gap-2 text-zinc-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                            <span className="text-blue-400">@You</span>
+                          </li>
+                          <li className="flex items-center gap-2 text-zinc-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                            <span className="text-blue-400">@Sarah</span>
+                          </li>
+                        </ul>
+                        <div className="flex items-center gap-2 text-zinc-300 text-sm mb-2">
+                          <span className="text-base">📅</span>
+                          <span>Fri, 14 Mar 2026</span>
+                        </div>
+                        <button className="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+                          See more
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -99,20 +159,19 @@ export function AgentPreview() {
                     <Calendar className="w-4 h-4 text-foreground" />
                     Friday Schedule
                   </div>
-                  
+
                   <div className="rounded-xl border border-border/60 bg-muted/30 p-4 space-y-3">
                     {[
                       { time: "9:00 AM", event: "Team Standup", duration: "30m" },
                       { time: "11:00 AM", event: "Project Review", duration: "1h" },
                       { time: "6:00 PM", event: "Meeting with Sarah", duration: "1h", pending: true },
                     ].map((item, i) => (
-                      <div 
-                        key={i} 
-                        className={`flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 ${
-                          item.pending 
-                            ? "bg-foreground/5 border border-foreground/20" 
-                            : "bg-background/50"
-                        }`}
+                      <div
+                        key={i}
+                        className={`flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 ${item.pending
+                          ? "bg-foreground/5 border border-foreground/20"
+                          : "bg-background/50"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-xs font-mono text-muted-foreground w-16">{item.time}</span>
