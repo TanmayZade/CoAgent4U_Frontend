@@ -25,11 +25,14 @@ const steps = [
 ]
 
 interface SessionData {
-  authenticated: boolean
-  pendingRegistration?: boolean
+  userId?: string
+  username?: string
+  pendingRegistration: boolean
   slack_name?: string
   slack_workspace?: string
-  slack_user_id?: string
+  slack_workspace_domain?: string
+  slack_email?: string
+  slack_avatar_url?: string
   error?: string
 }
 
@@ -52,23 +55,22 @@ export default function OnboardingPage() {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const response = await fetch("https://api.coagent4u.com/auth/session", {
+        const response = await fetch("https://api.coagent4u.com/auth/me", {
           method: "GET",
           credentials: "include",
         })
         
         if (!response.ok) {
+          // 401 means not authenticated → back to sign in
+          if (response.status === 401) {
+            window.location.replace("/signin")
+            return
+          }
           throw new Error("Failed to fetch session")
         }
         
         const data: SessionData = await response.json()
         setSessionData(data)
-
-        // Not authenticated → back to sign in
-        if (!data.authenticated) {
-          window.location.replace("/signin")
-          return
-        }
 
         // Check URL for google=success parameter - skip to step 4
         const params = new URLSearchParams(window.location.search)
