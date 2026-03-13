@@ -18,89 +18,99 @@ export function AgentPreview() {
   const approveButtonRef = useRef<HTMLButtonElement>(null)
   const meetingConfirmedRef = useRef<HTMLDivElement>(null)
   const [approveClicked, setApproveClicked] = useState(false)
-  const [animationComplete, setAnimationComplete] = useState(false)
+  const hasCompletedRef = useRef(false)
 
   useEffect(() => {
     if (typeof window === "undefined") return
     gsap.registerPlugin(ScrollTrigger, TextPlugin)
 
-    // Start card zoomed out
-    gsap.set(cardRef.current, { scale: 0.85, transformOrigin: "center center" })
+    const ctx = gsap.context(() => {
+      // Start card zoomed out
+      gsap.set(cardRef.current, { scale: 0.85, transformOrigin: "center center" })
 
-    // Hide all messages initially
-    gsap.set(
-      [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
-      { opacity: 0, y: 24 }
-    )
-    gsap.set(cursorRef.current, { opacity: 0 })
-    if (userTextRef.current) userTextRef.current.textContent = ""
+      // Show all messages but set them visible with initial styling
+      // This prevents blank state when scrolling back
+      gsap.set(userMessageRef.current, { opacity: 0, y: 24 })
+      gsap.set(agentResponseRef.current, { opacity: 0, y: 24 })
+      gsap.set(approvalRequestRef.current, { opacity: 0, y: 24 })
+      gsap.set(meetingConfirmedRef.current, { opacity: 0, y: 24 })
+      gsap.set(cursorRef.current, { opacity: 0 })
+      if (userTextRef.current) userTextRef.current.textContent = ""
 
-    const USER_MSG = "@CoAgent4U schedule meeting with @Sarah Friday afternoon"
+      const USER_MSG = "@CoAgent4U schedule meeting with @Sarah Friday afternoon"
 
-    // One master timeline scrubbed directly to scroll position
-    const tl = gsap.timeline({ paused: true })
+      // One master timeline scrubbed directly to scroll position
+      const tl = gsap.timeline({ paused: true })
 
-    // === Phase 0: Zoom in from 0.85 to 1 (0 → 0.08) ===
-    tl.to(cardRef.current, { scale: 1, duration: 0.08, ease: "power2.out" }, 0)
+      // === Phase 0: Zoom in from 0.85 to 1 (0 → 0.08) ===
+      tl.to(cardRef.current, { scale: 1, duration: 0.08, ease: "power2.out" }, 0)
 
-    // === Phase 1: user message fades in (0.08 → 0.14) ===
-    tl.to(userMessageRef.current, { opacity: 1, y: 0, duration: 0.06, ease: "power2.out" }, 0.08)
+      // === Phase 1: user message fades in (0.08 → 0.14) ===
+      tl.to(userMessageRef.current, { opacity: 1, y: 0, duration: 0.06, ease: "power2.out" }, 0.08)
 
-    // Cursor blinks in (0.14 → 0.16)
-    tl.to(cursorRef.current, { opacity: 1, duration: 0.02 }, 0.14)
+      // Cursor blinks in (0.14 → 0.16)
+      tl.to(cursorRef.current, { opacity: 1, duration: 0.02 }, 0.14)
 
-    // Typing (0.16 → 0.38)
-    tl.to(
-      userTextRef.current,
-      { text: { value: USER_MSG, delimiter: "" }, duration: 0.22, ease: "none" },
-      0.16
-    )
+      // Typing (0.16 → 0.38)
+      tl.to(
+        userTextRef.current,
+        { text: { value: USER_MSG, delimiter: "" }, duration: 0.22, ease: "none" },
+        0.16
+      )
 
-    // Cursor hides after typing (0.38 → 0.40)
-    tl.to(cursorRef.current, { opacity: 0, duration: 0.02 }, 0.38)
+      // Cursor hides after typing (0.38 → 0.40)
+      tl.to(cursorRef.current, { opacity: 0, duration: 0.02 }, 0.38)
 
-    // === Phase 2: agent response (0.42 → 0.50) ===
-    tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.42)
+      // === Phase 2: agent response (0.42 → 0.50) ===
+      tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.42)
 
-    // === Phase 3: approval request (0.54 → 0.62) ===
-    tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.54)
+      // === Phase 3: approval request (0.54 → 0.62) ===
+      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.54)
 
-    // Simulate approve button press (0.68 → 0.74)
-    tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.03 }, 0.68)
-    tl.to(approveButtonRef.current, {
-      scale: 1,
-      duration: 0.03,
-      onComplete: () => setApproveClicked(true),
-    }, 0.71)
+      // Simulate approve button press (0.68 → 0.74)
+      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.03 }, 0.68)
+      tl.to(approveButtonRef.current, {
+        scale: 1,
+        duration: 0.03,
+        onComplete: () => setApproveClicked(true),
+      }, 0.71)
 
-    // === Phase 4: meeting confirmed (0.78 → 0.86) ===
-    tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.78)
+      // === Phase 4: meeting confirmed (0.78 → 0.86) ===
+      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.78)
 
-    // === Phase 5: Small pause, then mark complete (0.92 → 1.0) ===
-    tl.call(() => {
-      setAnimationComplete(true)
-    }, [], 0.95)
-
-    // Pin the section and scrub the timeline with scroll
-    const st = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: "top top",
-      end: "+=300%",
-      pin: stickyRef.current,
-      scrub: 1,
-      animation: tl,
-      onLeave: () => {
-        // Lock animation when complete - prevent reverse on scroll back
-        if (animationComplete) {
-          st.disable()
-        }
-      },
+      // Pin the section and scrub the timeline with scroll
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "+=300%",
+        pin: stickyRef.current,
+        scrub: 1,
+        animation: tl,
+        onLeave: () => {
+          // Once animation completes, lock everything in final state
+          if (!hasCompletedRef.current) {
+            hasCompletedRef.current = true
+            // Set final state permanently
+            gsap.set(cardRef.current, { scale: 1 })
+            gsap.set([userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current], { opacity: 1, y: 0 })
+            gsap.set(cursorRef.current, { opacity: 0 })
+            if (userTextRef.current) userTextRef.current.textContent = USER_MSG
+          }
+        },
+        onEnterBack: () => {
+          // If already completed, keep final state
+          if (hasCompletedRef.current) {
+            gsap.set(cardRef.current, { scale: 1 })
+            gsap.set([userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current], { opacity: 1, y: 0 })
+            gsap.set(cursorRef.current, { opacity: 0 })
+            if (userTextRef.current) userTextRef.current.textContent = USER_MSG
+          }
+        },
+      })
     })
 
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill())
-    }
-  }, [animationComplete])
+    return () => ctx.revert()
+  }, [])
 
   return (
     // Outer section is tall so ScrollTrigger has scroll distance to work with
@@ -108,7 +118,7 @@ export function AgentPreview() {
       {/* Sticky container — stays fixed while user scrolls through the 400vh */}
       <div ref={stickyRef} className="w-full py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             <div ref={cardRef} className="rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/[0.08] overflow-hidden">
               {/* Window chrome */}
               <div className="flex items-center justify-between px-5 py-3 border-b border-border/60 bg-muted/30">
