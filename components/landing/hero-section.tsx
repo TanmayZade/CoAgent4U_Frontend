@@ -97,7 +97,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
+    <section data-section="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
       {/* FloatingIcons background */}
       <div className="absolute inset-0 -z-20">
         <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-muted/40 to-transparent rounded-full blur-3xl" />

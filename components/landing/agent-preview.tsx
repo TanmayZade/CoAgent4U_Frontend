@@ -25,11 +25,10 @@ export function AgentPreview() {
     gsap.registerPlugin(ScrollTrigger, TextPlugin)
 
     const ctx = gsap.context(() => {
-      // Start card zoomed out
-      gsap.set(cardRef.current, { scale: 0.85, transformOrigin: "center center" })
+      // Card starts full size — zoom-out is driven by hero exiting viewport
+      gsap.set(cardRef.current, { scale: 1, transformOrigin: "center center" })
 
-      // Show all messages but set them visible with initial styling
-      // This prevents blank state when scrolling back
+      // Hide all messages initially
       gsap.set(userMessageRef.current, { opacity: 0, y: 24 })
       gsap.set(agentResponseRef.current, { opacity: 0, y: 24 })
       gsap.set(approvalRequestRef.current, { opacity: 0, y: 24 })
@@ -39,46 +38,66 @@ export function AgentPreview() {
 
       const USER_MSG = "@CoAgent4U schedule meeting with @Sarah Friday afternoon"
 
-      // One master timeline scrubbed directly to scroll position
+      // ── Zoom-out: triggered as the hero section scrolls out of view ──
+      // Selector matches the hero <section> — scale 1 → 0.85 scrubbed to scroll
+      const heroEl = document.querySelector("[data-section='hero']") as HTMLElement
+      if (heroEl) {
+        gsap.fromTo(
+          cardRef.current,
+          { scale: 1 },
+          {
+            scale: 0.85,
+            ease: "none",
+            scrollTrigger: {
+              trigger: heroEl,
+              start: "bottom 80%",
+              end: "bottom top",
+              scrub: true,
+            },
+          }
+        )
+      }
+
+      // ── Master timeline scrubbed to the pinned scroll section ──
       const tl = gsap.timeline({ paused: true })
 
-      // === Phase 0: Zoom in from 0.85 to 1 (0 → 0.08) ===
-      tl.to(cardRef.current, { scale: 1, duration: 0.08, ease: "power2.out" }, 0)
+      // Phase 0: zoom card back in 0.85 → 1 (0 → 0.10)
+      tl.to(cardRef.current, { scale: 1, duration: 0.10, ease: "power2.out" }, 0)
 
-      // === Phase 1: user message fades in (0.08 → 0.14) ===
-      tl.to(userMessageRef.current, { opacity: 1, y: 0, duration: 0.06, ease: "power2.out" }, 0.08)
+      // Phase 1: user message (0.10 → 0.16)
+      tl.to(userMessageRef.current, { opacity: 1, y: 0, duration: 0.06, ease: "power2.out" }, 0.10)
 
-      // Cursor blinks in (0.14 → 0.16)
-      tl.to(cursorRef.current, { opacity: 1, duration: 0.02 }, 0.14)
+      // Cursor appears (0.16 → 0.18)
+      tl.to(cursorRef.current, { opacity: 1, duration: 0.02 }, 0.16)
 
-      // Typing (0.16 → 0.38)
+      // Typing (0.18 → 0.40)
       tl.to(
         userTextRef.current,
         { text: { value: USER_MSG, delimiter: "" }, duration: 0.22, ease: "none" },
-        0.16
+        0.18
       )
 
-      // Cursor hides after typing (0.38 → 0.40)
-      tl.to(cursorRef.current, { opacity: 0, duration: 0.02 }, 0.38)
+      // Cursor hides (0.40 → 0.42)
+      tl.to(cursorRef.current, { opacity: 0, duration: 0.02 }, 0.40)
 
-      // === Phase 2: agent response (0.42 → 0.50) ===
-      tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.42)
+      // Phase 2: agent response (0.44 → 0.52)
+      tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.44)
 
-      // === Phase 3: approval request (0.54 → 0.62) ===
-      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.54)
+      // Phase 3: approval request (0.56 → 0.64)
+      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.56)
 
-      // Simulate approve button press (0.68 → 0.74)
-      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.03 }, 0.68)
+      // Simulate approve click (0.70 → 0.76)
+      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.03 }, 0.70)
       tl.to(approveButtonRef.current, {
         scale: 1,
         duration: 0.03,
         onComplete: () => setApproveClicked(true),
-      }, 0.71)
+      }, 0.73)
 
-      // === Phase 4: meeting confirmed (0.78 → 0.86) ===
-      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.78)
+      // Phase 4: meeting confirmed (0.80 → 0.88)
+      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.80)
 
-      // Pin the section and scrub the timeline with scroll
+      // Pin + scrub
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -87,21 +106,26 @@ export function AgentPreview() {
         scrub: 1,
         animation: tl,
         onLeave: () => {
-          // Once animation completes, lock everything in final state
+          // Lock final state once animation completes
           if (!hasCompletedRef.current) {
             hasCompletedRef.current = true
-            // Set final state permanently
             gsap.set(cardRef.current, { scale: 1 })
-            gsap.set([userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current], { opacity: 1, y: 0 })
+            gsap.set(
+              [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
+              { opacity: 1, y: 0 }
+            )
             gsap.set(cursorRef.current, { opacity: 0 })
             if (userTextRef.current) userTextRef.current.textContent = USER_MSG
           }
         },
         onEnterBack: () => {
-          // If already completed, keep final state
+          // Keep final state when scrolling back after completion
           if (hasCompletedRef.current) {
             gsap.set(cardRef.current, { scale: 1 })
-            gsap.set([userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current], { opacity: 1, y: 0 })
+            gsap.set(
+              [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
+              { opacity: 1, y: 0 }
+            )
             gsap.set(cursorRef.current, { opacity: 0 })
             if (userTextRef.current) userTextRef.current.textContent = USER_MSG
           }
@@ -113,7 +137,7 @@ export function AgentPreview() {
   }, [])
 
   return (
-    // Outer section is tall so ScrollTrigger has scroll distance to work with
+    // Outer section is 400vh so ScrollTrigger has scroll distance to work with
     <div ref={sectionRef} className="relative" style={{ height: "400vh" }}>
       {/* Sticky container — stays fixed while user scrolls through the 400vh */}
       <div ref={stickyRef} className="w-full py-16 lg:py-24">
@@ -139,7 +163,7 @@ export function AgentPreview() {
               {/* Slack-style thread */}
               <div className="bg-zinc-900 p-4 lg:p-6 space-y-1 min-h-[420px]">
 
-                {/* ── User message ── */}
+                {/* User message */}
                 <div
                   ref={userMessageRef}
                   className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
@@ -157,13 +181,12 @@ export function AgentPreview() {
                       <span
                         ref={cursorRef}
                         className="inline-block w-[2px] h-[14px] bg-zinc-300 align-middle ml-px"
-                        style={{ opacity: 0 }}
                       />
                     </p>
                   </div>
                 </div>
 
-                {/* ── Agent response ── */}
+                {/* Agent response */}
                 <div
                   ref={agentResponseRef}
                   className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
@@ -187,7 +210,7 @@ export function AgentPreview() {
                   </div>
                 </div>
 
-                {/* ── Meeting approval request ── */}
+                {/* Meeting approval request */}
                 <div
                   ref={approvalRequestRef}
                   className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
@@ -242,7 +265,7 @@ export function AgentPreview() {
                   </div>
                 </div>
 
-                {/* ── Meeting confirmed ── */}
+                {/* Meeting confirmed */}
                 <div
                   ref={meetingConfirmedRef}
                   className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
