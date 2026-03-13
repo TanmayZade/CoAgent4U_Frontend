@@ -1,13 +1,13 @@
 "use client"
 
+import { motion, Variants } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
-import { 
-  Calendar, 
-  Clock, 
-  Users, 
-  CheckCircle, 
-  Bell, 
+import {
+  Calendar,
+  Clock,
+  Users,
+  CheckCircle,
+  Bell,
   MessageSquare,
   Zap,
   Bot,
@@ -89,8 +89,8 @@ function FloatingIconItem({
         initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
         transition={{
           opacity: { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
-          scale:   { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
-          rotate:  { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
+          scale: { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
+          rotate: { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
           x: { type: "spring", damping: 25, stiffness: 150 },
           y: { type: "spring", damping: 25, stiffness: 150 },
         }}
@@ -149,24 +149,27 @@ export function FloatingIcons({ className = "" }: { className?: string }) {
 
 // Morphing icon component for special effects
 export function MorphingIcon({ className = "" }: { className?: string }) {
-  const iconVariants = {
+  const iconVariants: Variants = {
     initial: { pathLength: 0, opacity: 0 },
-    animate: { 
-      pathLength: 1, 
+    animate: {
+      pathLength: 1,
       opacity: 1,
-      transition: { duration: 2, ease: "easeInOut" }
+      transition: {
+        duration: 2,
+        ease: "easeInOut",
+      },
     },
   }
-  
+
   return (
-    <motion.div 
+    <motion.div
       className={`relative ${className}`}
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <svg 
-        viewBox="0 0 100 100" 
+      <svg
+        viewBox="0 0 100 100"
         className="w-full h-full"
         fill="none"
         stroke="currentColor"
@@ -209,13 +212,13 @@ export function MorphingIcon({ className = "" }: { className?: string }) {
 // Orbiting icons around a central element
 export function OrbitingIcons({ className = "" }: { className?: string }) {
   const orbitIcons = [Calendar, Users, Clock, CheckCircle, Bot, Zap]
-  
+
   return (
     <div className={`relative ${className}`}>
       {orbitIcons.map((Icon, index) => {
         const angle = (index / orbitIcons.length) * 360
         const delay = index * 0.2
-        
+
         return (
           <motion.div
             key={index}
@@ -239,7 +242,7 @@ export function OrbitingIcons({ className = "" }: { className?: string }) {
                 y: 0,
               }}
               initial={{ opacity: 0, scale: 0 }}
-              animate={{ 
+              animate={{
                 opacity: [0.2, 0.4, 0.2],
                 scale: [0.9, 1.1, 0.9],
               }}
@@ -250,7 +253,7 @@ export function OrbitingIcons({ className = "" }: { className?: string }) {
                 ease: "easeInOut",
               }}
             >
-              <Icon 
+              <Icon
                 className="w-6 h-6 text-foreground/30 dark:text-foreground/20"
                 strokeWidth={1.5}
               />
