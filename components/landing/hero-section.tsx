@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
 
 const HEADLINE =
-  "Your Personal Agent That Works and Collaborates For You"
+  "Your Personal Agent That Assists You and Collaborates with Other Users’ Agents"
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
