@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
+import { GridScan } from "@/components/ui/grid-scan"
 
 const HEADLINE =
   "Your Personal Agent That Assists You and Collaborates with Other User's Agent"
@@ -98,10 +99,29 @@ export function HeroSection() {
 
   return (
     <section data-section="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
-      {/* FloatingIcons background */}
-      <div className="absolute inset-0 -z-20">
-        <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-muted/40 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-tl from-muted/30 to-transparent rounded-full blur-3xl" />
+      {/* GridScan background */}
+      <div className="absolute inset-0 -z-20 opacity-100">
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+          <GridScan
+            sensitivity={0.55}
+            lineThickness={1}
+            linesColor="#392e4e"
+            scanColor="#ffffff"
+            scanOpacity={0.4}
+            gridScale={0.1}
+            lineStyle="solid"
+            lineJitter={0.1}
+            scanDirection="pingpong"
+            noiseIntensity={0.01}
+            scanGlow={0.5}
+            scanSoftness={2}
+            scanDuration={2}
+            scanDelay={2}
+            scanOnClick={false}
+            width={typeof window !== 'undefined' ? window.innerWidth : 1080}
+            height={typeof window !== 'undefined' ? window.innerHeight : 1080}
+          />
+        </div>
       </div>
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
