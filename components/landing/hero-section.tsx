@@ -35,7 +35,7 @@ export function HeroSection() {
       gsap.set(h1, { opacity: 1 })
       gsap.set(cursor, { opacity: 1 })
 
-      const CHAR_SPEED = 0.09 // seconds per character
+      const CHAR_SPEED = 0.10 // seconds per character
       const DURATION = HEADLINE.length * CHAR_SPEED
 
       const tl = gsap.timeline()
