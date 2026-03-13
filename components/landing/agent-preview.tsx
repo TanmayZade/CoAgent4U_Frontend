@@ -25,8 +25,8 @@ export function AgentPreview() {
     gsap.registerPlugin(ScrollTrigger, TextPlugin)
 
     const ctx = gsap.context(() => {
-      // Card starts full size — zoom-out is driven by hero exiting viewport
-      gsap.set(cardRef.current, { scale: 1, transformOrigin: "center center" })
+      // Card starts at 0.80 — grows to 1.0 as hero section exits (zoom-out = card getting bigger)
+      gsap.set(cardRef.current, { scale: 0.80, transformOrigin: "center center" })
 
       // Hide all messages initially
       gsap.set(userMessageRef.current, { opacity: 0, y: 24 })
@@ -38,64 +38,56 @@ export function AgentPreview() {
 
       const USER_MSG = "@CoAgent4U schedule meeting with @Sarah Friday afternoon"
 
-      // ── Zoom-out: triggered as the hero section scrolls out of view ──
-      // Selector matches the hero <section> — scale 1 → 0.85 scrubbed to scroll
+      // ── Zoom-out: card grows 0.80 → 1.0 as hero exits the viewport ──
       const heroEl = document.querySelector("[data-section='hero']") as HTMLElement
       if (heroEl) {
-        gsap.fromTo(
-          cardRef.current,
-          { scale: 1 },
-          {
-            scale: 0.85,
-            ease: "none",
-            scrollTrigger: {
-              trigger: heroEl,
-              start: "bottom 80%",
-              end: "bottom top",
-              scrub: true,
-            },
-          }
-        )
+        gsap.to(cardRef.current, {
+          scale: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroEl,
+            start: "bottom 80%",
+            end: "bottom top",
+            scrub: true,
+          },
+        })
       }
 
       // ── Master timeline scrubbed to the pinned scroll section ──
       const tl = gsap.timeline({ paused: true })
 
-      // Phase 0: zoom card back in 0.85 → 1 (0 → 0.10)
-      tl.to(cardRef.current, { scale: 1, duration: 0.10, ease: "power2.out" }, 0)
+      // Phase 1: user message (0 → 0.08)
+      tl.to(userMessageRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0)
 
-      // Phase 1: user message (0.10 → 0.16)
-      tl.to(userMessageRef.current, { opacity: 1, y: 0, duration: 0.06, ease: "power2.out" }, 0.10)
+      // Cursor appears (0.08 → 0.10)
+      tl.to(cursorRef.current, { opacity: 1, duration: 0.02 }, 0.08)
 
-      // Cursor appears (0.16 → 0.18)
-      tl.to(cursorRef.current, { opacity: 1, duration: 0.02 }, 0.16)
-
-      // Typing (0.18 → 0.40)
+      // Typing (0.10 → 0.32)
       tl.to(
         userTextRef.current,
         { text: { value: USER_MSG, delimiter: "" }, duration: 0.22, ease: "none" },
-        0.18
+        0.10
       )
 
-      // Cursor hides (0.40 → 0.42)
-      tl.to(cursorRef.current, { opacity: 0, duration: 0.02 }, 0.40)
+      // Cursor hides (0.32 → 0.34)
+      tl.to(cursorRef.current, { opacity: 0, duration: 0.02 }, 0.32)
 
-      // Phase 2: agent response (0.44 → 0.52)
-      tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.44)
+      // Phase 2: agent response (0.36 → 0.44)
+      tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.36)
 
-      // Phase 3: approval request (0.56 → 0.64)
-      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.56)
+      // Phase 3: approval request (0.48 → 0.56)
+      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.48)
 
-      // Simulate approve click (0.70 → 0.76)
-      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.03 }, 0.70)
+      // Simulate approve click (0.62 → 0.68)
+      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.03 }, 0.62)
       tl.to(approveButtonRef.current, {
         scale: 1,
         duration: 0.03,
         onComplete: () => setApproveClicked(true),
-      }, 0.73)
+      }, 0.65)
 
-      // Phase 4: meeting confirmed (0.80 → 0.88)
-      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.80)
+      // Phase 4: meeting confirmed (0.72 → 0.80)
+      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.72)
 
       // Pin + scrub
       ScrollTrigger.create({
@@ -142,7 +134,7 @@ export function AgentPreview() {
       {/* Sticky container — stays fixed while user scrolls through the 400vh */}
       <div ref={stickyRef} className="w-full py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div ref={cardRef} className="rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/[0.08] overflow-hidden">
               {/* Window chrome */}
               <div className="flex items-center justify-between px-5 py-3 border-b border-border/60 bg-muted/30">
