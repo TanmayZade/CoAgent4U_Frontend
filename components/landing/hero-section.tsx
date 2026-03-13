@@ -1,134 +1,172 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
-import { useScrollAnimation } from "@/hooks/use-framer-animations"
-import { FloatingIcons } from "@/components/landing/floating-icons"
+import gsap from "gsap"
+
+const HEADLINE =
+  "Your Personal Agent That Works For You and Collaborates With Other Users' Agents to Get Things Done."
 
 export function HeroSection() {
-  const { ref: sectionRef, isInView } = useScrollAnimation()
+  const containerRef   = useRef<HTMLDivElement>(null)
+  const cursorRef      = useRef<HTMLSpanElement>(null)
+  const headlineRef    = useRef<HTMLHeadingElement>(null)
+  const logoRef        = useRef<HTMLDivElement>(null)
+  const subheadlineRef = useRef<HTMLParagraphElement>(null)
+  const cta1Ref        = useRef<HTMLAnchorElement>(null)
+  const cta2Ref        = useRef<HTMLAnchorElement>(null)
 
-  // Hero timeline: logo → headline → subtitle → CTA buttons
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.15,
-      },
-    },
-  }
+  useEffect(() => {
+    // Dynamically import TextPlugin to avoid SSR issues
+    const run = async () => {
+      const { TextPlugin } = await import("gsap/TextPlugin")
+      gsap.registerPlugin(TextPlugin)
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 25 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.7,
-        ease: "easeOut",
-      },
-    },
-  }
+      // Always play the animation — remove any stale flag
+      localStorage.removeItem("introSeen")
+
+      const h1 = headlineRef.current
+      const cursor = cursorRef.current
+      if (!h1 || !cursor) return
+
+      // Make h1 visible but empty; cursor sits inline after text
+      gsap.set(h1,     { opacity: 1 })
+      gsap.set(cursor, { opacity: 1 })
+
+      const DURATION = 3.5
+
+      const tl = gsap.timeline()
+
+      // Blinking cursor during typing
+      const blinkTween = gsap.fromTo(
+        cursor,
+        { opacity: 1 },
+        { opacity: 0, duration: 0.5, repeat: -1, yoyo: true, ease: "none" }
+      )
+
+      // Type text into the h1 span (cursor is a sibling <span> — it auto-follows inline flow)
+      tl.to(h1, {
+        duration: DURATION,
+        text: { value: HEADLINE, delimiter: "" },
+        ease: "none",
+      }, 0)
+
+      // After typing: stop blink, hide cursor
+      tl.add(() => {
+        blinkTween.kill()
+        gsap.to(cursor, { opacity: 0, duration: 0.3 })
+      }, DURATION + 0.1)
+
+      // Logo pop-in
+      tl.fromTo(
+        logoRef.current,
+        { opacity: 0, scale: 0.85, y: 10 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
+        DURATION + 0.3
+      )
+
+      // Subheadline slide-up
+      tl.fromTo(
+        subheadlineRef.current,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" },
+        DURATION + 0.55
+      )
+
+      // CTA buttons with stagger
+      tl.fromTo(
+        [cta1Ref.current, cta2Ref.current].filter(Boolean),
+        { opacity: 0, scale: 0.9, y: 8 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.7)", stagger: 0.12 },
+        DURATION + 0.75
+      )
+
+      return () => {
+        tl.kill()
+        blinkTween.kill()
+      }
+    }
+
+    const cleanup = run()
+    return () => {
+      cleanup.then((fn) => fn?.())
+    }
+  }, [])
 
   return (
-    <section ref={sectionRef} className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
-      {/* Floating Icons Background - Antigravity style */}
-      <FloatingIcons className="-z-10" />
-
-      {/* Subtle gradient background */}
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
+      {/* FloatingIcons background */}
       <div className="absolute inset-0 -z-20">
         <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-muted/40 to-transparent rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-tl from-muted/30 to-transparent rounded-full blur-3xl" />
       </div>
-      
-      {/* Radial gradient overlay for depth */}
-      <div className="absolute inset-0 -z-15 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
-      <div className="mx-auto max-w-7xl px-6 w-full">
-        <motion.div 
-          className="mx-auto max-w-5xl text-center"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-        >
-          {/* Logo + Brand */}
-          <motion.div 
+      <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
+        <div className="mx-auto max-w-5xl text-center">
+
+          {/* Logo + Brand — hidden until animation reveals */}
+          <div
+            ref={logoRef}
             className="flex items-center justify-center gap-5 mb-12"
-            variants={itemVariants}
+            style={{ opacity: 0 }}
           >
-            <Image 
-              src="/images/logo.png" 
-              alt="CoAgent4U Logo" 
-              width={72} 
+            <Image
+              src="/images/logo.png"
+              alt="CoAgent4U Logo"
+              width={72}
               height={72}
               className="drop-shadow-md"
-              style={{ width: '72px', height: '72px' }}
+              style={{ width: "72px", height: "72px" }}
             />
             <span className="text-3xl font-serif font-medium text-foreground tracking-tight italic">
               CoAgent4U
             </span>
-          </motion.div>
+          </div>
 
-          {/* Headline - Large, bold, centered with proper word wrapping */}
-          <motion.h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.1] max-w-4xl mx-auto"
-            variants={itemVariants}
+          {/* Headline — inline cursor follows typed characters naturally */}
+          <h1
+            ref={headlineRef}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
+            style={{ opacity: 0 }}
           >
-            Your Personal Agent That Coordinates Your Time
-          </motion.h1>
+            {/* cursor is an inline sibling so it sits right after last typed char */}
+            <span ref={cursorRef} aria-hidden="true" className="inline-block w-[3px] h-[0.85em] bg-foreground align-middle ml-0.5 translate-y-[-0.05em]" />
+          </h1>
 
           {/* Subheadline */}
-          <motion.p 
+          <p
+            ref={subheadlineRef}
             className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
-            variants={itemVariants}
+            style={{ opacity: 0 }}
           >
-            A coordination platform where personal agents represent users and collaborate to manage commitments, schedules, and shared time.
-          </motion.p>
+            The Coordination Platform for Personal Agents
+          </p>
 
           {/* CTAs */}
-          <motion.div 
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.15,
-                },
-              },
-            }}
-          >
-            <motion.div variants={itemVariants}>
-              <Button 
-                size="lg" 
-                className="h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
-                asChild
-              >
-                <Link href="/signin">
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105" 
-                asChild
-              >
-                <Link href="#use-cases">
-                  Explore Use Cases
-                </Link>
-              </Button>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              ref={cta1Ref}
+              href="/signin"
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              style={{ opacity: 0 }}
+            >
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+            <Link
+              ref={cta2Ref}
+              href="#use-cases"
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
+              style={{ opacity: 0 }}
+            >
+              View Demo
+            </Link>
+          </div>
+
+        </div>
       </div>
     </section>
   )
