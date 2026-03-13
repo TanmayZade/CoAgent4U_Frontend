@@ -64,6 +64,12 @@ export default function OnboardingPage() {
         const data: SessionData = await response.json()
         setSessionData(data)
 
+        // Not authenticated → back to sign in
+        if (!data.authenticated) {
+          window.location.replace("/signin")
+          return
+        }
+
         // Check URL for google=success parameter - skip to step 4
         const params = new URLSearchParams(window.location.search)
         if (params.get("google") === "success") {
@@ -71,7 +77,7 @@ export default function OnboardingPage() {
           return
         }
 
-        // If pendingRegistration is false, skip to step 3 (Connect Calendar)
+        // pendingRegistration: false means username already chosen → skip to step 3
         if (data.pendingRegistration === false) {
           setCurrentStep(3)
         }

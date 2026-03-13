@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Bell, LogOut } from "lucide-react"
@@ -19,6 +19,30 @@ export default function DashboardLayout({
       : currentHour < 18
       ? "Good afternoon"
       : "Good evening"
+
+  // Session guard: redirect unauthenticated users or those still pending registration
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch("https://api.coagent4u.com/auth/session", {
+          credentials: "include",
+        })
+        if (!res.ok) {
+          window.location.replace("/signin")
+          return
+        }
+        const data = await res.json()
+        if (!data.authenticated) {
+          window.location.replace("/signin")
+        } else if (data.pendingRegistration === true) {
+          window.location.replace("/onboarding")
+        }
+      } catch {
+        window.location.replace("/signin")
+      }
+    }
+    checkSession()
+  }, [])
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
