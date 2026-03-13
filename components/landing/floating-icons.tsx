@@ -60,44 +60,45 @@ function FloatingIconItem({ icon, mouseX, mouseY }: {
   mouseX: ReturnType<typeof useMotionValue<number>>
   mouseY: ReturnType<typeof useMotionValue<number>>
 }) {
-  // Mouse parallax effect
-  const springConfig = { damping: 25, stiffness: 150 }
-  const xSpring = useSpring(useTransform(mouseX, [0, 1], [-15, 15]), springConfig)
-  const ySpring = useSpring(useTransform(mouseY, [0, 1], [-15, 15]), springConfig)
-
-  // Multiply effect based on icon position
   const parallaxMultiplier = 0.3 + (icon.y / 100) * 0.7
-  const parallaxX = useTransform(xSpring, v => v * parallaxMultiplier)
-  const parallaxY = useTransform(ySpring, v => v * parallaxMultiplier)
+  const springConfig = { damping: 25, stiffness: 150 }
+
+  const xSpring = useSpring(
+    useTransform(mouseX, [0, 1], [-15 * parallaxMultiplier, 15 * parallaxMultiplier]),
+    springConfig
+  )
+  const ySpring = useSpring(
+    useTransform(mouseY, [0, 1], [-15 * parallaxMultiplier, 15 * parallaxMultiplier]),
+    springConfig
+  )
 
   return (
-    <motion.div
+    <div
       className="absolute pointer-events-none"
-      style={{
-        left: `${icon.x}%`,
-        top: `${icon.y}%`,
-        x: parallaxX,
-        y: parallaxY,
-      }}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ 
-        opacity: [0.15, 0.35, 0.15],
-        scale: [1, 1.1, 1],
-        rotate: [-icon.rotationRange / 2, icon.rotationRange / 2, -icon.rotationRange / 2],
-      }}
-      transition={{
-        duration: icon.duration,
-        delay: icon.delay,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
+      style={{ left: `${icon.x}%`, top: `${icon.y}%` }}
     >
-      <icon.Icon 
-        style={{ width: icon.size, height: icon.size }}
-        className="text-foreground/20 dark:text-foreground/15"
-        strokeWidth={1.5}
-      />
-    </motion.div>
+      <motion.div
+        style={{ x: xSpring, y: ySpring }}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ 
+          opacity: [0.15, 0.35, 0.15],
+          scale: [1, 1.1, 1],
+          rotate: [-icon.rotationRange / 2, icon.rotationRange / 2, -icon.rotationRange / 2],
+        }}
+        transition={{
+          duration: icon.duration,
+          delay: icon.delay,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <icon.Icon 
+          style={{ width: icon.size, height: icon.size }}
+          className="text-foreground/20 dark:text-foreground/15"
+          strokeWidth={1.5}
+        />
+      </motion.div>
+    </div>
   )
 }
 
