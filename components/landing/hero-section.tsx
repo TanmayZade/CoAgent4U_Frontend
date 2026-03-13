@@ -30,7 +30,7 @@ export function HeroSection() {
       // Skip animation and show content directly
       if (headlineRef.current) {
         headlineRef.current.textContent =
-          "Your Personal Agent That Works For You and Collaborates With Other Users' Agents to Get Things Done."
+          "Your Personal Agent That Works For You and Collaborates With Other Users' Agents"
         headlineRef.current.style.opacity = "1"
       }
       if (logoRef.current) logoRef.current.style.opacity = "1"
