@@ -7,16 +7,16 @@ import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
 
 const HEADLINE =
-  "Your Personal Agent That Works For You and Collaborates With Other Users' Agents to Get Things Done."
+  "Your Personal Agent That Works For You and Collaborates With Other Users' Agents"
 
 export function HeroSection() {
-  const containerRef   = useRef<HTMLDivElement>(null)
-  const cursorRef      = useRef<HTMLSpanElement>(null)
-  const headlineRef    = useRef<HTMLHeadingElement>(null)
-  const logoRef        = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const cursorRef = useRef<HTMLSpanElement>(null)
+  const headlineRef = useRef<HTMLHeadingElement>(null)
+  const logoRef = useRef<HTMLDivElement>(null)
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
-  const cta1Ref        = useRef<HTMLAnchorElement>(null)
-  const cta2Ref        = useRef<HTMLAnchorElement>(null)
+  const cta1Ref = useRef<HTMLAnchorElement>(null)
+  const cta2Ref = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
     // Dynamically import TextPlugin to avoid SSR issues
@@ -32,10 +32,11 @@ export function HeroSection() {
       if (!h1 || !cursor) return
 
       // Make h1 visible but empty; cursor sits inline after text
-      gsap.set(h1,     { opacity: 1 })
+      gsap.set(h1, { opacity: 1 })
       gsap.set(cursor, { opacity: 1 })
 
-      const DURATION = 3.5
+      const CHAR_SPEED = 0.09 // seconds per character
+      const DURATION = HEADLINE.length * CHAR_SPEED
 
       const tl = gsap.timeline()
 
@@ -43,7 +44,7 @@ export function HeroSection() {
       const blinkTween = gsap.fromTo(
         cursor,
         { opacity: 1 },
-        { opacity: 0, duration: 0.5, repeat: -1, yoyo: true, ease: "none" }
+        { opacity: 0, duration: 0.7, repeat: -1, yoyo: true, ease: "none" }
       )
 
       // Type text into the h1 span (cursor is a sibling <span> — it auto-follows inline flow)
@@ -103,8 +104,7 @@ export function HeroSection() {
         <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-tl from-muted/30 to-transparent rounded-full blur-3xl" />
       </div>
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
-
-      <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
+      <div ref={containerRef} className="relative mx-auto max-w-7xl px-6 w-full">
         <div className="mx-auto max-w-5xl text-center">
 
           {/* Logo + Brand — hidden until animation reveals */}
