@@ -1,175 +1,161 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { GlowCard } from "@/components/common/glow-card"
 import { 
   Check, 
   ChevronRight, 
   Calendar, 
-  Lock, 
-  Slack,
-  Sparkles,
-  ExternalLink
+  Lock,
+  Sparkles
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import gsap from "gsap"
 
 const steps = [
-  { id: 1, title: "Slack Connected" },
-  { id: 2, title: "Connect Calendar" },
-  { id: 3, title: "Agent Ready" },
+  { id: 1, title: "Slack Connected", description: "Your Slack identity verified" },
+  { id: 2, title: "Connect Calendar", description: "Link your Google Calendar" },
+  { id: 3, title: "Agent Ready", description: "Your agent is live" },
 ]
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isConnecting, setIsConnecting] = useState(false)
-  const [gdprConsent, setGdprConsent] = useState(false)
-  const router = useRouter()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        contentRef.current,
+        { y: 40, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "power3.out", delay: 0.3 }
+      )
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [])
 
   const handleConnectCalendar = async () => {
     setIsConnecting(true)
+    // Simulate connecting to Google Calendar
     await new Promise((resolve) => setTimeout(resolve, 2000))
     setIsConnecting(false)
     setCurrentStep(3)
   }
 
   const handleComplete = () => {
-    router.push("/dashboard")
+    // Redirect to dashboard
+    window.location.href = "/dashboard"
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center relative overflow-hidden bg-charcoal">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal-light to-charcoal" />
+    <main ref={containerRef} className="min-h-screen flex items-center justify-center relative overflow-hidden py-12">
+      {/* Deep charcoal background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+      
+      {/* Glassmorphic glow effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Electric blue - top right */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20 blur-3xl"
+          style={{
+            background: "radial-gradient(circle, #0EA5E9 0%, transparent 70%)",
+          }}
+        />
+        {/* Navy - bottom left */}
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full opacity-15 blur-3xl"
+          style={{
+            background: "radial-gradient(circle, #1E40AF 0%, transparent 70%)",
+          }}
+        />
+      </div>
 
-      {/* Celebration particles for step 3 */}
-      {currentStep === 3 && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(30)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full bg-accent"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `float ${2 + Math.random() * 3}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`,
-                opacity: 0.6,
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      <div className="relative z-10 w-full max-w-lg mx-4 py-8">
+      <div ref={contentRef} className="relative z-10 w-full max-w-2xl mx-4">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-              <span className="text-lg font-bold text-charcoal">CA</span>
+        <div className="text-center mb-12">
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center group-hover:border-cyan-400/60 transition-colors backdrop-blur-sm">
+              <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">⚡</span>
             </div>
-            <span className="text-xl font-bold text-cream font-[family-name:var(--font-display)]">
-              CoAgent4U
-            </span>
+            <span className="text-xl font-semibold text-slate-100">CoAgent4U</span>
           </Link>
+          <h1 className="text-3xl font-bold text-slate-50 mb-2">Complete Your Setup</h1>
+          <p className="text-slate-400">Get your scheduling agent live in 3 quick steps</p>
         </div>
 
-        {/* Stepper */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        {/* Step Indicator */}
+        <div className="flex justify-between mb-10 px-2">
           {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300",
-                  step.id < currentStep
-                    ? "bg-emerald-500 text-white"
-                    : step.id === currentStep
-                    ? "bg-accent text-charcoal"
-                    : "bg-charcoal-lighter text-cream/50"
-                )}
-              >
-                {step.id < currentStep ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  step.id
-                )}
-              </div>
-              {index < steps.length - 1 && (
+            <div key={step.id} className="flex-1 flex flex-col items-center">
+              <div className="flex items-center w-full">
                 <div
                   className={cn(
-                    "w-12 h-0.5 mx-2 transition-colors duration-300",
-                    step.id < currentStep ? "bg-emerald-500" : "bg-charcoal-lighter"
+                    "w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg border-2 transition-all backdrop-blur-sm",
+                    step.id < currentStep
+                      ? "bg-cyan-500/20 border-cyan-400 text-cyan-300"
+                      : step.id === currentStep
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 border-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/50"
+                      : "bg-white/5 border-white/10 text-slate-500"
                   )}
-                />
-              )}
+                >
+                  {step.id < currentStep ? <Check className="w-6 h-6" /> : step.id}
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={cn(
+                      "flex-1 h-1 mx-2 rounded-full transition-all backdrop-blur-sm",
+                      step.id < currentStep ? "bg-gradient-to-r from-cyan-500 to-blue-600" : "bg-white/10"
+                    )}
+                  />
+                )}
+              </div>
+              <p className="text-sm font-medium text-slate-300 mt-2">{step.title}</p>
+              <p className="text-xs text-slate-500">{step.description}</p>
             </div>
           ))}
         </div>
 
-        {/* Step Content */}
-        <GlowCard className="p-8">
+        {/* Step Content - Glassmorphic Card */}
+        <div className="p-8 rounded-2xl border border-white/10 backdrop-blur-xl bg-white/5 shadow-2xl">
           {/* Step 1: Slack Connected */}
           {currentStep === 1 && (
             <div className="text-center">
-              {/* Animated checkmark */}
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                <svg
-                  className="w-10 h-10 text-emerald-500"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path
-                    d="M5 13l4 4L19 7"
-                    className="animate-[draw_0.5s_ease-out_forwards]"
-                    style={{
-                      strokeDasharray: 24,
-                      strokeDashoffset: 24,
-                      animation: "draw 0.5s ease-out 0.3s forwards",
-                    }}
-                  />
-                </svg>
+              {/* Verified checkmark animation */}
+              <div className="relative w-20 h-20 mx-auto mb-6">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-sm border border-cyan-400/40 animate-pulse" />
+                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/50">
+                  <Check className="w-10 h-10 text-slate-950" />
+                </div>
               </div>
 
-              <h2 className="text-xl font-semibold text-cream mb-2 font-[family-name:var(--font-display)]">
-                Slack Connected
-              </h2>
-              <p className="text-cream/70 mb-6">
-                Your Slack identity has been verified
-              </p>
+              <h2 className="text-2xl font-bold text-slate-50 mb-2">Slack Connected</h2>
+              <p className="text-slate-400 mb-6">Your Slack workspace identity has been verified</p>
 
-              {/* User info */}
-              <div className="bg-charcoal-light rounded-lg p-4 border border-charcoal-lighter mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-accent/20 flex items-center justify-center">
-                    <Slack className="w-6 h-6 text-accent" />
+              {/* User info card */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center">
+                    <span className="text-sm font-bold text-slate-200">AJ</span>
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-cream">Alex Johnson</p>
-                    <p className="text-sm text-cream/50 font-mono">
-                      @alex.johnson
-                    </p>
+                    <p className="font-medium text-slate-50">Alex Johnson</p>
+                    <p className="text-sm text-slate-400 font-mono">@alex.johnson</p>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-charcoal-lighter">
-                  <p className="text-xs text-cream/50 font-mono">
-                    Workspace: Acme Corp
-                  </p>
+                <div className="text-xs text-slate-500 font-mono pt-4 border-t border-white/10">
+                  Workspace: Acme Corp
                 </div>
               </div>
 
               <Button
                 onClick={() => setCurrentStep(2)}
-                className="w-full bg-accent hover:bg-accent-light text-charcoal font-semibold py-6"
+                className="w-full font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25"
               >
-                Continue
-                <ChevronRight className="w-4 h-4 ml-2" />
+                Continue Setup
+                <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
           )}
@@ -177,91 +163,69 @@ export default function OnboardingPage() {
           {/* Step 2: Connect Google Calendar */}
           {currentStep === 2 && (
             <div>
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-accent/10 flex items-center justify-center">
-                  <Calendar className="w-8 h-8 text-accent" />
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center backdrop-blur-sm">
+                  <Calendar className="w-8 h-8 text-cyan-300" />
                 </div>
-                <h2 className="text-xl font-semibold text-cream mb-2 font-[family-name:var(--font-display)]">
-                  Connect Google Calendar
-                </h2>
-                <p className="text-sm text-cream/70">
-                  Allow CoAgent4U to read and create calendar events
-                </p>
+                <h2 className="text-2xl font-bold text-slate-50 mb-2">Connect Google Calendar</h2>
+                <p className="text-slate-400">Allow your agent to manage your schedule</p>
               </div>
 
-              {/* Permissions breakdown */}
-              <div className="bg-charcoal-light rounded-lg p-4 border border-charcoal-lighter mb-6">
-                <h3 className="text-sm font-medium text-cream mb-3">
-                  Requested Permissions
-                </h3>
+              {/* Permissions card */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-6">
+                <h3 className="text-sm font-semibold text-slate-50 mb-4">Required Permissions</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <Lock className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                    <Lock className="w-4 h-4 text-cyan-400 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-cream">calendar.readonly</p>
-                      <p className="text-xs text-cream/50">
-                        View your calendar availability
-                      </p>
+                      <p className="text-sm font-medium text-slate-200">Read Calendar</p>
+                      <p className="text-xs text-slate-500">View your availability and events</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Lock className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                    <Lock className="w-4 h-4 text-cyan-400 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-cream">calendar.events</p>
-                      <p className="text-xs text-cream/50">
-                        Create events with your approval
-                      </p>
+                      <p className="text-sm font-medium text-slate-200">Create Events</p>
+                      <p className="text-xs text-slate-500">Schedule meetings with your approval</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Data storage notice */}
-              <div className="flex items-start gap-2 mb-6 p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                <Lock className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-cream/70">
-                  We store only a refresh token. No calendar data is stored on our
-                  servers.
+              {/* Security note */}
+              <div className="flex items-start gap-3 mb-8 p-3 bg-cyan-500/10 backdrop-blur-sm rounded-lg border border-cyan-400/30">
+                <Lock className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-cyan-300">
+                  Only refresh tokens are stored. Your calendar data never touches our servers.
                 </p>
               </div>
 
-              {/* GDPR Consent */}
-              <div className="flex items-start gap-3 mb-6">
-                <Checkbox
-                  id="gdpr"
-                  checked={gdprConsent}
-                  onCheckedChange={(checked) => setGdprConsent(checked as boolean)}
-                  className="mt-0.5 border-charcoal-lighter data-[state=checked]:bg-accent data-[state=checked]:border-accent"
-                />
-                <label
-                  htmlFor="gdpr"
-                  className="text-sm text-cream/70 cursor-pointer"
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleConnectCalendar}
+                  disabled={isConnecting}
+                  className="flex-1 font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50"
                 >
-                  I consent to CoAgent4U processing my calendar data in accordance
-                  with the{" "}
-                  <Link href="/privacy" className="text-accent hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
+                  {isConnecting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+                      <span>Connecting...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      <span>Connect Calendar</span>
+                    </div>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(3)}
+                  variant="outline"
+                  className="flex-1 font-semibold py-6 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition-all duration-200 backdrop-blur-sm"
+                >
+                  Skip for Now
+                </Button>
               </div>
-
-              <Button
-                onClick={handleConnectCalendar}
-                disabled={!gdprConsent || isConnecting}
-                className="w-full bg-accent hover:bg-accent-light text-charcoal font-semibold py-6 disabled:opacity-50"
-              >
-                {isConnecting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
-                    <span>Connecting...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    <span>Connect Google Calendar</span>
-                  </div>
-                )}
-              </Button>
             </div>
           )}
 
@@ -270,88 +234,65 @@ export default function OnboardingPage() {
             <div className="text-center">
               {/* Celebration animation */}
               <div className="relative w-24 h-24 mx-auto mb-6">
-                <div className="absolute inset-0 rounded-full bg-accent animate-pulse" />
-                <div className="absolute inset-2 rounded-full bg-charcoal flex items-center justify-center">
-                  <Sparkles className="w-10 h-10 text-accent" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-sm border border-cyan-400/40 animate-pulse" />
+                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/50">
+                  <Sparkles className="w-12 h-12 text-slate-950" />
                 </div>
-                <div className="absolute -inset-4 rounded-full border border-accent/30 animate-ping" />
+                <div className="absolute -inset-2 rounded-full border border-cyan-400/30 animate-spin" style={{ animationDuration: '3s' }} />
               </div>
 
-              <h2 className="text-2xl font-bold text-cream mb-2 font-[family-name:var(--font-display)]">
-                Your Personal Agent is Live
-              </h2>
-              <p className="text-cream/70 mb-8">
-                Start scheduling meetings through Slack
-              </p>
+              <h2 className="text-2xl font-bold text-slate-50 mb-2">Your Agent is Live</h2>
+              <p className="text-slate-400 mb-8">Start scheduling through Slack right away</p>
 
-              {/* Agent node visualization */}
-              <div className="bg-charcoal-light rounded-lg p-6 border border-charcoal-lighter mb-8">
+              {/* Agent status visualization */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-8">
                 <div className="flex items-center justify-center gap-8">
-                  {/* Slack node */}
+                  {/* Slack */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-charcoal-lighter border border-charcoal-light flex items-center justify-center">
-                      <Slack className="w-6 h-6 text-cream" />
+                    <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-2 backdrop-blur-sm">
+                      <span className="text-sm font-bold text-slate-300">💬</span>
                     </div>
-                    <span className="text-xs text-cream/50 mt-2">Slack</span>
+                    <span className="text-xs text-slate-400">Slack</span>
                   </div>
 
                   {/* Connection line */}
-                  <div className="w-8 h-0.5 bg-accent/50" />
+                  <div className="w-8 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-600" />
 
-                  {/* Agent node (center, larger) */}
+                  {/* Agent (center, larger) */}
                   <div className="flex flex-col items-center">
                     <div className="relative">
-                      <div className="w-16 h-16 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center">
-                        <span className="text-sm font-bold text-accent">You</span>
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-600/20 border-2 border-cyan-400 flex items-center justify-center mb-2 backdrop-blur-sm shadow-lg shadow-cyan-500/25">
+                        <span className="text-xs font-bold text-cyan-300">Agent</span>
                       </div>
-                      <div className="absolute -inset-1 rounded-full border border-accent/50 animate-agent-pulse" />
+                      <div className="absolute -inset-1 rounded-full border border-cyan-400/50 animate-spin" style={{ animationDuration: '4s' }} />
                     </div>
-                    <span className="text-xs text-accent mt-2 font-medium">
-                      Agent Active
-                    </span>
+                    <span className="text-xs font-semibold text-cyan-400">ACTIVE</span>
                   </div>
 
                   {/* Connection line */}
-                  <div className="w-8 h-0.5 bg-accent/50" />
+                  <div className="w-8 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-500" />
 
-                  {/* Calendar node */}
+                  {/* Calendar */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-charcoal-lighter border border-charcoal-light flex items-center justify-center">
-                      <Calendar className="w-6 h-6 text-cream" />
+                    <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-2 backdrop-blur-sm">
+                      <span className="text-sm font-bold text-slate-300">📅</span>
                     </div>
-                    <span className="text-xs text-cream/50 mt-2">Calendar</span>
+                    <span className="text-xs text-slate-400">Calendar</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-charcoal-lighter hover:border-accent/50 hover:bg-accent/5 py-6"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Open Slack
-                </Button>
-                <Button
-                  onClick={handleComplete}
-                  className="flex-1 bg-accent hover:bg-accent-light text-charcoal font-semibold py-6"
-                >
-                  Go to Dashboard
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
+              <Button
+                onClick={handleComplete}
+                className="w-full font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25"
+              >
+                Go to Dashboard
+                <ChevronRight className="w-5 h-5 ml-2" />
+              </Button>
             </div>
           )}
-        </GlowCard>
+        </div>
       </div>
-
-      <style jsx>{`
-        @keyframes draw {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-      `}</style>
     </main>
   )
 }

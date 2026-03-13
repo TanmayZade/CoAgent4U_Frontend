@@ -1,7 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
-import { Bell } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Bell, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function DashboardLayout({
@@ -9,6 +11,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const currentHour = new Date().getHours()
   const greeting =
     currentHour < 12
@@ -17,44 +20,77 @@ export default function DashboardLayout({
       ? "Good afternoon"
       : "Good evening"
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      // Call the backend logout endpoint with credentials to send/receive session cookie
+      await fetch("https://api.coagent4u.com/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
+      // Redirect back to sign-in page regardless of API response
+      window.location.href = "/signin"
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-charcoal">
+    <div className="min-h-screen bg-background">
         <Sidebar />
         
         {/* Main content */}
         <div className="ml-60">
           {/* Top bar */}
-          <header className="h-16 border-b border-border bg-charcoal/80 backdrop-blur-xl sticky top-0 z-40">
+          <header className="h-16 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
             <div className="h-full px-6 flex items-center justify-between">
               <div>
-                <p className="text-cream">
-                  <span className="text-foreground-secondary">{greeting}, </span>
-                  <span className="font-medium">Alex</span>
-                  <span className="text-foreground-secondary">
-                    . Your agent handled{" "}
-                  </span>
-                  <span className="text-accent font-medium">3 requests</span>
-                  <span className="text-foreground-secondary"> today.</span>
+                <p className="text-foreground text-sm">
+                  <span className="text-foreground/60">{greeting}, </span>
+                  <span className="font-semibold">Alex</span>
+                  <span className="text-foreground/60">. Your agent handled </span>
+                  <span className="text-primary font-semibold">3 requests</span>
+                  <span className="text-foreground/60"> today.</span>
                 </p>
               </div>
               <div className="flex items-center gap-4">
                 {/* Agent Status */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/30">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
                   <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 status-pulse" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-pulse" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                   </span>
-                  <span className="text-xs font-medium text-accent">ACTIVE</span>
+                  <span className="text-xs font-semibold text-primary">ACTIVE</span>
                 </div>
                 
                 {/* Notifications */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative text-foreground-secondary hover:text-cream"
+                  className="relative text-foreground/60 hover:text-foreground h-10 w-10"
                 >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-accent" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive" />
+                </Button>
+
+                {/* Theme Toggle */}
+                <ThemeToggle />
+
+                {/* Logout */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="text-foreground/60 hover:text-destructive hover:bg-destructive/10 h-10 w-10 disabled:opacity-50"
+                  title="Sign out"
+                >
+                  {isLoggingOut ? (
+                    <div className="w-5 h-5 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin" />
+                  ) : (
+                    <LogOut className="w-5 h-5" />
+                  )}
                 </Button>
               </div>
             </div>
