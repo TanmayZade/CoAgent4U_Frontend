@@ -33,16 +33,25 @@ const iconComponents = [
   Zap, Bot, Sparkles, Target, Layers, Shield
 ]
 
+// Seeded random number generator for consistent SSR/client values
+function seededRandom(seed: number): () => number {
+  return () => {
+    seed = (seed * 9301 + 49297) % 233280
+    return seed / 233280
+  }
+}
+
 function generateIcons(count: number): FloatingIcon[] {
+  const random = seededRandom(42) // Fixed seed for deterministic output
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     Icon: iconComponents[i % iconComponents.length],
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 24 + Math.random() * 24,
-    delay: Math.random() * 2,
-    duration: 15 + Math.random() * 10,
-    rotationRange: 10 + Math.random() * 20,
+    x: random() * 100,
+    y: random() * 100,
+    size: 24 + random() * 24,
+    delay: random() * 2,
+    duration: 15 + random() * 10,
+    rotationRange: 10 + random() * 20,
   }))
 }
 
