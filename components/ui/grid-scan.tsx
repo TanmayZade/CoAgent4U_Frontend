@@ -42,16 +42,20 @@ export function GridScan({
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    console.log("[v0] GridScan component mounted")
     setMounted(true)
   }, [])
 
   useEffect(() => {
+    console.log("[v0] GridScan useEffect - mounted:", mounted)
     if (!mounted) return
 
     const canvas = canvasRef.current
+    console.log("[v0] GridScan canvas ref:", canvas)
     if (!canvas) return
 
     const ctx = canvas.getContext('2d')
+    console.log("[v0] GridScan ctx:", ctx)
     if (!ctx) return
 
     startTimeRef.current = performance.now()
@@ -316,14 +320,22 @@ export function GridScan({
 
   // Render nothing on server, canvas on client
   if (!mounted) {
-    return <div className={className} />
+    return <div className={className} style={{ position: 'absolute', inset: 0 }} />
   }
 
   return (
     <canvas
       ref={canvasRef}
       className={className}
-      style={{ display: 'block', width: '100%', height: '100%' }}
+      style={{ 
+        display: 'block', 
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%', 
+        height: '100%',
+        pointerEvents: 'none'
+      }}
     />
   )
 }
