@@ -18,8 +18,8 @@ import { cn } from "@/lib/utils"
 import gsap from "gsap"
 
 const steps = [
-  { id: 1, title: "Slack Verified", description: "Your Slack identity verified" },
-  { id: 2, title: "Choose Username", description: "Pick your unique handle" },
+  { id: 1, title: "Choose Username", description: "Pick your unique handle" },
+  { id: 2, title: "Slack Verified", description: "Your Slack identity verified" },
   { id: 3, title: "Connect Calendar", description: "Link your Google Calendar" },
   { id: 4, title: "Agent Ready", description: "Your agent is live" },
 ]
@@ -147,8 +147,8 @@ export default function OnboardingPage() {
         throw new Error(errorData.message || "Username already taken or invalid")
       }
 
-      // Success - move to step 3
-      setCurrentStep(3)
+      // Success - move to step 2 (Slack Verified)
+      setCurrentStep(2)
     } catch (err) {
       setUsernameError(err instanceof Error ? err.message : "Failed to set username")
     } finally {
@@ -270,53 +270,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 1: Slack Connected */}
+          {/* Step 1: Choose Username */}
           {currentStep === 1 && (
-            <div className="text-center">
-              {/* Verified checkmark animation */}
-              <div className="relative w-20 h-20 mx-auto mb-6">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-sm border border-cyan-400/40 animate-pulse" />
-                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/50">
-                  <Check className="w-10 h-10 text-slate-950" />
-                </div>
-              </div>
-
-              <h2 className="text-2xl font-bold text-slate-50 mb-2">Slack Connected</h2>
-              <p className="text-slate-400 mb-6">Your Slack workspace identity has been verified</p>
-
-              {/* User info card */}
-              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center">
-                    <span className="text-sm font-bold text-slate-200">{getInitials(sessionData?.slack_name)}</span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium text-slate-50">{sessionData?.slack_name || "User"}</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Slack className="w-3 h-3 text-slate-400" />
-                      <p className="text-sm text-slate-400">
-                        {sessionData?.slack_workspace || "Slack Workspace"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-xs text-slate-500 font-mono pt-4 border-t border-white/10">
-                  ID: {sessionData?.slack_user_id?.slice(0, 8) || "..."}
-                </div>
-              </div>
-
-              <Button
-                onClick={() => setCurrentStep(2)}
-                className="w-full font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25"
-              >
-                Continue Setup
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </Button>
-            </div>
-          )}
-
-          {/* Step 2: Choose Username */}
-          {currentStep === 2 && (
             <div>
               <div className="text-center mb-8">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center backdrop-blur-sm">
@@ -372,6 +327,51 @@ export default function OnboardingPage() {
                     <ChevronRight className="w-5 h-5" />
                   </div>
                 )}
+              </Button>
+            </div>
+          )}
+
+          {/* Step 2: Slack Verified */}
+          {currentStep === 2 && (
+            <div className="text-center">
+              {/* Verified checkmark animation */}
+              <div className="relative w-20 h-20 mx-auto mb-6">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-sm border border-cyan-400/40 animate-pulse" />
+                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/50">
+                  <Check className="w-10 h-10 text-slate-950" />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-slate-50 mb-2">Slack Connected</h2>
+              <p className="text-slate-400 mb-6">Your Slack workspace identity has been verified</p>
+
+              {/* User info card */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 border border-white/10 mb-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center">
+                    <span className="text-sm font-bold text-slate-200">{getInitials(sessionData?.slack_name)}</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-slate-50">{sessionData?.slack_name || "User"}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Slack className="w-3 h-3 text-slate-400" />
+                      <p className="text-sm text-slate-400">
+                        {sessionData?.slack_workspace || "Slack Workspace"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs text-slate-500 font-mono pt-4 border-t border-white/10">
+                  ID: {sessionData?.slack_user_id?.slice(0, 8) || "..."}
+                </div>
+              </div>
+
+              <Button
+                onClick={() => setCurrentStep(3)}
+                className="w-full font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25"
+              >
+                Continue Setup
+                <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
           )}
