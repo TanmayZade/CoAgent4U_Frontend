@@ -258,6 +258,8 @@ export function GridScan({
       const w = rect.width
       const h = rect.height
 
+      console.log("[v0] GridScan animate - w:", w, "h:", h, "canvas.width:", canvas.width, "canvas.height:", canvas.height)
+
       if (w === 0 || h === 0) {
         animationRef.current = requestAnimationFrame(animate)
         return
@@ -266,6 +268,11 @@ export function GridScan({
       const elapsed = (now - startTimeRef.current) / 1000
 
       ctx.clearRect(0, 0, w, h)
+
+      // Draw a test rectangle to verify canvas is working
+      ctx.fillStyle = 'red'
+      ctx.fillRect(10, 10, 100, 100)
+      console.log("[v0] Drew test rectangle")
 
       // Draw the 3D perspective grid
       drawPerspectiveGrid(ctx, w, h, elapsed)
