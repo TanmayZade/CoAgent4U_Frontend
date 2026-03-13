@@ -5,158 +5,113 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
-import { TextPlugin } from "gsap/TextPlugin"
 
-// Register GSAP TextPlugin
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(TextPlugin)
-}
+const HEADLINE =
+  "Your Personal Agent That Works For You and Collaborates With Other Users' Agents to Get Things Done."
 
 export function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const cursorRef = useRef<HTMLDivElement>(null)
-  const headlineRef = useRef<HTMLDivElement>(null)
-  const logoRef = useRef<HTMLDivElement>(null)
-  const subheadlineRef = useRef<HTMLDivElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
-  const cta1Ref = useRef<HTMLAnchorElement>(null)
-  const cta2Ref = useRef<HTMLAnchorElement>(null)
+  const containerRef   = useRef<HTMLDivElement>(null)
+  const cursorRef      = useRef<HTMLSpanElement>(null)
+  const headlineRef    = useRef<HTMLHeadingElement>(null)
+  const logoRef        = useRef<HTMLDivElement>(null)
+  const subheadlineRef = useRef<HTMLParagraphElement>(null)
+  const cta1Ref        = useRef<HTMLAnchorElement>(null)
+  const cta2Ref        = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
-    // Check if user has seen intro animation
-    const introSeen = localStorage.getItem("introSeen") === "true"
+    // Dynamically import TextPlugin to avoid SSR issues
+    const run = async () => {
+      const { TextPlugin } = await import("gsap/TextPlugin")
+      gsap.registerPlugin(TextPlugin)
 
-    if (introSeen) {
-      // Skip animation and show content directly
-      if (headlineRef.current) {
-        headlineRef.current.textContent =
-          "Your Personal Agent That Works For You and Collaborates With Other User's Agents"
-        headlineRef.current.style.opacity = "1"
-      }
-      if (logoRef.current) logoRef.current.style.opacity = "1"
-      if (subheadlineRef.current) subheadlineRef.current.style.opacity = "1"
-      if (cta1Ref.current) cta1Ref.current.style.opacity = "1"
-      if (cta2Ref.current) cta2Ref.current.style.opacity = "1"
-      if (cursorRef.current) cursorRef.current.style.display = "none"
-      return
-    }
+      // Always play the animation — remove any stale flag
+      localStorage.removeItem("introSeen")
 
-    const timeline = gsap.timeline()
+      const h1 = headlineRef.current
+      const cursor = cursorRef.current
+      if (!h1 || !cursor) return
 
-    // Phase 1: Cursor Blinking (0-4s, repeats during typing)
-    timeline.fromTo(
-      cursorRef.current,
-      { opacity: 1 },
-      {
-        opacity: 0,
-        duration: 0.8,
-        repeat: -1,
-      },
-      0
-    )
+      // Make h1 visible but empty; cursor sits inline after text
+      gsap.set(h1,     { opacity: 1 })
+      gsap.set(cursor, { opacity: 1 })
 
-    // Phase 2: Typing Animation (0-4s)
-    const headlineText =
-      "Your Personal Agent That Works For You and Collaborates With Other Users' Agents to Get Things Done."
-    timeline.to(
-      headlineRef.current,
-      {
-        text: headlineText,
-        duration: 4,
-        ease: "none",
-        onStart: () => {
-          if (headlineRef.current) {
-            headlineRef.current.style.opacity = "1"
-          }
-        },
-      },
-      0
-    )
+      const DURATION = 3.5
 
-    // Phase 3: Hide cursor after typing (at 4s)
-    timeline.to(
-      cursorRef.current,
-      {
-        opacity: 0,
-        duration: 0.1,
-        pointerEvents: "none",
-      },
-      4
-    )
+      const tl = gsap.timeline()
 
-    // Phase 3.1: Logo reveal (staggered, starts at 4s)
-    timeline.fromTo(
-      logoRef.current,
-      { opacity: 0, scale: 0.8 },
-      {
-        opacity: 1,
-        scale: 1,
-        duration: 0.5,
-        ease: "power2.out",
-      },
-      4
-    )
-
-    // Phase 3.2: Subheadline reveal (starts at 4.1s)
-    timeline.fromTo(
-      subheadlineRef.current,
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out",
-      },
-      4.1
-    )
-
-    // Phase 3.3: CTA buttons reveal (starts at 4.2s, with stagger)
-    const ctaElements = [cta1Ref.current, cta2Ref.current].filter(Boolean)
-    if (ctaElements.length > 0) {
-      timeline.fromTo(
-        ctaElements,
-        { opacity: 0, scale: 0.9 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          ease: "back.out(1.7)",
-          stagger: 0.15,
-        },
-        4.2
+      // Blinking cursor during typing
+      const blinkTween = gsap.fromTo(
+        cursor,
+        { opacity: 1 },
+        { opacity: 0, duration: 0.5, repeat: -1, yoyo: true, ease: "none" }
       )
+
+      // Type text into the h1 span (cursor is a sibling <span> — it auto-follows inline flow)
+      tl.to(h1, {
+        duration: DURATION,
+        text: { value: HEADLINE, delimiter: "" },
+        ease: "none",
+      }, 0)
+
+      // After typing: stop blink, hide cursor
+      tl.add(() => {
+        blinkTween.kill()
+        gsap.to(cursor, { opacity: 0, duration: 0.3 })
+      }, DURATION + 0.1)
+
+      // Logo pop-in
+      tl.fromTo(
+        logoRef.current,
+        { opacity: 0, scale: 0.85, y: 10 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
+        DURATION + 0.3
+      )
+
+      // Subheadline slide-up
+      tl.fromTo(
+        subheadlineRef.current,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" },
+        DURATION + 0.55
+      )
+
+      // CTA buttons with stagger
+      tl.fromTo(
+        [cta1Ref.current, cta2Ref.current].filter(Boolean),
+        { opacity: 0, scale: 0.9, y: 8 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.7)", stagger: 0.12 },
+        DURATION + 0.75
+      )
+
+      return () => {
+        tl.kill()
+        blinkTween.kill()
+      }
     }
 
-    // Set localStorage when animation completes
-    timeline.call(() => {
-      localStorage.setItem("introSeen", "true")
-    }, undefined, 5)
-
+    const cleanup = run()
     return () => {
-      timeline.kill()
+      cleanup.then((fn) => fn?.())
     }
   }, [])
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
-      {/* Subtle gradient background */}
+      {/* FloatingIcons background */}
       <div className="absolute inset-0 -z-20">
         <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-muted/40 to-transparent rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-tl from-muted/30 to-transparent rounded-full blur-3xl" />
       </div>
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
-      {/* Radial gradient overlay for depth */}
-      <div className="absolute inset-0 -z-15 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
-
-      <div
-        ref={containerRef}
-        className="mx-auto max-w-7xl px-6 w-full"
-      >
+      <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
         <div className="mx-auto max-w-5xl text-center">
-          {/* Logo + Brand */}
+
+          {/* Logo + Brand — hidden until animation reveals */}
           <div
             ref={logoRef}
-            className="flex items-center justify-center gap-5 mb-12 opacity-0"
+            className="flex items-center justify-center gap-5 mb-12"
+            style={{ opacity: 0 }}
           >
             <Image
               src="/images/logo.png"
@@ -171,39 +126,32 @@ export function HeroSection() {
             </span>
           </div>
 
-          {/* Headline with cursor */}
-          <div className="relative inline-block w-full">
-            <h1
-              ref={headlineRef}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.1] max-w-4xl mx-auto opacity-0 min-h-[200px] flex items-center justify-center"
-            />
-            {/* Terminal-style cursor */}
-            <div
-              ref={cursorRef}
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-16 bg-foreground animate-pulse"
-              style={{
-                boxShadow: "0 0 8px rgba(var(--foreground-rgb), 0.5)",
-              }}
-            />
-          </div>
+          {/* Headline — inline cursor follows typed characters naturally */}
+          <h1
+            ref={headlineRef}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
+            style={{ opacity: 0 }}
+          >
+            {/* cursor is an inline sibling so it sits right after last typed char */}
+            <span ref={cursorRef} aria-hidden="true" className="inline-block w-[3px] h-[0.85em] bg-foreground align-middle ml-0.5 translate-y-[-0.05em]" />
+          </h1>
 
           {/* Subheadline */}
           <p
             ref={subheadlineRef}
-            className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto opacity-0"
+            className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
+            style={{ opacity: 0 }}
           >
             The Coordination Platform for Personal Agents
           </p>
 
           {/* CTAs */}
-          <div
-            ref={ctaRef}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               ref={cta1Ref}
               href="/signin"
-              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 opacity-0"
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              style={{ opacity: 0 }}
             >
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -211,11 +159,13 @@ export function HeroSection() {
             <Link
               ref={cta2Ref}
               href="#use-cases"
-              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105 opacity-0"
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
+              style={{ opacity: 0 }}
             >
               View Demo
             </Link>
           </div>
+
         </div>
       </div>
     </section>

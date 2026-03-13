@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
+import { motion } from "framer-motion"
 import { 
   Calendar, 
   Clock, 
@@ -33,68 +33,69 @@ const iconComponents = [
   Zap, Bot, Sparkles, Target, Layers, Shield
 ]
 
-// Seeded random number generator for consistent SSR/client values
-function seededRandom(seed: number): () => number {
+// Seeded random number generator — same sequence every run
+function seededRandom(seed: number) {
+  let s = seed
   return () => {
-    seed = (seed * 9301 + 49297) % 233280
-    return seed / 233280
+    s = (s * 9301 + 49297) % 233280
+    return s / 233280
   }
 }
 
 function generateIcons(count: number): FloatingIcon[] {
-  const random = seededRandom(42) // Fixed seed for deterministic output
+  const rand = seededRandom(42)
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     Icon: iconComponents[i % iconComponents.length],
-    x: random() * 100,
-    y: random() * 100,
-    size: 24 + random() * 24,
-    delay: random() * 2,
-    duration: 15 + random() * 10,
-    rotationRange: 10 + random() * 20,
+    x: rand() * 100,
+    y: rand() * 100,
+    size: 24 + rand() * 24,
+    delay: rand() * 2,
+    duration: 15 + rand() * 10,
+    rotationRange: 10 + rand() * 20,
   }))
 }
 
-function FloatingIconItem({ icon, mouseX, mouseY }: { 
+// Pre-generated at module level so value is identical on every call (server + client)
+const ICONS = generateIcons(18)
+
+function FloatingIconItem({
+  icon,
+  mouseXPx,
+  mouseYPx,
+}: {
   icon: FloatingIcon
-  mouseX: ReturnType<typeof useMotionValue<number>>
-  mouseY: ReturnType<typeof useMotionValue<number>>
+  mouseXPx: number
+  mouseYPx: number
 }) {
   const parallaxMultiplier = 0.3 + (icon.y / 100) * 0.7
-  const springConfig = { damping: 25, stiffness: 150 }
-
-  const xSpring = useSpring(
-    useTransform(mouseX, [0, 1], [-15 * parallaxMultiplier, 15 * parallaxMultiplier]),
-    springConfig
-  )
-  const ySpring = useSpring(
-    useTransform(mouseY, [0, 1], [-15 * parallaxMultiplier, 15 * parallaxMultiplier]),
-    springConfig
-  )
+  const tx = mouseXPx * parallaxMultiplier
+  const ty = mouseYPx * parallaxMultiplier
 
   return (
-    // Outer div: absolute positioning (non-static) so Framer Motion can compute scroll offsets
     <div
       className="absolute pointer-events-none"
-      style={{ left: `${icon.x}%`, top: `${icon.y}%`, position: "absolute" }}
+      style={{ left: `${icon.x}%`, top: `${icon.y}%` }}
     >
-      {/* Inner motion.div: only transform-based motion values (x/y), no left/top mixing */}
       <motion.div
-        style={{ x: xSpring, y: ySpring }}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ 
+        // No x/y motion values — use CSS transform directly to avoid Framer scroll offset check
+        animate={{
           opacity: [0.15, 0.35, 0.15],
           scale: [1, 1.1, 1],
           rotate: [-icon.rotationRange / 2, icon.rotationRange / 2, -icon.rotationRange / 2],
+          x: tx,
+          y: ty,
         }}
+        initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
         transition={{
-          duration: icon.duration,
-          delay: icon.delay,
-          repeat: Infinity,
-          ease: "easeInOut",
+          opacity: { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
+          scale:   { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
+          rotate:  { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
+          x: { type: "spring", damping: 25, stiffness: 150 },
+          y: { type: "spring", damping: 25, stiffness: 150 },
         }}
       >
-        <icon.Icon 
+        <icon.Icon
           style={{ width: icon.size, height: icon.size }}
           className="text-foreground/20 dark:text-foreground/15"
           strokeWidth={1.5}
@@ -105,40 +106,41 @@ function FloatingIconItem({ icon, mouseX, mouseY }: {
 }
 
 export function FloatingIcons({ className = "" }: { className?: string }) {
-  const [mounted, setMounted] = useState(false)
-  const [icons] = useState(() => generateIcons(18))
   const containerRef = useRef<HTMLDivElement>(null)
-  const mouseX = useMotionValue(0.5)
-  const mouseY = useMotionValue(0.5)
+  // Store mouse offset in pixels relative to container center
+  const [mouse, setMouse] = useState({ x: 0, y: 0 })
+  // Defer rendering until after hydration
+  const [mounted, setMounted] = useState(false)
 
-  // Only render icons after hydration to avoid SSR/client mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
-  
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return
       const rect = containerRef.current.getBoundingClientRect()
-      mouseX.set((e.clientX - rect.left) / rect.width)
-      mouseY.set((e.clientY - rect.top) / rect.height)
+      // Normalize to [-1, 1] from center
+      setMouse({
+        x: ((e.clientX - rect.left) / rect.width - 0.5) * 30,
+        y: ((e.clientY - rect.top) / rect.height - 0.5) * 30,
+      })
     }
-    
-    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
     return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [mouseX, mouseY])
-  
+  }, [])
+
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`absolute inset-0 overflow-hidden ${className}`}
     >
-      {mounted && icons.map((icon) => (
-        <FloatingIconItem 
-          key={icon.id} 
-          icon={icon} 
-          mouseX={mouseX}
-          mouseY={mouseY}
+      {mounted && ICONS.map((icon) => (
+        <FloatingIconItem
+          key={icon.id}
+          icon={icon}
+          mouseXPx={mouse.x}
+          mouseYPx={mouse.y}
         />
       ))}
     </div>
