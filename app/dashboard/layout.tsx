@@ -1,17 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Bell, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const currentHour = new Date().getHours()
   const greeting =
     currentHour < 12
@@ -21,9 +21,19 @@ export default function DashboardLayout({
       : "Good evening"
 
   const handleLogout = async () => {
-    // POST /auth/logout
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    router.push("/signin")
+    setIsLoggingOut(true)
+    try {
+      // Call the backend logout endpoint with credentials to send/receive session cookie
+      await fetch("https://api.coagent4u.com/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
+      // Redirect back to sign-in page regardless of API response
+      window.location.href = "/signin"
+    }
   }
 
   return (
@@ -72,10 +82,15 @@ export default function DashboardLayout({
                   variant="ghost"
                   size="icon"
                   onClick={handleLogout}
-                  className="text-foreground/60 hover:text-destructive hover:bg-destructive/10 h-10 w-10"
+                  disabled={isLoggingOut}
+                  className="text-foreground/60 hover:text-destructive hover:bg-destructive/10 h-10 w-10 disabled:opacity-50"
                   title="Sign out"
                 >
-                  <LogOut className="w-5 h-5" />
+                  {isLoggingOut ? (
+                    <div className="w-5 h-5 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin" />
+                  ) : (
+                    <LogOut className="w-5 h-5" />
+                  )}
                 </Button>
               </div>
             </div>

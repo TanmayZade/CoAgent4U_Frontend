@@ -1,8 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { 
   Home, 
@@ -27,12 +27,22 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const router = useRouter()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
-    // POST /auth/logout
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    router.push("/signin")
+    setIsLoggingOut(true)
+    try {
+      // Call the backend logout endpoint with credentials to send/receive session cookie
+      await fetch("https://api.coagent4u.com/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
+      // Redirect back to sign-in page regardless of API response
+      window.location.href = "/signin"
+    }
   }
 
   const mainItems = navItems.filter(item => item.group === "main")
@@ -128,11 +138,21 @@ export function Sidebar() {
         </div>
         <Button
           onClick={handleLogout}
+          disabled={isLoggingOut}
           variant="ghost"
-          className="w-full justify-start text-foreground/60 hover:text-destructive hover:bg-destructive/10"
+          className="w-full justify-start text-foreground/60 hover:text-destructive hover:bg-destructive/10 disabled:opacity-50"
         >
-          <LogOut className="w-4 h-4 mr-2 flex-shrink-0" />
-          <span className="truncate">Sign Out</span>
+          {isLoggingOut ? (
+            <>
+              <div className="w-4 h-4 mr-2 flex-shrink-0 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin" />
+              <span className="truncate">Signing out...</span>
+            </>
+          ) : (
+            <>
+              <LogOut className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">Sign Out</span>
+            </>
+          )}
         </Button>
       </div>
     </aside>
