@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { 
   Check, 
   ChevronRight, 
@@ -10,19 +11,22 @@ import {
   Lock,
   Sparkles,
   AlertCircle,
-  Slack
+  Slack,
+  User
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import gsap from "gsap"
 
 const steps = [
-  { id: 1, title: "Slack Connected", description: "Your Slack identity verified" },
-  { id: 2, title: "Connect Calendar", description: "Link your Google Calendar" },
-  { id: 3, title: "Agent Ready", description: "Your agent is live" },
+  { id: 1, title: "Slack Verified", description: "Your Slack identity verified" },
+  { id: 2, title: "Choose Username", description: "Pick your unique handle" },
+  { id: 3, title: "Connect Calendar", description: "Link your Google Calendar" },
+  { id: 4, title: "Agent Ready", description: "Your agent is live" },
 ]
 
 interface SessionData {
   authenticated: boolean
+  pendingRegistration?: boolean
   slack_name?: string
   slack_workspace?: string
   slack_user_id?: string
@@ -35,8 +39,14 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [username, setUsername] = useState("")
+  const [usernameError, setUsernameError] = useState<string | null>(null)
+  const [isSubmittingUsername, setIsSubmittingUsername] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+
+  // Username validation regex
+  const usernameRegex = /^[a-zA-Z0-9_-]{3,32}$/
 
   // Fetch session on mount and check for google=success param
   useEffect(() => {
@@ -53,16 +63,20 @@ export default function OnboardingPage() {
         
         const data: SessionData = await response.json()
         setSessionData(data)
-        console.log("[v0] Session data:", data)
 
-        // Check URL for google=success parameter and auto-skip to step 3
+        // Check URL for google=success parameter - skip to step 4
         const params = new URLSearchParams(window.location.search)
         if (params.get("google") === "success") {
-          console.log("[v0] Google Calendar connected, skipping to step 3")
+          setCurrentStep(4)
+          return
+        }
+
+        // If pendingRegistration is false, skip to step 3 (Connect Calendar)
+        if (data.pendingRegistration === false) {
           setCurrentStep(3)
         }
       } catch (err) {
-        console.error("[v0] Failed to fetch session:", err)
+        console.error("Failed to fetch session:", err)
         setError("Failed to load your profile. Please try again.")
       } finally {
         setIsLoading(false)
@@ -85,6 +99,56 @@ export default function OnboardingPage() {
 
     return () => ctx.revert()
   }, [])
+
+  // Validate username on change
+  const handleUsernameChange = (value: string) => {
+    setUsername(value)
+    if (value && !usernameRegex.test(value)) {
+      if (value.length < 3) {
+        setUsernameError("Username must be at least 3 characters")
+      } else if (value.length > 32) {
+        setUsernameError("Username must be no more than 32 characters")
+      } else {
+        setUsernameError("Only letters, numbers, underscores, and hyphens allowed")
+      }
+    } else {
+      setUsernameError(null)
+    }
+  }
+
+  // Submit username to API
+  const handleUsernameSubmit = async () => {
+    if (!usernameRegex.test(username)) {
+      setUsernameError("Please enter a valid username")
+      return
+    }
+
+    setIsSubmittingUsername(true)
+    setUsernameError(null)
+
+    try {
+      const response = await fetch("https://api.coagent4u.com/auth/username", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || "Username already taken or invalid")
+      }
+
+      // Success - move to step 3
+      setCurrentStep(3)
+    } catch (err) {
+      setUsernameError(err instanceof Error ? err.message : "Failed to set username")
+    } finally {
+      setIsSubmittingUsername(false)
+    }
+  }
 
   const handleConnectCalendar = () => {
     setIsConnecting(true)
@@ -155,7 +219,7 @@ export default function OnboardingPage() {
             <span className="text-xl font-semibold text-slate-100">CoAgent4U</span>
           </Link>
           <h1 className="text-3xl font-bold text-slate-50 mb-2">Complete Your Setup</h1>
-          <p className="text-slate-400">Get your scheduling agent live in 3 quick steps</p>
+          <p className="text-slate-400">Get your scheduling agent live in 4 quick steps</p>
         </div>
 
         {/* Step Indicator */}
@@ -245,8 +309,69 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: Connect Google Calendar */}
+          {/* Step 2: Choose Username */}
           {currentStep === 2 && (
+            <div>
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center backdrop-blur-sm">
+                  <User className="w-8 h-8 text-cyan-300" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-50 mb-2">Choose Your Username</h2>
+                <p className="text-slate-400">This is how other users will find your agent</p>
+              </div>
+
+              {/* Username input */}
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-2">
+                    Your CoAgent4U Username
+                  </label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="e.g. john-agent"
+                    value={username}
+                    onChange={(e) => handleUsernameChange(e.target.value)}
+                    disabled={isSubmittingUsername}
+                    className={cn(
+                      "h-12 bg-white/5 border-white/10 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400/50 focus:ring-cyan-400/20",
+                      usernameError && "border-red-500/50 focus:border-red-500/50"
+                    )}
+                  />
+                  {usernameError && (
+                    <p className="mt-2 text-sm text-red-400 flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4" />
+                      {usernameError}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs text-slate-500">
+                    3-32 characters. Letters, numbers, underscores, and hyphens only.
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleUsernameSubmit}
+                disabled={!username || !!usernameError || isSubmittingUsername}
+                className="w-full font-semibold py-6 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 transition-all duration-200 shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50"
+              >
+                {isSubmittingUsername ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+                    <span>Setting username...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span>Select Username</span>
+                    <ChevronRight className="w-5 h-5" />
+                  </div>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Step 3: Connect Google Calendar */}
+          {currentStep === 3 && (
             <div>
               <div className="text-center mb-8">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center backdrop-blur-sm">
@@ -304,7 +429,7 @@ export default function OnboardingPage() {
                   )}
                 </Button>
                 <Button
-                  onClick={() => setCurrentStep(3)}
+                  onClick={() => setCurrentStep(4)}
                   variant="outline"
                   className="flex-1 font-semibold py-6 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition-all duration-200 backdrop-blur-sm"
                 >
@@ -314,8 +439,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3: Agent Ready */}
-          {currentStep === 3 && (
+          {/* Step 4: Agent Ready */}
+          {currentStep === 4 && (
             <div className="text-center">
               {/* Celebration animation */}
               <div className="relative w-24 h-24 mx-auto mb-6">
