@@ -1,4 +1,5 @@
 export default function Home() {
+  console.log("[v0] Home page rendering");
   return (
     <div className="flex min-h-screen items-center justify-center font-sans">
       <main className="flex w-full max-w-3xl flex-col items-center gap-8 px-6 py-16 text-center sm:items-start sm:text-left">
