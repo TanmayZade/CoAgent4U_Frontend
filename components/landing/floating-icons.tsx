@@ -1,7 +1,7 @@
 "use client"
 
+import { motion, Variants } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
 import {
   Calendar,
   Clock,
@@ -149,12 +149,15 @@ export function FloatingIcons({ className = "" }: { className?: string }) {
 
 // Morphing icon component for special effects
 export function MorphingIcon({ className = "" }: { className?: string }) {
-  const iconVariants = {
+  const iconVariants: Variants = {
     initial: { pathLength: 0, opacity: 0 },
     animate: {
       pathLength: 1,
       opacity: 1,
-      transition: { duration: 2, ease: "easeInOut" },
+      transition: {
+        duration: 2,
+        ease: "easeInOut",
+      },
     },
   }
 
