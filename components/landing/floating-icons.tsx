@@ -73,32 +73,26 @@ function FloatingIconItem({
   const ty = mouseYPx * parallaxMultiplier
 
   return (
-    // Outer div: absolute position (non-static) — required parent for any Framer internal checks
     <div
       className="absolute pointer-events-none"
       style={{ left: `${icon.x}%`, top: `${icon.y}%` }}
     >
-      {/*
-        Apply parallax via inline style `transform` (plain CSS, no motion values).
-        This avoids Framer Motion's useTransform / useSpring path that calls
-        getScrollOffsets() and requires a positioned ancestor.
-        The float / scale / rotate loop uses `animate` keyframes only.
-      */}
       <motion.div
-        style={{
-          transform: `translate(${tx}px, ${ty}px)`,
-          transition: "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        }}
+        // No x/y motion values — use CSS transform directly to avoid Framer scroll offset check
         animate={{
           opacity: [0.15, 0.35, 0.15],
           scale: [1, 1.1, 1],
           rotate: [-icon.rotationRange / 2, icon.rotationRange / 2, -icon.rotationRange / 2],
+          x: tx,
+          y: ty,
         }}
-        initial={{ opacity: 0, scale: 0 }}
+        initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
         transition={{
           opacity: { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
           scale:   { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
           rotate:  { duration: icon.duration, delay: icon.delay, repeat: Infinity, ease: "easeInOut" },
+          x: { type: "spring", damping: 25, stiffness: 150 },
+          y: { type: "spring", damping: 25, stiffness: 150 },
         }}
       >
         <icon.Icon
