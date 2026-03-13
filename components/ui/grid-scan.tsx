@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface GridScanProps {
   sensitivity?: number
@@ -37,10 +37,17 @@ export function GridScan({
   className,
 }: GridScanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | null>(null)
   const startTimeRef = useRef<number>(0)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -50,13 +57,11 @@ export function GridScan({
     startTimeRef.current = performance.now()
 
     const setSize = () => {
+      const rect = canvas.getBoundingClientRect()
       const dpr = window.devicePixelRatio || 1
-      const w = canvas.offsetWidth
-      const h = canvas.offsetHeight
-      if (w === 0 || h === 0) return
-      canvas.width = w * dpr
-      canvas.height = h * dpr
-      ctx.scale(dpr, dpr)
+      canvas.width = rect.width * dpr
+      canvas.height = rect.height * dpr
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
 
     setSize()
@@ -66,101 +71,218 @@ export function GridScan({
     })
     ro.observe(canvas)
 
+    // Draw a 3D perspective grid tunnel
+    const drawPerspectiveGrid = (
+      ctx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      time: number
+    ) => {
+      const cx = w / 2
+      const cy = h / 2
+
+      // Grid configuration
+      const gridLines = Math.floor(12 / gridScale)
+      const depth = 20 // Number of depth layers
+
+      ctx.strokeStyle = linesColor
+      ctx.lineWidth = lineThickness
+
+      if (lineStyle === 'dashed') {
+        ctx.setLineDash([8, 4])
+      } else {
+        ctx.setLineDash([])
+      }
+
+      // Draw floor grid (bottom half - perspective grid going into distance)
+      for (let z = 1; z <= depth; z++) {
+        const perspective = z / depth
+        const y = cy + (h / 2) * perspective * 0.9
+
+        // Horizontal lines (receding into distance)
+        ctx.beginPath()
+        const leftX = cx - (w / 2) * perspective * 1.5
+        const rightX = cx + (w / 2) * perspective * 1.5
+        ctx.moveTo(leftX, y)
+        ctx.lineTo(rightX, y)
+        ctx.globalAlpha = 0.3 + perspective * 0.5
+        ctx.stroke()
+      }
+
+      // Draw vertical lines on floor (converging to center)
+      for (let i = -gridLines; i <= gridLines; i++) {
+        const xOffset = (i / gridLines) * (w / 2) * 1.5
+        ctx.beginPath()
+        ctx.moveTo(cx + xOffset * 0.05, cy) // Vanishing point
+        ctx.lineTo(cx + xOffset, h)
+        ctx.globalAlpha = 0.4
+        ctx.stroke()
+      }
+
+      // Draw ceiling grid (top half - perspective grid going into distance)
+      for (let z = 1; z <= depth; z++) {
+        const perspective = z / depth
+        const y = cy - (h / 2) * perspective * 0.9
+
+        // Horizontal lines (receding into distance)
+        ctx.beginPath()
+        const leftX = cx - (w / 2) * perspective * 1.5
+        const rightX = cx + (w / 2) * perspective * 1.5
+        ctx.moveTo(leftX, y)
+        ctx.lineTo(rightX, y)
+        ctx.globalAlpha = 0.3 + perspective * 0.5
+        ctx.stroke()
+      }
+
+      // Draw vertical lines on ceiling (converging to center)
+      for (let i = -gridLines; i <= gridLines; i++) {
+        const xOffset = (i / gridLines) * (w / 2) * 1.5
+        ctx.beginPath()
+        ctx.moveTo(cx + xOffset * 0.05, cy) // Vanishing point
+        ctx.lineTo(cx + xOffset, 0)
+        ctx.globalAlpha = 0.4
+        ctx.stroke()
+      }
+
+      // Draw left wall grid
+      for (let z = 1; z <= depth; z++) {
+        const perspective = z / depth
+        const x = cx - (w / 2) * perspective * 0.9
+
+        // Vertical lines on left wall
+        ctx.beginPath()
+        const topY = cy - (h / 2) * perspective * 0.9
+        const bottomY = cy + (h / 2) * perspective * 0.9
+        ctx.moveTo(x, topY)
+        ctx.lineTo(x, bottomY)
+        ctx.globalAlpha = 0.3 + perspective * 0.4
+        ctx.stroke()
+      }
+
+      // Draw horizontal lines on left wall
+      for (let i = -gridLines / 2; i <= gridLines / 2; i++) {
+        const yOffset = (i / (gridLines / 2)) * (h / 2)
+        ctx.beginPath()
+        ctx.moveTo(cx, cy + yOffset * 0.05) // Vanishing point
+        ctx.lineTo(0, cy + yOffset)
+        ctx.globalAlpha = 0.4
+        ctx.stroke()
+      }
+
+      // Draw right wall grid
+      for (let z = 1; z <= depth; z++) {
+        const perspective = z / depth
+        const x = cx + (w / 2) * perspective * 0.9
+
+        // Vertical lines on right wall
+        ctx.beginPath()
+        const topY = cy - (h / 2) * perspective * 0.9
+        const bottomY = cy + (h / 2) * perspective * 0.9
+        ctx.moveTo(x, topY)
+        ctx.lineTo(x, bottomY)
+        ctx.globalAlpha = 0.3 + perspective * 0.4
+        ctx.stroke()
+      }
+
+      // Draw horizontal lines on right wall
+      for (let i = -gridLines / 2; i <= gridLines / 2; i++) {
+        const yOffset = (i / (gridLines / 2)) * (h / 2)
+        ctx.beginPath()
+        ctx.moveTo(cx, cy + yOffset * 0.05) // Vanishing point
+        ctx.lineTo(w, cy + yOffset)
+        ctx.globalAlpha = 0.4
+        ctx.stroke()
+      }
+
+      ctx.globalAlpha = 1
+    }
+
+    // Draw scan effect
+    const drawScanEffect = (
+      ctx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      scanPos: number,
+      isVertical: boolean
+    ) => {
+      const softPx = scanSoftness * 25
+      const cx = w / 2
+      const cy = h / 2
+
+      ctx.save()
+
+      if (isVertical) {
+        // Vertical scan - affects the depth perception
+        const scanY = scanPos
+
+        // Create glow effect
+        if (scanGlow > 0) {
+          const glowGrad = ctx.createLinearGradient(0, scanY - softPx * 2, 0, scanY + softPx * 2)
+          glowGrad.addColorStop(0, `${scanColor}00`)
+          glowGrad.addColorStop(0.5, `${scanColor}${Math.round(scanOpacity * scanGlow * 255).toString(16).padStart(2, '0')}`)
+          glowGrad.addColorStop(1, `${scanColor}00`)
+          ctx.fillStyle = glowGrad
+          ctx.fillRect(0, scanY - softPx * 2, w, softPx * 4)
+        }
+
+        // Core scan line
+        const grad = ctx.createLinearGradient(0, scanY - softPx, 0, scanY + softPx)
+        grad.addColorStop(0, `${scanColor}00`)
+        grad.addColorStop(0.5, `${scanColor}${Math.round(scanOpacity * 255).toString(16).padStart(2, '0')}`)
+        grad.addColorStop(1, `${scanColor}00`)
+        ctx.fillStyle = grad
+        ctx.fillRect(0, scanY - softPx, w, softPx * 2)
+
+        // Illuminate grid lines near scan
+        const perspective = Math.abs(scanY - cy) / (h / 2)
+        if (perspective < 1) {
+          ctx.strokeStyle = scanColor
+          ctx.lineWidth = lineThickness + 1
+          ctx.globalAlpha = scanOpacity * (1 - perspective * 0.5)
+          
+          // Draw highlighted horizontal line at scan position
+          const leftX = cx - (w / 2) * Math.max(0.1, perspective) * 1.5
+          const rightX = cx + (w / 2) * Math.max(0.1, perspective) * 1.5
+          ctx.beginPath()
+          ctx.moveTo(leftX, scanY)
+          ctx.lineTo(rightX, scanY)
+          ctx.stroke()
+        }
+      }
+
+      ctx.restore()
+    }
+
     const animate = (now: number) => {
-      const elapsed = (now - startTimeRef.current) / 1000
-      const w = canvas.offsetWidth
-      const h = canvas.offsetHeight
+      const rect = canvas.getBoundingClientRect()
+      const w = rect.width
+      const h = rect.height
+
       if (w === 0 || h === 0) {
         animationRef.current = requestAnimationFrame(animate)
         return
       }
 
+      const elapsed = (now - startTimeRef.current) / 1000
+
       ctx.clearRect(0, 0, w, h)
 
-      // --- Draw grid lines ---
-      const gridSize = Math.max(w, h) * gridScale
-      ctx.save()
-      ctx.strokeStyle = linesColor
-      ctx.lineWidth = lineThickness
-      ctx.globalAlpha = 1
+      // Draw the 3D perspective grid
+      drawPerspectiveGrid(ctx, w, h, elapsed)
 
-      if (lineStyle === 'dashed') {
-        ctx.setLineDash([gridSize * 0.3, gridSize * 0.2])
-      } else {
-        ctx.setLineDash([])
-      }
-
-      // Vertical lines
-      for (let x = 0; x <= w + gridSize; x += gridSize) {
-        ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, h)
-        ctx.stroke()
-      }
-
-      // Horizontal lines
-      for (let y = 0; y <= h + gridSize; y += gridSize) {
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(w, y)
-        ctx.stroke()
-      }
-
-      ctx.restore()
-
-      // --- Draw scan line ---
+      // Draw scan effect after delay
       if (elapsed >= scanDelay) {
         const t = elapsed - scanDelay
         let scanPos = 0
 
-        if (scanDirection === 'vertical') {
-          scanPos = ((t / scanDuration) % 1) * h
-        } else if (scanDirection === 'horizontal') {
-          scanPos = ((t / scanDuration) % 1) * w
-        } else {
-          // pingpong
+        if (scanDirection === 'vertical' || scanDirection === 'pingpong') {
           const cycle = (t / scanDuration) % 2
           scanPos = cycle < 1 ? cycle * h : (2 - cycle) * h
-        }
-
-        const softPx = scanSoftness * 20
-        const isHorizontal = scanDirection === 'horizontal'
-
-        ctx.save()
-
-        // Outer glow
-        if (scanGlow > 0) {
-          const glowGrad = isHorizontal
-            ? ctx.createLinearGradient(scanPos - softPx * 1.5, 0, scanPos + softPx * 1.5, 0)
-            : ctx.createLinearGradient(0, scanPos - softPx * 1.5, 0, scanPos + softPx * 1.5)
-          glowGrad.addColorStop(0, `${scanColor}00`)
-          glowGrad.addColorStop(0.5, `${scanColor}${Math.round(scanOpacity * scanGlow * 0.5 * 255).toString(16).padStart(2, '0')}`)
-          glowGrad.addColorStop(1, `${scanColor}00`)
-          ctx.fillStyle = glowGrad
-          if (isHorizontal) {
-            ctx.fillRect(scanPos - softPx * 1.5, 0, softPx * 3, h)
-          } else {
-            ctx.fillRect(0, scanPos - softPx * 1.5, w, softPx * 3)
-          }
-        }
-
-        // Core scan line gradient
-        const grad = isHorizontal
-          ? ctx.createLinearGradient(scanPos - softPx, 0, scanPos + softPx, 0)
-          : ctx.createLinearGradient(0, scanPos - softPx, 0, scanPos + softPx)
-
-        grad.addColorStop(0, `${scanColor}00`)
-        grad.addColorStop(0.5, `${scanColor}${Math.round(scanOpacity * 255).toString(16).padStart(2, '0')}`)
-        grad.addColorStop(1, `${scanColor}00`)
-
-        ctx.fillStyle = grad
-        if (isHorizontal) {
-          ctx.fillRect(scanPos - softPx, 0, softPx * 2, h)
         } else {
-          ctx.fillRect(0, scanPos - softPx, w, softPx * 2)
+          scanPos = ((t / scanDuration) % 1) * w
         }
 
-        ctx.restore()
+        drawScanEffect(ctx, w, h, scanPos, scanDirection !== 'horizontal')
       }
 
       animationRef.current = requestAnimationFrame(animate)
@@ -169,16 +291,26 @@ export function GridScan({
     animationRef.current = requestAnimationFrame(animate)
 
     const handleClick = () => {
-      if (scanOnClick) startTimeRef.current = performance.now()
+      if (scanOnClick) {
+        startTimeRef.current = performance.now()
+      }
     }
+
     canvas.addEventListener('click', handleClick)
 
     return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current)
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
       ro.disconnect()
       canvas.removeEventListener('click', handleClick)
     }
-  }, [lineThickness, linesColor, scanColor, scanOpacity, gridScale, lineStyle, scanDirection, scanGlow, scanSoftness, scanDuration, scanDelay, scanOnClick])
+  }, [mounted, lineThickness, linesColor, scanColor, scanOpacity, gridScale, lineStyle, scanDirection, scanGlow, scanSoftness, scanDuration, scanDelay, scanOnClick])
+
+  // Render nothing on server, canvas on client
+  if (!mounted) {
+    return <div className={className} />
+  }
 
   return (
     <canvas
