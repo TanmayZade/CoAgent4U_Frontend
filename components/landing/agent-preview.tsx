@@ -91,6 +91,66 @@ export function AgentPreview() {
                       Agent-to-agent coordination in progress
                     </div>
                   </div>
+
+                  {/* Meeting Approval Request - Slack style */}
+                  <div className="rounded-xl border border-border/60 bg-zinc-900 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">📋</div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-semibold mb-2">Meeting Approval Request</h4>
+                        <p className="text-zinc-300 text-sm mb-2">
+                          <span className="text-blue-400">@Sarah</span> selected a meeting slot.
+                        </p>
+                        <div className="flex items-center gap-2 text-zinc-300 text-sm mb-1">
+                          <span className="text-base">📅</span>
+                          <span>Fri, 14 Mar 2026</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-zinc-300 text-sm mb-3">
+                          <span className="text-base">🕐</span>
+                          <span>03:00 PM - 04:00 PM</span>
+                        </div>
+                        <p className="text-zinc-400 text-sm mb-3">Approve or reject this meeting time.</p>
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white text-sm font-medium rounded border border-green-600 transition-colors">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Approve
+                          </button>
+                          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white text-sm font-medium rounded border border-red-600 transition-colors">
+                            <span className="text-sm">✕</span>
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Meeting Confirmed - Slack style */}
+                  <div className="rounded-xl border border-border/60 bg-zinc-900 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl text-green-500">✅</div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-semibold mb-2">Meeting Confirmed</h4>
+                        <p className="text-zinc-400 text-sm mb-1">Participants:</p>
+                        <ul className="text-sm mb-2 space-y-0.5">
+                          <li className="flex items-center gap-2 text-zinc-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                            <span className="text-blue-400">@You</span>
+                          </li>
+                          <li className="flex items-center gap-2 text-zinc-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                            <span className="text-blue-400">@Sarah</span>
+                          </li>
+                        </ul>
+                        <div className="flex items-center gap-2 text-zinc-300 text-sm mb-2">
+                          <span className="text-base">📅</span>
+                          <span>Fri, 14 Mar 2026</span>
+                        </div>
+                        <button className="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+                          See more
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right: Schedule Preview */}
