@@ -76,7 +76,7 @@ export function AgentPreview() {
                   <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
                     <p className="text-sm text-muted-foreground mb-2">You said:</p>
                     <p className="text-foreground font-medium">
-                      @CoAgent4U schedule meeting with @Sarah Friday evening
+                      @CoAgent4U schedule meeting with @Sarah Friday afternoon
                     </p>
                   </div>
 
@@ -109,8 +109,8 @@ export function AgentPreview() {
                       <div
                         key={i}
                         className={`flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 ${item.pending
-                            ? "bg-foreground/5 border border-foreground/20"
-                            : "bg-background/50"
+                          ? "bg-foreground/5 border border-foreground/20"
+                          : "bg-background/50"
                           }`}
                       >
                         <div className="flex items-center gap-3">
