@@ -39,6 +39,8 @@ export function Sidebar({ user, isLoading }: { user: UserData | null, isLoading:
   const pathname = usePathname()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
+  console.log("[v0] Sidebar rendered - user:", user, "isLoading:", isLoading)
+
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
