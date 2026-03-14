@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Shield, Slack, AlertCircle } from "lucide-react"
 import gsap from "gsap"
+import { authAPI, integrationAPI } from "@/lib/api"
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -25,11 +26,7 @@ export default function SignInPage() {
       }
 
       try {
-        const res = await fetch("https://api.coagent4u.com/auth/session", {
-          credentials: "include",
-        })
-        if (!res.ok) return
-        const data = await res.json()
+        const data = await authAPI.checkSession()
         if (data.authenticated === true) {
           if (data.pendingRegistration === true) {
             window.location.replace("/onboarding")
@@ -64,7 +61,7 @@ export default function SignInPage() {
     setError(null)
     try {
       // Redirect to Slack OAuth endpoint
-      window.location.href = "https://api.coagent4u.com/auth/slack/start"
+      window.location.href = authAPI.slackStart()
     } catch (err) {
       setError("Failed to connect with Slack. Please try again.")
       setIsLoading(false)

@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import gsap from "gsap"
+import { authAPI, integrationAPI, APIError } from "@/lib/api"
 
 const steps = [
   { id: 1, title: "Choose Username", description: "Pick your unique handle" },
@@ -55,21 +56,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const response = await fetch("https://api.coagent4u.com/auth/me", {
-          method: "GET",
-          credentials: "include",
-        })
-        
-        if (!response.ok) {
-          // 401 means not authenticated → back to sign in
-          if (response.status === 401) {
-            window.location.replace("/signin")
-            return
-          }
-          throw new Error("Failed to fetch session")
-        }
-        
-        const data: SessionData = await response.json()
+        const data = await authAPI.getMe()
         setSessionData(data)
 
         // Check URL for google=success parameter - skip to step 4
@@ -84,6 +71,11 @@ export default function OnboardingPage() {
           setCurrentStep(3)
         }
       } catch (err) {
+        if (err instanceof APIError && err.status === 401) {
+          // 401 means not authenticated → back to sign in
+          window.location.replace("/signin")
+          return
+        }
         console.error("Failed to fetch session:", err)
         setError("Failed to load your profile. Please try again.")
       } finally {
@@ -135,20 +127,7 @@ export default function OnboardingPage() {
     setUsernameError(null)
 
     try {
-      const response = await fetch("https://api.coagent4u.com/auth/username", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || "Username already taken or invalid")
-      }
-
+      await authAPI.setUsername(username)
       // Success - move to step 2 (Slack Verified)
       setCurrentStep(2)
     } catch (err) {
@@ -161,7 +140,7 @@ export default function OnboardingPage() {
   const handleConnectCalendar = () => {
     setIsConnecting(true)
     // Perform full browser redirect to Google Calendar OAuth
-    window.location.href = "https://api.coagent4u.com/integrations/google/authorize"
+    window.location.href = integrationAPI.googleAuthorize()
   }
 
   const handleComplete = () => {
