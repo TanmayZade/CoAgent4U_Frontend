@@ -3,7 +3,7 @@
  * Uses NEXT_PUBLIC_API_URL environment variable for the base URL
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.coagent4u.com'
 
 export class APIError extends Error {
   constructor(
