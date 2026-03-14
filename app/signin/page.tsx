@@ -61,7 +61,9 @@ export default function SignInPage() {
     setError(null)
     try {
       // Redirect to Slack OAuth endpoint
-      window.location.href = authAPI.slackStart()
+      const slackUrl = authAPI.slackStart()
+      console.log("[v0] Slack OAuth URL:", slackUrl)
+      window.location.href = slackUrl
     } catch (err) {
       setError("Failed to connect with Slack. Please try again.")
       setIsLoading(false)
