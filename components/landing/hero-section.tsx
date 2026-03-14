@@ -98,7 +98,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section data-section="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-24 pb-16">
+    <section data-section="hero" className="relative min-h-screen flex flex-col justify-start overflow-hidden pt-32 pb-16">
       {/* GridScan background */}
       <GridScan
         lineThickness={1}
