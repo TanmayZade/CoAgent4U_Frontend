@@ -18,6 +18,8 @@ export default function DashboardPage() {
 
   console.log("[v0] Dashboard page - user:", user, "isLoading:", isLoading, "showSlackGuard:", showSlackGuard)
 
+  console.log("[v0] Dashboard page - user:", user, "isLoading:", isLoading, "showSlackGuard:", showSlackGuard)
+
   return (
     <>
       <SlackInstallationGuard
