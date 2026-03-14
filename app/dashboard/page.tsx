@@ -16,10 +16,6 @@ export default function DashboardPage() {
   // Show Slack installation guard if not installed and not dismissed
   const showSlackGuard = !isLoading && user && !user.isSlackAppInstalled && !slackGuardDismissed
 
-  console.log("[v0] Dashboard page - user:", user, "isLoading:", isLoading, "showSlackGuard:", showSlackGuard)
-
-  console.log("[v0] Dashboard page - user:", user, "isLoading:", isLoading, "showSlackGuard:", showSlackGuard)
-
   return (
     <>
       <SlackInstallationGuard

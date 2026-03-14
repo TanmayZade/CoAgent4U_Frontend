@@ -98,7 +98,6 @@ export function HeroSection() {
   }, [])
 
   return (
-    // Hero section with fixed positioning for typing animation
     <section data-section="hero" className="relative min-h-screen flex flex-col justify-start overflow-hidden pt-32 pb-16">
       {/* GridScan background */}
       <GridScan

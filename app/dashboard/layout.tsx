@@ -55,32 +55,26 @@ export default function DashboardLayout({
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        console.log("[v0] Fetching user data from /auth/me...")
         const data = await authAPI.getMe()
-        console.log("[v0] User data received:", data)
         
         // Check authentication status
         if (!data) {
-          console.log("[v0] No data returned, redirecting to signin")
           window.location.replace("/signin")
           return
         }
 
         // Redirect to onboarding if still pending registration
         if (data.pendingRegistration === true) {
-          console.log("[v0] User pending registration, redirecting to onboarding")
           window.location.replace("/onboarding")
           return
         }
 
         // Store user data
-        console.log("[v0] Setting user data, isSlackAppInstalled:", data.isSlackAppInstalled)
         setUser(data)
       } catch (err) {
-        console.error("[v0] Error fetching user data:", err)
+        console.error("[v0] Failed to fetch user data:", err)
         if (err instanceof APIError && err.status === 401) {
           // Unauthorized - redirect to signin
-          console.log("[v0] Got 401, redirecting to signin")
           window.location.replace("/signin")
           return
         }
