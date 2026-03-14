@@ -143,7 +143,7 @@ export function HeroSection() {
           <h1
             ref={headlineRef}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
-            style={{ opacity: 0 }}
+            style={{ opacity: 0, whiteSpace: "pre-wrap", wordWrap: "break-word", wordBreak: "break-word", overflowWrap: "break-word" }}
           >
             {/* cursor is an inline sibling so it sits right after last typed char */}
             <span ref={cursorRef} aria-hidden="true" className="inline-block w-[3px] h-[0.85em] bg-foreground align-middle ml-0.5 translate-y-[-0.05em]" />
