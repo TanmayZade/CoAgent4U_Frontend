@@ -69,7 +69,9 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify({ username }),
     }),
+  logout: () => apiRequest('/auth/logout', { method: 'POST' }),
   slackStart: () => getAPIUrl('/auth/slack/start'),
+  slackInstallStart: () => getAPIUrl('/auth/slack/install/start'),
 }
 
 // Integration API endpoints

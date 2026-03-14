@@ -1,10 +1,37 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, createContext, useContext } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Bell, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { authAPI, APIError } from "@/lib/api"
+
+// User data context
+interface UserData {
+  username: string
+  slack_name: string
+  slack_workspace: string
+  slack_workspace_domain: string
+  slack_avatar_url: string
+  isSlackAppInstalled: boolean
+}
+
+interface UserContextType {
+  user: UserData | null
+  isLoading: boolean
+  error: string | null
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined)
+
+export function useUser() {
+  const context = useContext(UserContext)
+  if (!context) {
+    throw new Error('useUser must be used within UserProvider')
+  }
+  return context
+}
 
 export default function DashboardLayout({
   children,
@@ -12,6 +39,10 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [user, setUser] = useState<UserData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const currentHour = new Date().getHours()
   const greeting =
     currentHour < 12
@@ -20,38 +51,47 @@ export default function DashboardLayout({
       ? "Good afternoon"
       : "Good evening"
 
-  // Session guard: redirect unauthenticated users or those still pending registration
+  // Fetch user data on mount
   useEffect(() => {
-    const checkSession = async () => {
+    const fetchUserData = async () => {
       try {
-        const res = await fetch("https://api.coagent4u.com/auth/session", {
-          credentials: "include",
-        })
-        if (!res.ok) {
+        const data = await authAPI.getMe()
+        
+        // Check authentication status
+        if (!data) {
           window.location.replace("/signin")
           return
         }
-        const data = await res.json()
-        if (!data.authenticated) {
-          window.location.replace("/signin")
-        } else if (data.pendingRegistration === true) {
+
+        // Redirect to onboarding if still pending registration
+        if (data.pendingRegistration === true) {
           window.location.replace("/onboarding")
+          return
         }
-      } catch {
-        window.location.replace("/signin")
+
+        // Store user data
+        setUser(data)
+      } catch (err) {
+        if (err instanceof APIError && err.status === 401) {
+          // Unauthorized - redirect to signin
+          window.location.replace("/signin")
+          return
+        }
+        console.error("Failed to fetch user data:", err)
+        setError("Failed to load user data")
+      } finally {
+        setIsLoading(false)
       }
     }
-    checkSession()
+
+    fetchUserData()
   }, [])
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      // Call the backend logout endpoint with credentials to send/receive session cookie
-      await fetch("https://api.coagent4u.com/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      })
+      // Call the backend logout endpoint
+      await authAPI.logout()
     } catch (error) {
       console.error("Logout failed:", error)
     } finally {
@@ -60,9 +100,22 @@ export default function DashboardLayout({
     }
   }
 
+  // Get greeting name - first word of slack_name or fallback to username
+  const greetingName = user?.slack_name 
+    ? user.slack_name.split(' ')[0]
+    : user?.username || "there"
+
+  // Get user initials for avatar
+  const initials = user?.slack_name
+    ? user.slack_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : user?.username
+    ? user.username.slice(0, 2).toUpperCase()
+    : "?"
+
   return (
-    <div className="min-h-screen bg-background">
-        <Sidebar />
+    <UserContext.Provider value={{ user, isLoading, error }}>
+      <div className="min-h-screen bg-background">
+        <Sidebar user={user} isLoading={isLoading} />
         
         {/* Main content */}
         <div className="ml-60">
@@ -72,7 +125,7 @@ export default function DashboardLayout({
               <div>
                 <p className="text-foreground text-sm">
                   <span className="text-foreground/60">{greeting}, </span>
-                  <span className="font-semibold">Alex</span>
+                  <span className="font-semibold">{greetingName}</span>
                   <span className="text-foreground/60">. Your agent handled </span>
                   <span className="text-primary font-semibold">3 requests</span>
                   <span className="text-foreground/60"> today.</span>
@@ -124,5 +177,6 @@ export default function DashboardLayout({
           <main className="p-6">{children}</main>
         </div>
       </div>
+    </UserContext.Provider>
   )
 }
