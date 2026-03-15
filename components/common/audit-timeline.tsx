@@ -8,8 +8,7 @@ import { useState } from "react"
 interface AuditEvent {
   timestamp: string
   description: string
-  type: "info" | "success" | "warning" | "error"
-  payload?: Record<string, unknown>
+  type: "INFO" | "SUCCESS" | "WARNING" | "ERROR"
 }
 
 interface AuditTimelineProps {
@@ -18,17 +17,17 @@ interface AuditTimelineProps {
 }
 
 const typeColors = {
-  info: "text-accent",
-  success: "text-emerald-500",
-  warning: "text-amber-500",
-  error: "text-red-500",
+  INFO: "text-accent",
+  SUCCESS: "text-emerald-500",
+  WARNING: "text-amber-500",
+  ERROR: "text-red-500",
 }
 
 const typeDotColors = {
-  info: "bg-accent",
-  success: "bg-emerald-500",
-  warning: "bg-amber-500",
-  error: "bg-red-500",
+  INFO: "bg-accent",
+  SUCCESS: "bg-emerald-500",
+  WARNING: "bg-amber-500",
+  ERROR: "bg-red-500",
 }
 
 export function AuditTimeline({ events, className }: AuditTimelineProps) {
@@ -69,28 +68,6 @@ export function AuditTimeline({ events, className }: AuditTimelineProps) {
                     {event.description}
                   </span>
                 </div>
-                
-                {event.payload && (
-                  <button
-                    onClick={() =>
-                      setExpandedIndex(expandedIndex === index ? null : index)
-                    }
-                    className="flex items-center gap-1 text-xs text-cream/50 hover:text-cream transition-colors"
-                  >
-                    {expandedIndex === index ? (
-                      <ChevronDown className="w-3 h-3" />
-                    ) : (
-                      <ChevronRight className="w-3 h-3" />
-                    )}
-                    View payload
-                  </button>
-                )}
-                
-                {expandedIndex === index && event.payload && (
-                  <pre className="mt-2 p-3 bg-charcoal-light rounded-lg border border-charcoal-lighter text-xs font-mono text-cream/70 overflow-x-auto">
-                    {JSON.stringify(event.payload, null, 2)}
-                  </pre>
-                )}
               </div>
             </div>
           ))}

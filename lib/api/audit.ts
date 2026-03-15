@@ -2,13 +2,11 @@ import { apiRequest } from '../api'
 
 export interface AuditLogEntry {
   logId: string
-  userId: string
-  action: string
-  entityType?: string
-  entityId?: string
-  level: 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR'
-  payload?: any
   correlationId?: string
+  coordinationId?: string
+  eventType: string
+  description: string
+  level: 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR'
   occurredAt: string
 }
 

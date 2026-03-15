@@ -36,25 +36,21 @@ function LogRow({ log }: { log: AuditLogEntry }) {
           {new Date(log.occurredAt).toLocaleString()}
         </td>
         <td className="px-6 py-3 whitespace-nowrap font-medium text-foreground">
-          {log.action}
+          {log.eventType}
         </td>
-        <td className="px-6 py-3 whitespace-nowrap text-foreground/60 font-mono text-xs">
-          {log.entityType ? `${log.entityType}:${log.entityId?.substring(0,8)}` : '—'}
+        <td className="px-6 py-3 text-foreground/80 text-sm max-w-md truncate">
+          {log.description}
         </td>
         <td className="px-6 py-3 whitespace-nowrap text-right">
           <LevelChip level={log.level} />
         </td>
       </tr>
-      {expanded && log.payload && (
+      {expanded && (
         <tr>
-          <td colSpan={5} className="px-6 py-4 bg-muted/10 border-b border-border/50">
-            <pre className="p-4 rounded-lg bg-black/40 border border-border/30 text-[11px] font-mono text-primary/80 overflow-x-auto">
-              {JSON.stringify(log.payload, null, 2)}
-            </pre>
-            <div className="flex justify-end mt-2">
-              <span className="text-[10px] text-foreground/40 font-mono uppercase tracking-widest">
-                Correlation ID: {log.correlationId || 'none'}
-              </span>
+          <td colSpan={5} className="px-6 py-3 bg-muted/10 border-b border-border/50">
+            <div className="flex flex-col gap-1 text-[10px] text-foreground/50 font-mono uppercase tracking-widest pl-6">
+              <span>Correlation ID: {log.correlationId || 'none'}</span>
+              <span>Coordination ID: {log.coordinationId || 'none'}</span>
             </div>
           </td>
         </tr>
@@ -72,15 +68,14 @@ export default function AuditLogPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['audit', user?.username, page, levelFilter],
     queryFn: () => auditAPI.getLogs(user!.username, page, 50, levelFilter),
-    enabled: !!user?.username,
-    keepPreviousData: true
+    enabled: !!user?.username
   })
 
   // Basic client-side search across specific page logs
   const filteredData = data?.content.filter(item => 
     searchQuery === "" || 
-    item.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    JSON.stringify(item.payload || {}).toLowerCase().includes(searchQuery.toLowerCase())
+    item.eventType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const handleExport = () => {
@@ -139,8 +134,8 @@ export default function AuditLogPage() {
               <tr>
                 <th className="px-6 py-4 w-8"></th>
                 <th className="px-6 py-4 font-medium tracking-wider">Timestamp</th>
-                <th className="px-6 py-4 font-medium tracking-wider">Action</th>
-                <th className="px-6 py-4 font-medium tracking-wider">Entity</th>
+                <th className="px-6 py-4 font-medium tracking-wider">Event Type</th>
+                <th className="px-6 py-4 font-medium tracking-wider">Description</th>
                 <th className="px-6 py-4 font-medium tracking-wider text-right">Level</th>
               </tr>
             </thead>
