@@ -29,7 +29,7 @@ export default function IntegrationsPage() {
   })
 
   const handleConnect = () => {
-    window.location.href = integrationAPI.googleAuthorize()
+    window.location.href = integrationAPI.googleAuthorize('/dashboard/integrations')
   }
 
   return (
