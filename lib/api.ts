@@ -77,4 +77,7 @@ export const authAPI = {
 // Integration API endpoints
 export const integrationAPI = {
   googleAuthorize: () => getAPIUrl('/integrations/google/authorize'),
+  googleStatus: () => apiRequest<{ service: string; connected: boolean }>('/integrations/google/status'),
+  googleDisconnect: () => apiRequest('/integrations/google/disconnect', { method: 'DELETE' }),
 }
+

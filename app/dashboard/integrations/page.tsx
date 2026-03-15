@@ -2,10 +2,35 @@
 
 import { useUser } from "../layout"
 import { Button } from "@/components/ui/button"
-import { Slack, Calendar, CheckCircle2, ShieldAlert } from "lucide-react"
+import { Slack, Calendar, CheckCircle2, ShieldAlert, Loader2 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { integrationAPI } from "@/lib/api"
+import { toast } from "sonner"
 
 export default function IntegrationsPage() {
   const { user, isLoading } = useUser()
+  const queryClient = useQueryClient()
+
+  const { data: googleStatus, isLoading: isGoogleLoading } = useQuery({
+    queryKey: ["google-status"],
+    queryFn: integrationAPI.googleStatus,
+    retry: false,
+  })
+
+  const disconnectMutation = useMutation({
+    mutationFn: integrationAPI.googleDisconnect,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["google-status"] })
+      toast.success("Google Calendar disconnected successfully")
+    },
+    onError: () => {
+      toast.error("Failed to disconnect Google Calendar")
+    }
+  })
+
+  const handleConnect = () => {
+    window.location.href = integrationAPI.googleAuthorize()
+  }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -63,38 +88,68 @@ export default function IntegrationsPage() {
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
               <Calendar className="w-6 h-6 text-blue-500" />
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-semibold">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Connected
-            </div>
+            {isGoogleLoading ? (
+               <div className="w-24 h-6 bg-muted/50 animate-pulse rounded-full" />
+            ) : googleStatus?.connected ? (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-semibold">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Connected
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border/50 text-foreground/60 text-xs font-semibold">
+                Not Connected
+              </div>
+            )}
           </div>
           
-          <div className="relative z-10 flex flex-col h-full">
-            <div>
-              <h3 className="text-lg font-semibold tracking-tight text-foreground mb-1">Google Calendar</h3>
-              <p className="text-sm text-foreground/60 mb-6">
-                Required for checking your availability and automatically scheduling meetings.
-              </p>
-            </div>
+          <div className="relative z-10">
+            <h3 className="text-lg font-semibold tracking-tight text-foreground mb-1">Google Calendar</h3>
+            <p className="text-sm text-foreground/60 mb-6">
+              Required for checking your availability and automatically scheduling meetings.
+            </p>
             
-            <div className="mt-auto space-y-4">
-              <div className="space-y-3 p-4 bg-muted/20 border border-border/50 rounded-lg">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-foreground/60">Account</span>
-                  <span className="font-medium truncate max-w-[150px]">{user?.username}</span>
+            {isGoogleLoading ? (
+              <div className="h-24 animate-pulse bg-muted/50 rounded-lg" />
+            ) : googleStatus?.connected ? (
+              <div className="space-y-4">
+                <div className="space-y-3 p-4 bg-muted/20 border border-border/50 rounded-lg">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-foreground/60">Account</span>
+                    <span className="font-medium truncate max-w-[150px]">{user?.username}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-foreground/60">Sync Status</span>
+                    <span className="font-medium text-emerald-500 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Healthy
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-foreground/60">Sync Status</span>
-                  <span className="font-medium text-emerald-500 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Healthy
-                  </span>
-                </div>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full border-rose-500/50 text-rose-500 hover:bg-rose-500/10"
+                  onClick={() => disconnectMutation.mutate()}
+                  disabled={disconnectMutation.isPending}
+                >
+                  {disconnectMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Disconnect Calendar
+                </Button>
               </div>
-              
-              <Button variant="outline" className="w-full border-rose-500/50 text-rose-500 hover:bg-rose-500/10">
-                Disconnect Calendar
-              </Button>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                 <div className="flex items-center justify-center p-4 border border-dashed border-border/60 rounded-lg bg-muted/10 min-h-[92px]">
+                   <p className="text-sm text-foreground/50 text-center">
+                     Connect your calendar to enable unified coordination.
+                   </p>
+                 </div>
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleConnect}
+                >
+                  Connect Google Calendar
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
