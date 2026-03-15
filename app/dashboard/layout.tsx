@@ -3,7 +3,7 @@
 import { useState, useEffect, createContext, useContext } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Bell, LogOut } from "lucide-react"
+import { Bell, LogOut, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { authAPI, APIError } from "@/lib/api"
 
@@ -12,6 +12,7 @@ interface UserData {
   username: string
   slack_name: string
   slack_workspace: string
+  slack_workspace_id: string
   slack_workspace_domain: string
   slack_avatar_url: string
   isSlackAppInstalled: boolean
@@ -132,6 +133,23 @@ export default function DashboardLayout({
                 </p>
               </div>
               <div className="flex items-center gap-4">
+                {/* Chat with Bot Button */}
+                {user?.slack_workspace_id && user?.isSlackAppInstalled && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 hidden sm:flex"
+                    onClick={() => {
+                      const workspaceId = user.slack_workspace_id || 'T0AEP1ZHEKT'
+                      const chatUrl = `https://app.slack.com/client/${workspaceId}/D0ALQGP96CQ`
+                      window.open(chatUrl, '_blank', 'noopener,noreferrer')
+                    }}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Chat with Agent
+                  </Button>
+                )}
+
                 {/* Theme Toggle */}
                 <ThemeToggle />
 
