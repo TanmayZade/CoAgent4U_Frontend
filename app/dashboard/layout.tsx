@@ -141,7 +141,8 @@ export default function DashboardLayout({
                     className="gap-2 hidden sm:flex"
                     onClick={() => {
                       const workspaceId = user.slack_workspace_id || 'T0AEP1ZHEKT'
-                      const chatUrl = `https://app.slack.com/client/${workspaceId}/D0ALQGP96CQ`
+                      const appId = process.env.NEXT_PUBLIC_SLACK_APP_ID || 'A0AL92Q9RCZ'
+                      const chatUrl = `https://slack.com/app_redirect?team=${workspaceId}&app=${appId}`
                       window.open(chatUrl, '_blank', 'noopener,noreferrer')
                     }}
                   >
