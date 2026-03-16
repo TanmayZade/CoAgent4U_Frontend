@@ -7,6 +7,7 @@ import { auditAPI, AuditLogEntry } from "@/lib/api/audit"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Search, Filter, ChevronLeft, ChevronRight, ChevronDown, ChevronRight as ChevronRightSm, Info } from "lucide-react"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 function LevelChip({ level }: { level: AuditLogEntry['level'] }) {
   const colors = {
@@ -38,16 +39,22 @@ function LogRow({ log }: { log: AuditLogEntry }) {
         <td className="px-6 py-3 whitespace-nowrap font-medium text-foreground">
           {log.eventType}
         </td>
-        <td className="px-6 py-3 text-foreground/80 text-sm max-w-md">
+        <td className="px-6 py-3 text-foreground/80 text-sm max-w-[21rem]">
           <div className="flex items-center gap-2">
             <span className="truncate">{log.description}</span>
-            <button
-              className="text-foreground/40 hover:text-foreground/80 focus:outline-none shrink-0 cursor-help"
-              title={log.description}
-              aria-label="View full description"
-            >
-              <Info className="w-4 h-4" />
-            </button>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <button
+                  className="text-foreground/40 hover:text-foreground/80 focus:outline-none shrink-0 cursor-help"
+                  aria-label="View full description"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+              </HoverCardTrigger>
+              <HoverCardContent side="top" className="w-[400px] text-sm leading-relaxed overflow-hidden text-ellipsis z-50">
+                {log.description}
+              </HoverCardContent>
+            </HoverCard>
           </div>
         </td>
         <td className="px-6 py-3 whitespace-nowrap text-right">
