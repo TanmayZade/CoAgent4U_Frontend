@@ -6,7 +6,7 @@ import { useUser } from "../layout"
 import { auditAPI, AuditLogEntry } from "@/lib/api/audit"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Search, Filter, ChevronLeft, ChevronRight, ChevronDown, ChevronRight as ChevronRightSm } from "lucide-react"
+import { Download, Search, Filter, ChevronLeft, ChevronRight, ChevronDown, ChevronRight as ChevronRightSm, Info } from "lucide-react"
 
 function LevelChip({ level }: { level: AuditLogEntry['level'] }) {
   const colors = {
@@ -38,8 +38,17 @@ function LogRow({ log }: { log: AuditLogEntry }) {
         <td className="px-6 py-3 whitespace-nowrap font-medium text-foreground">
           {log.eventType}
         </td>
-        <td className="px-6 py-3 text-foreground/80 text-sm max-w-md truncate">
-          {log.description}
+        <td className="px-6 py-3 text-foreground/80 text-sm max-w-md">
+          <div className="flex items-center gap-2">
+            <span className="truncate">{log.description}</span>
+            <button
+              className="text-foreground/40 hover:text-foreground/80 focus:outline-none shrink-0 cursor-help"
+              title={log.description}
+              aria-label="View full description"
+            >
+              <Info className="w-4 h-4" />
+            </button>
+          </div>
         </td>
         <td className="px-6 py-3 whitespace-nowrap text-right">
           <LevelChip level={log.level} />
@@ -59,7 +68,7 @@ function LogRow({ log }: { log: AuditLogEntry }) {
   )
 }
 
-export default function AuditLogPage() {
+export default function AgentActivityPage() {
   const { user } = useUser()
   const [page, setPage] = useState(0)
   const [levelFilter, setLevelFilter] = useState("ALL")
@@ -88,7 +97,7 @@ export default function AuditLogPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Audit Log</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Agent Activity</h1>
           <p className="text-foreground/60 text-sm mt-1">
             Complete visibility into every action taken by the agent or system.
           </p>
@@ -167,10 +176,10 @@ export default function AuditLogPage() {
         </div>
 
         {/* Pagination */}
-        {data && data.totalPages > 1 && (
+        {data && (
           <div className="p-4 border-t border-border/50 flex items-center justify-between text-sm text-foreground/60 bg-muted/20">
             <div>
-              Showing {page * 50 + 1}-{Math.min((page + 1) * 50, data.totalElements)} of {data.totalElements} entries
+              Showing {data.totalElements === 0 ? 0 : page * 50 + 1}-{Math.min((page + 1) * 50, data.totalElements)} of {data.totalElements} entries
             </div>
             <div className="flex items-center gap-1">
               <Button 
