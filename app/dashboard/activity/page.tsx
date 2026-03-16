@@ -203,12 +203,20 @@ export default function AgentActivityPage() {
                         className="w-full px-3 py-2 bg-background/50 border border-border/50 rounded-md text-sm outline-none text-foreground"
                       >
                         <option value="ALL">All Events</option>
-                        <option value="INTENT_CLASSIFIED">Intent Classified</option>
-                        <option value="PROPOSAL_GENERATED">Proposal Generated</option>
-                        <option value="SLOTS_PROPOSED">Slots Proposed</option>
-                        <option value="COORDINATION_SUCCESS">Coordination Success</option>
-                        <option value="COORDINATION_FAILED">Coordination Failed</option>
-                        <option value="CALENDAR_SYNCED">Calendar Synced</option>
+                        <option value="AgentActivated">Agent Activated</option>
+                        <option value="IntentParsed">Intent Parsed</option>
+                        <option value="UnrecognizedIntent">Unrecognized Intent</option>
+                        <option value="LLMFallbackTriggered">LLM Fallback Triggered</option>
+                        <option value="PersonalApprovalRequested">Personal Approval Requested</option>
+                        <option value="PersonalEventCreated">Personal Event Created</option>
+                        <option value="CoordinationInitiated">Coordination Initiated</option>
+                        <option value="CoordinationRequestReceived">Coordination Request Received</option>
+                        <option value="SlotsProposed">Slots Proposed</option>
+                        <option value="SlotsReceived">Slots Received</option>
+                        <option value="ApprovalDecisionMade">Approval Decision Made</option>
+                        <option value="CoordinationStateChanged">Coordination State Changed</option>
+                        <option value="CoordinationCompleted">Coordination Completed</option>
+                        <option value="CoordinationFailed">Coordination Failed</option>
                       </select>
                     </div>
 
