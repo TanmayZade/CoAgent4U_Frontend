@@ -3,13 +3,13 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useUser } from "../layout"
-import { auditAPI, AuditLogEntry } from "@/lib/api/audit"
+import { activityAPI, AgentActivityEntry } from "@/lib/api/activity"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Search, Filter, ChevronLeft, ChevronRight, ChevronDown, ChevronRight as ChevronRightSm, Info } from "lucide-react"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
-function LevelChip({ level }: { level: AuditLogEntry['level'] }) {
+function LevelChip({ level }: { level: AgentActivityEntry['level'] }) {
   const colors = {
     INFO: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     SUCCESS: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
@@ -24,7 +24,7 @@ function LevelChip({ level }: { level: AuditLogEntry['level'] }) {
   )
 }
 
-function LogRow({ log }: { log: AuditLogEntry }) {
+function LogRow({ log }: { log: AgentActivityEntry }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -83,7 +83,7 @@ export default function AgentActivityPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['audit', user?.username, page, levelFilter],
-    queryFn: () => auditAPI.getLogs(user!.username, page, 50, levelFilter),
+    queryFn: () => activityAPI.getLogs(user!.username, page, 50, levelFilter),
     enabled: !!user?.username
   })
 
@@ -96,7 +96,7 @@ export default function AgentActivityPage() {
 
   const handleExport = () => {
     if (!user) return
-    const url = auditAPI.exportLogsUrl(user.username)
+    const url = activityAPI.exportLogsUrl(user.username)
     window.open(url, '_blank')
   }
 

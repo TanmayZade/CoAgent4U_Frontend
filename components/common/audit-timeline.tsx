@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { useState } from "react"
 
-interface AuditEvent {
+interface AgentActivityEvent {
   timestamp: string
   description: string
   type: "INFO" | "SUCCESS" | "WARNING" | "ERROR"
 }
 
-interface AuditTimelineProps {
-  events: AuditEvent[]
+interface AgentActivityTimelineProps {
+  events: AgentActivityEvent[]
   className?: string
 }
 
@@ -30,13 +30,13 @@ const typeDotColors = {
   ERROR: "bg-red-500",
 }
 
-export function AuditTimeline({ events, className }: AuditTimelineProps) {
+export function AgentActivityTimeline({ events, className }: AgentActivityTimelineProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   return (
     <GlowCard className={cn("p-6", className)}>
       <h3 className="text-lg font-semibold text-cream mb-4 font-[family-name:var(--font-display)]">
-        Audit Timeline
+        AgentActivity Timeline
       </h3>
       
       <div className="relative">
