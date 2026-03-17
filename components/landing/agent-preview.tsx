@@ -122,7 +122,7 @@ export function AgentPreview() {
   return (
     // Outer section is 120vh so ScrollTrigger has scroll distance to work with
     // Animation completes at 80% progress, then scroll trigger is disabled
-    <div ref={sectionRef} className="relative" style={{ height: "120vh" }}>
+    <div ref={sectionRef} className="relative" style={{ height: "80vh" }}>
       {/* Sticky container — stays fixed while user scrolls through the 120vh */}
       <div ref={stickyRef} className="w-full py-8 lg:py-12">
         <div className="mx-auto max-w-7xl px-6">
@@ -228,17 +228,15 @@ export function AgentPreview() {
                       <div className="flex items-center gap-2">
                         <button
                           ref={approveButtonRef}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
-                            approveClicked ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
-                          }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${approveClicked ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
+                            }`}
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           {approveClicked ? "Approved" : "Approve"}
                         </button>
                         <button
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
-                            approveClicked ? "opacity-40 cursor-not-allowed bg-red-700" : "bg-red-600 hover:bg-red-700"
-                          }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${approveClicked ? "opacity-40 cursor-not-allowed bg-red-700" : "bg-red-600 hover:bg-red-700"
+                            }`}
                           disabled={approveClicked}
                         >
                           <span>✕</span>
