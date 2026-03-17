@@ -121,13 +121,13 @@ export function HeroSection() {
       />
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
-      <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
-        <div className="mx-auto max-w-5xl text-center">
+      <div ref={containerRef} className="relative mx-auto max-w-7xl px-6 w-full">
+        <div className="relative mx-auto max-w-5xl text-center">
 
           {/* Logo + Brand — hidden until animation reveals */}
           <div
             ref={logoRef}
-            className="flex items-center justify-center gap-5 mb-12"
+            className="relative flex items-center justify-center gap-5 mb-12"
             style={{ opacity: 0 }}
           >
             <Image
@@ -145,7 +145,7 @@ export function HeroSection() {
           {/* Headline — inline cursor follows typed characters naturally */}
           <h1
             ref={headlineRef}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
+            className="relative text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
             style={{ opacity: 0, whiteSpace: "pre-wrap", wordWrap: "break-word", wordBreak: "break-word", overflowWrap: "break-word" }}
           >
             {/* cursor is an inline sibling so it sits right after last typed char */}
@@ -155,18 +155,18 @@ export function HeroSection() {
           {/* Subheadline */}
           <p
             ref={subheadlineRef}
-            className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
+            className="relative mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
             style={{ opacity: 0 }}
           >
             The Coordination Platform for Personal Agents
           </p>
 
           {/* CTAs */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="relative mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               ref={cta1Ref}
               href="/signin"
-              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="relative inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               style={{ opacity: 0 }}
             >
               Get Started
@@ -175,7 +175,7 @@ export function HeroSection() {
             <Link
               ref={cta2Ref}
               href="#use-cases"
-              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
+              className="relative inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
               style={{ opacity: 0 }}
             >
               View Demo
