@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTheme } from 'next-themes'
 
 interface GalaxyProps {
   starSpeed?: number
@@ -45,16 +44,11 @@ export function Galaxy({
   transparent = true,
   className = '',
 }: GalaxyProps) {
-  const { theme, systemTheme } = useTheme()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [mounted, setMounted] = useState(false)
   const starsRef = useRef<Star[]>([])
   const mouseRef = useRef({ x: 0, y: 0 })
   const animationFrameRef = useRef<number | null>(null)
-
-  // Determine current theme
-  const currentTheme = theme === 'system' ? systemTheme : theme
-  const isDark = currentTheme === 'dark'
 
   useEffect(() => {
     setMounted(true)
@@ -85,12 +79,8 @@ export function Galaxy({
       window.addEventListener('mousemove', handleMouseMove)
     }
 
-    // Initialize stars with theme-aware colors
     const starCount = Math.floor(250 * density)
     const stars: Star[] = []
-
-    // Adjust hue shift based on theme for better visibility
-    const adjustedHueShift = isDark ? hueShift : hueShift + 20
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
@@ -98,10 +88,10 @@ export function Galaxy({
         y: Math.random() * canvas.height,
         z: Math.random() * 100,
         size: Math.random() * 2.5 + 0.8,
-        opacity: isDark ? Math.random() * 0.6 + 0.6 : Math.random() * 0.5 + 0.4,
+        opacity: Math.random() * 0.6 + 0.6,
         vx: (Math.random() - 0.5) * starSpeed * 0.8,
         vy: (Math.random() - 0.5) * starSpeed * 0.8,
-        hue: adjustedHueShift + Math.random() * 50 - 25,
+        hue: hueShift + Math.random() * 50 - 25,
         twinkle: Math.random(),
         twinkleSpeed: Math.random() * 0.025 + 0.01,
       })
@@ -112,9 +102,8 @@ export function Galaxy({
     let rotation = 0
 
     const animate = () => {
-      // Clear canvas - use semi-transparent for trail effect
-      const clearAlpha = isDark ? 0.15 : 0.05
-      ctx.fillStyle = `rgba(${isDark ? '15, 15, 25' : '240, 240, 250'}, ${clearAlpha})`
+      // Clear canvas with dark background trail
+      ctx.fillStyle = 'rgba(10, 10, 15, 0.15)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       rotation += rotationSpeed * 0.1
@@ -151,8 +140,7 @@ export function Galaxy({
         star.twinkle += star.twinkleSpeed
         const twinkleValue = Math.sin(star.twinkle) * twinkleIntensity + (1 - twinkleIntensity)
 
-        // Theme-aware brightness
-        const baseLightness = isDark ? 75 : 65
+        const baseLightness = 75
 
         // Draw star with glow
         const glowRadius = star.size * (2.2 + glowIntensity * 6)
@@ -201,7 +189,6 @@ export function Galaxy({
     twinkleIntensity,
     rotationSpeed,
     transparent,
-    isDark,
   ])
 
   if (!mounted) {
