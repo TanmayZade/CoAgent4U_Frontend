@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect } from "react"
 import { Navbar } from "@/components/landing/navbar"
 import { HeroSection } from "@/components/landing/hero-section"
 import { AgentPreview } from "@/components/landing/agent-preview"
@@ -13,8 +16,33 @@ import { Footer } from "@/components/landing/footer"
 import { ScrollProgressBar } from "@/components/ui/parallax-wrapper"
 
 export default function LandingPage() {
+  
+  useEffect(() => {
+    // Aggressively force light theme strictly on the landing page
+    const htmlEl = document.documentElement
+    if (htmlEl.classList.contains("dark")) {
+      htmlEl.classList.remove("dark")
+      htmlEl.classList.add("light")
+      htmlEl.style.colorScheme = "light"
+    }
+
+    // Observers to block `next-themes` from re-adding the dark class while on the landing page
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class" && htmlEl.classList.contains("dark")) {
+          htmlEl.classList.remove("dark")
+          htmlEl.classList.add("light")
+        }
+      })
+    })
+
+    observer.observe(htmlEl, { attributes: true })
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-foreground light">
       <ScrollProgressBar />
       <Navbar />
       <HeroSection />
