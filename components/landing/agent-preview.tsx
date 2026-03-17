@@ -1,10 +1,10 @@
 "use client"
 
-import { Bot, Calendar, CheckCircle2 } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { TextPlugin } from "gsap/TextPlugin"
+import { Bot, Calendar, CheckCircle2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 export function AgentPreview() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -134,7 +134,7 @@ export function AgentPreview() {
       {/* Sticky container — stays fixed while user scrolls through the 400vh */}
       <div ref={stickyRef} className="w-full py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[85rem] mx-auto">
             <div ref={cardRef} className="rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/[0.08] overflow-hidden">
               {/* Window chrome */}
               <div className="flex items-center justify-between px-5 py-3 border-b border-border/60 bg-muted/30">
@@ -197,7 +197,7 @@ export function AgentPreview() {
                     </p>
                     <div className="mt-2 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      Agent-to-agent coordination in progress
+                      Agent-to-Agent coordination in progress
                     </div>
                   </div>
                 </div>
@@ -236,17 +236,15 @@ export function AgentPreview() {
                       <div className="flex items-center gap-2">
                         <button
                           ref={approveButtonRef}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
-                            approveClicked ? "bg-green-700 dark:bg-green-800" : "bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600"
-                          }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${approveClicked ? "bg-green-700 dark:bg-green-800" : "bg-green-600 hover:bg-green-500 dark:bg-green-700 dark:hover:bg-green-600"
+                            }`}
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           {approveClicked ? "Approved" : "Approve"}
                         </button>
                         <button
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
-                            approveClicked ? "opacity-40 cursor-not-allowed bg-zinc-500 dark:bg-zinc-700" : "bg-red-600 hover:bg-red-500 dark:bg-red-700 dark:hover:bg-red-600"
-                          }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${approveClicked ? "opacity-40 cursor-not-allowed bg-zinc-500 dark:bg-zinc-700" : "bg-red-600 hover:bg-red-500 dark:bg-red-700 dark:hover:bg-red-600"
+                            }`}
                           disabled={approveClicked}
                         >
                           <span>✕</span>

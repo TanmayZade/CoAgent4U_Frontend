@@ -42,7 +42,7 @@ export function AgentCapabilities() {
 
   return (
     <section id="capabilities" className="py-32 lg:py-40" ref={sectionRef}>
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-7xl px-6">
         {/* Section header */}
         <motion.div 
           className="max-w-3xl mb-20"

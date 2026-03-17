@@ -105,7 +105,7 @@ export function CoordinationSection() {
 
   return (
     <section ref={sectionRef} id="how-it-works" className="py-24 lg:py-32 bg-muted/30">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-7xl px-6">
         {/* Section header */}
         <div ref={headerRef} className="max-w-2xl mx-auto text-center mb-16">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
@@ -120,7 +120,7 @@ export function CoordinationSection() {
         </div>
 
         {/* Coordination flow visual */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[85rem] mx-auto">
           <div className="rounded-2xl border border-border/60 bg-card p-6 lg:p-10 card-hover">
             {/* Mental model text */}
             <p className="text-center text-sm text-muted-foreground mb-8">

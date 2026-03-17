@@ -29,10 +29,10 @@ export function ProductExplanation() {
         <div className="absolute top-20 left-10 w-64 h-64 bg-foreground/[0.02] rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-foreground/[0.02] rounded-full blur-3xl" />
       </motion.div>
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-7xl px-6">
         <motion.div 
           ref={sectionRef}
-          className="max-w-4xl mx-auto text-center"
+          className="max-w-[85rem] mx-auto text-center"
           variants={fadeSlideUpVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}

@@ -118,7 +118,7 @@ export function HeroSection() {
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
       <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
-        <div className="mx-auto max-w-5xl text-center">
+        <div className="mx-auto max-w-[85rem] text-center">
 
           {/* Logo + Brand — hidden until animation reveals */}
           <div
@@ -142,7 +142,7 @@ export function HeroSection() {
           {/* Headline — inline cursor follows typed characters naturally */}
           <h1
             ref={headlineRef}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-[85rem] mx-auto min-h-[4rem]"
             style={{ opacity: 0, whiteSpace: "pre-wrap", wordWrap: "break-word", wordBreak: "break-word", overflowWrap: "break-word" }}
           >
             {/* cursor is an inline sibling so it sits right after last typed char */}

@@ -40,7 +40,7 @@ export function Navbar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <nav className="mx-auto max-w-6xl px-6">
+      <nav className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-4 group">

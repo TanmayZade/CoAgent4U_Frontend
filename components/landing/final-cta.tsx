@@ -48,9 +48,9 @@ export function FinalCTA() {
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-foreground/[0.03] rounded-full blur-3xl" />
       </motion.div>
       
-      <div ref={sectionRef} className="mx-auto max-w-6xl px-6 relative z-10">
+      <div ref={sectionRef} className="mx-auto max-w-7xl px-6 relative z-10">
         <motion.div 
-          className="max-w-4xl mx-auto text-center"
+          className="max-w-[85rem] mx-auto text-center"
           variants={fadeSlideUpVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
