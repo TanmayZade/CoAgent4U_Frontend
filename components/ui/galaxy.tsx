@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import gsap from "gsap"
 
 interface GalaxyProps {
   starSpeed?: number
@@ -33,20 +32,26 @@ export function Galaxy({
   className = "",
 }: GalaxyProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext("2d")
+    const ctx = canvas.getContext("2d", { alpha: true })
     if (!ctx) return
 
-    // Set canvas size
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    console.log("[v0] Galaxy canvas initialized:", canvas.width, canvas.height)
 
-    // Particles array
+    // Get parent dimensions
+    const parent = canvas.parentElement
+    if (!parent) return
+
+    const rect = parent.getBoundingClientRect()
+    canvas.width = rect.width
+    canvas.height = rect.height
+
+    console.log("[v0] Canvas sized to parent:", canvas.width, canvas.height)
+
     interface Particle {
       x: number
       y: number
@@ -60,134 +65,123 @@ export function Galaxy({
     }
 
     const particles: Particle[] = []
-    const particleCount = Math.floor(200 * density)
+    const particleCount = Math.max(50, Math.floor(150 * density))
     let rotation = 0
     let mouseX = canvas.width / 2
     let mouseY = canvas.height / 2
 
     // Initialize particles
     for (let i = 0; i < particleCount; i++) {
-      const angle = Math.random() * Math.PI * 2
-      const distance = Math.random() * 400
       particles.push({
-        x: canvas.width / 2 + Math.cos(angle) * distance,
-        y: canvas.height / 2 + Math.sin(angle) * distance,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * starSpeed,
         vy: (Math.random() - 0.5) * starSpeed,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.7 + 0.3,
-        targetOpacity: Math.random() * 0.7 + 0.3,
-        hue: hueShift + Math.random() * 30,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.8 + 0.2,
+        targetOpacity: Math.random() * 0.8 + 0.2,
+        hue: hueShift + Math.random() * 40 - 20,
         twinklePhase: Math.random() * Math.PI * 2,
       })
     }
 
-    // Mouse tracking
+    console.log("[v0] Created", particleCount, "particles")
+
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
+      const rect = canvas.getBoundingClientRect()
+      mouseX = e.clientX - rect.left
+      mouseY = e.clientY - rect.top
     }
 
     window.addEventListener("mousemove", handleMouseMove)
 
-    // Handle window resize
-    const handleResize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
+    let animationId: number
 
-    window.addEventListener("resize", handleResize)
-
-    // Animation loop
     const animate = () => {
-      // Clear canvas - use transparent background for better blending
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+      // Clear with slight trail
+      ctx.fillStyle = "rgba(10, 10, 10, 0.1)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Update and draw particles
       particles.forEach((particle) => {
-        // Rotation
-        const centerX = canvas.width / 2
-        const centerY = canvas.height / 2
-        const dx = particle.x - centerX
-        const dy = particle.y - centerY
-
-        const angle = Math.atan2(dy, dx) + (rotationSpeed * speed) / 100
-        const distance = Math.sqrt(dx * dx + dy * dy)
-
-        particle.x = centerX + Math.cos(angle) * distance
-        particle.y = centerY + Math.sin(angle) * distance
-
-        // Velocity
-        particle.vx += (Math.random() - 0.5) * 0.02
-        particle.vy += (Math.random() - 0.5) * 0.02
+        // Update position
         particle.x += particle.vx * speed
         particle.y += particle.vy * speed
 
+        // Add slight acceleration
+        particle.vx += (Math.random() - 0.5) * 0.01
+        particle.vy += (Math.random() - 0.5) * 0.01
+
         // Mouse repulsion
         if (mouseRepulsion) {
-          const mdx = particle.x - mouseX
-          const mdy = particle.y - mouseY
-          const mdist = Math.sqrt(mdx * mdx + mdy * mdy)
+          const dx = particle.x - mouseX
+          const dy = particle.y - mouseY
+          const dist = Math.sqrt(dx * dx + dy * dy)
 
-          if (mdist < 150) {
-            const force = (150 - mdist) / 150
-            particle.vx += (mdx / mdist) * force * repulsionStrength
-            particle.vy += (mdy / mdist) * force * repulsionStrength
+          if (dist < 200) {
+            const force = (200 - dist) / 200
+            particle.vx += (dx / (dist || 1)) * force * repulsionStrength * 0.5
+            particle.vy += (dy / (dist || 1)) * force * repulsionStrength * 0.5
           }
         }
 
-        // Boundary wrapping
-        if (particle.x > canvas.width + 50) particle.x = -50
-        if (particle.x < -50) particle.x = canvas.width + 50
-        if (particle.y > canvas.height + 50) particle.y = -50
-        if (particle.y < -50) particle.y = canvas.height + 50
+        // Wrap around edges
+        if (particle.x > canvas.width) particle.x = 0
+        if (particle.x < 0) particle.x = canvas.width
+        if (particle.y > canvas.height) particle.y = 0
+        if (particle.y < 0) particle.y = canvas.height
 
-        // Twinkling
-        particle.twinklePhase += 0.02
+        // Twinkling effect
+        particle.twinklePhase += 0.05 * twinkleIntensity
         particle.targetOpacity =
-          0.3 + Math.sin(particle.twinklePhase) * twinkleIntensity * 0.5
+          0.3 + Math.sin(particle.twinklePhase) * 0.4 * twinkleIntensity
         particle.opacity +=
           (particle.targetOpacity - particle.opacity) * 0.1
 
         // Draw particle with glow
-        const gradient = ctx.createRadialGradient(
+        const glowSize = particle.size * (1 + glowIntensity * 2)
+
+        // Outer glow
+        const glowGradient = ctx.createRadialGradient(
           particle.x,
           particle.y,
           0,
           particle.x,
           particle.y,
-          particle.size * (1 + glowIntensity)
+          glowSize
         )
-        gradient.addColorStop(
+        glowGradient.addColorStop(
           0,
-          `hsla(${particle.hue}, ${100 - saturation}%, 70%, ${particle.opacity * 0.8})`
+          `hsla(${particle.hue}, ${Math.max(0, 100 - saturation)}%, 70%, ${particle.opacity * 0.6})`
         )
-        gradient.addColorStop(
+        glowGradient.addColorStop(
+          0.5,
+          `hsla(${particle.hue}, ${Math.max(0, 100 - saturation)}%, 60%, ${particle.opacity * 0.2})`
+        )
+        glowGradient.addColorStop(
           1,
-          `hsla(${particle.hue}, ${100 - saturation}%, 70%, 0)`
+          `hsla(${particle.hue}, ${Math.max(0, 100 - saturation)}%, 50%, 0)`
         )
 
-        ctx.fillStyle = gradient
-        ctx.fillRect(
-          particle.x - particle.size * (1 + glowIntensity),
-          particle.y - particle.size * (1 + glowIntensity),
-          particle.size * 2 * (1 + glowIntensity),
-          particle.size * 2 * (1 + glowIntensity)
-        )
+        ctx.fillStyle = glowGradient
+        ctx.beginPath()
+        ctx.arc(particle.x, particle.y, glowSize, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Core
+        ctx.fillStyle = `hsla(${particle.hue}, 100%, 80%, ${particle.opacity})`
+        ctx.beginPath()
+        ctx.arc(particle.x, particle.y, particle.size * 0.6, 0, Math.PI * 2)
+        ctx.fill()
       })
 
-      animationRef.current = requestAnimationFrame(animate)
+      animationId = requestAnimationFrame(animate)
     }
 
     animate()
 
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
+      cancelAnimationFrame(animationId)
       window.removeEventListener("mousemove", handleMouseMove)
-      window.removeEventListener("resize", handleResize)
     }
   }, [
     starSpeed,
@@ -212,6 +206,7 @@ export function Galaxy({
         left: 0,
         width: "100%",
         height: "100%",
+        display: "block",
       }}
     />
   )
