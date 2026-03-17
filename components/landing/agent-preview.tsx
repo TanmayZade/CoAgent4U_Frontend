@@ -18,7 +18,6 @@ export function AgentPreview() {
   const approveButtonRef = useRef<HTMLButtonElement>(null)
   const meetingConfirmedRef = useRef<HTMLDivElement>(null)
   const [approveClicked, setApproveClicked] = useState(false)
-  const maxProgressRef = useRef(0)
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -89,24 +88,31 @@ export function AgentPreview() {
       // Phase 4: meeting confirmed (0.72 → 0.80)
       tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.72)
 
-      // Pin + custom forward-only scrub
+      // Pin + scrub
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=300%",
         pin: stickyRef.current,
-        onUpdate: (self) => {
-          // Strictly force timeline forward; never backward
-          if (self.progress > maxProgressRef.current) {
-            maxProgressRef.current = self.progress
-            gsap.to(tl, {
-              progress: maxProgressRef.current,
-              duration: 1, // matches the 1-second scrub smoothness
-              ease: "power3.out",
-              overwrite: true,
-            })
-          }
+        scrub: 1,
+        animation: tl,
+        onLeave: (self) => {
+          // The animation has finished playing. Kill the scroll trigger 
+          // but false keeps the DOM elements in their final state (pinned layout maintained)
+          // Wait, self.kill(false) removes the pin spacer entirely, which instantly drops the page 300vh.
+          // Instead, we just let scrub happen but disable reversing the timeline.
+          
         },
+        onUpdate: (self) => {
+           // Prevent the timeline from ever scrubbing backward
+           if (self.direction === -1) {
+              // User is scrolling up
+              if (tl.progress() >= 1) {
+                 // The animation finished, do NOT scrub backwards. Force it to stay at 1.
+                 tl.progress(1);
+              }
+           }
+        }
       })
     })
 
