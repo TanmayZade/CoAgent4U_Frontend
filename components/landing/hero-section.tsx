@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
+import { useTheme } from "next-themes"
 import gsap from "gsap"
 import { GridScan } from "@/components/ui/grid-scan"
 
@@ -11,6 +12,7 @@ const HEADLINE =
   "Your Personal Agent That Assists You and Collaborates with Other User's Agent"
 
 export function HeroSection() {
+  const { theme, systemTheme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
@@ -18,6 +20,9 @@ export function HeroSection() {
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
   const cta1Ref = useRef<HTMLAnchorElement>(null)
   const cta2Ref = useRef<HTMLAnchorElement>(null)
+
+  // Determine current theme (handle 'system' theme)
+  const currentTheme = theme === "system" ? systemTheme : theme
 
   useEffect(() => {
     // Dynamically import TextPlugin to avoid SSR issues
@@ -127,7 +132,7 @@ export function HeroSection() {
             style={{ opacity: 0 }}
           >
             <Image
-              src="/images/logo.png"
+              src={currentTheme === "dark" ? "/images/logo-dark.png" : "/images/logo-light.png"}
               alt="CoAgent4U Logo"
               width={72}
               height={72}
