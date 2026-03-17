@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
+import { toast } from "sonner"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -88,10 +89,10 @@ export function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="lg" className="text-base transition-all duration-300 hover:scale-105" asChild>
+            <Button variant="ghost" size="lg" className="text-base transition-all duration-300 hover:scale-105" asChild onClick={(e) => { e.preventDefault(); toast.info("Work in progress!") }}>
               <Link href="/signin">Sign In</Link>
             </Button>
-            <Button size="lg" className="text-base rounded-full px-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" asChild>
+            <Button size="lg" className="text-base rounded-full px-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" asChild onClick={(e) => { e.preventDefault(); toast.info("Work in progress!") }}>
               <Link href="/signin">Get Started</Link>
             </Button>
           </div>
@@ -139,10 +140,10 @@ export function Navbar() {
                 Security
               </Link>
               <div className="mobile-menu-item flex flex-col gap-3 pt-6 mt-4 border-t border-border/40">
-                <Button variant="ghost" size="lg" asChild className="justify-start text-base">
+                <Button variant="ghost" size="lg" className="justify-start text-base" asChild onClick={(e) => { e.preventDefault(); toast.info("Work in progress!") }}>
                   <Link href="/signin">Sign In</Link>
                 </Button>
-                <Button size="lg" asChild className="text-base rounded-full">
+                <Button size="lg" className="text-base rounded-full" asChild onClick={(e) => { e.preventDefault(); toast.info("Work in progress!") }}>
                   <Link href="/signin">Get Started</Link>
                 </Button>
               </div>

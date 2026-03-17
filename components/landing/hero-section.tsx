@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useRef } from "react"
+import { toast } from "sonner"
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -161,6 +162,7 @@ export function HeroSection() {
             <Link
               ref={cta1Ref}
               href="/signin"
+              onClick={(e) => { e.preventDefault(); toast.info("Work in progress!") }}
               className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               style={{ opacity: 0 }}
             >

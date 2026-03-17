@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion"
 import { useRef } from "react"
 import { useScrollAnimation, fadeSlideUpVariants, staggerContainerVariants } from "@/hooks/use-framer-animations"
 import { FloatingIcons } from "@/components/landing/floating-icons"
+import { toast } from "sonner"
 
 export function FinalCTA() {
   const { ref: sectionRef, isInView } = useScrollAnimation()
@@ -84,6 +85,7 @@ export function FinalCTA() {
                 size="lg" 
                 className="h-14 px-10 text-lg font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group" 
                 asChild
+                onClick={(e) => { e.preventDefault(); toast.info("Work in progress!") }}
               >
                 <Link href="/signin">
                   Start Using CoAgent4U
