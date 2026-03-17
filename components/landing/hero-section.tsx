@@ -110,8 +110,8 @@ export function HeroSection() {
           {/* Logo + Brand — hidden until animation reveals */}
           <div
             ref={logoRef}
-            className="relative flex items-center justify-center gap-5 mb-12"
-            style={{ opacity: 0 }}
+            className="flex items-center justify-center gap-5 mb-12"
+            style={{ opacity: 0, position: "relative" }}
           >
             <Image
               src="/images/logo-dark.png"
@@ -128,8 +128,8 @@ export function HeroSection() {
           {/* Headline — inline cursor follows typed characters naturally */}
           <h1
             ref={headlineRef}
-            className="relative text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
-            style={{ opacity: 0, whiteSpace: "pre-wrap", wordWrap: "break-word", wordBreak: "break-word", overflowWrap: "break-word" }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.15] max-w-4xl mx-auto min-h-[4rem]"
+            style={{ opacity: 0, position: "relative", whiteSpace: "pre-wrap", wordWrap: "break-word", wordBreak: "break-word", overflowWrap: "break-word" }}
           >
             {/* cursor is an inline sibling so it sits right after last typed char */}
             <span ref={cursorRef} aria-hidden="true" className="inline-block w-[3px] h-[0.85em] bg-foreground align-middle ml-0.5 translate-y-[-0.05em]" />
@@ -138,19 +138,19 @@ export function HeroSection() {
           {/* Subheadline */}
           <p
             ref={subheadlineRef}
-            className="relative mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
-            style={{ opacity: 0 }}
+            className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
+            style={{ opacity: 0, position: "relative" }}
           >
             The Coordination Platform for Personal Agents
           </p>
 
           {/* CTAs */}
-          <div className="relative mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4" style={{ position: "relative" }}>
             <Link
               ref={cta1Ref}
               href="/signin"
-              className="relative inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              style={{ opacity: 0 }}
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              style={{ opacity: 0, position: "relative" }}
             >
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -158,8 +158,8 @@ export function HeroSection() {
             <Link
               ref={cta2Ref}
               href="#use-cases"
-              className="relative inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
-              style={{ opacity: 0 }}
+              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
+              style={{ opacity: 0, position: "relative" }}
             >
               View Demo
             </Link>
