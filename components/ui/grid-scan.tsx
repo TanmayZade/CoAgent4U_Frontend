@@ -48,7 +48,7 @@ export function GridScan({
   `
 
   return (
-    <div className={className} style={{ overflow: 'hidden' }}>
+    <div className={className} style={{ position: 'relative', overflow: 'hidden' }}>
       <style>{scanKeyframes}</style>
       
       {/* 3D Perspective Grid Container */}
