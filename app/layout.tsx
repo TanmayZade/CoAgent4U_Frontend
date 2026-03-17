@@ -64,7 +64,6 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange={false}
-          forcedTheme="light"
         >
           <QueryProvider>
             {children}
