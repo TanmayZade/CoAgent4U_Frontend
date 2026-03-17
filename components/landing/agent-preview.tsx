@@ -89,6 +89,8 @@ export function AgentPreview() {
       tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.72)
 
       // Pin + scrub
+      let isCompleted = false;
+
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -96,24 +98,21 @@ export function AgentPreview() {
         pin: stickyRef.current,
         scrub: 1,
         animation: tl,
-        onLeave: (self) => {
-          // The animation has finished playing. Kill the scroll trigger 
-          // but false keeps the DOM elements in their final state (pinned layout maintained)
-          // Wait, self.kill(false) removes the pin spacer entirely, which instantly drops the page 300vh.
-          // Instead, we just let scrub happen but disable reversing the timeline.
-          
-        },
+
         onUpdate: (self) => {
-           // Prevent the timeline from ever scrubbing backward
-           if (self.direction === -1) {
-              // User is scrolling up
-              if (tl.progress() >= 1) {
-                 // The animation finished, do NOT scrub backwards. Force it to stay at 1.
-                 tl.progress(1);
-              }
-           }
+          // ✅ Mark as completed when reaching end
+          if (self.progress >= 0.999 && !isCompleted) {
+            isCompleted = true;
+            tl.progress(1);
+            tl.pause();
+          }
+
+          // ✅ If completed → prevent reverse ONLY then
+          if (isCompleted && self.direction === -1) {
+            tl.progress(1);
+          }
         }
-      })
+      });
     })
 
     return () => ctx.revert()
