@@ -90,26 +90,27 @@ export function AgentPreview() {
       tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.72)
 
       // Pin + scrub - lock state once completed
-      const scrollTrigger = ScrollTrigger.create({
+      let scrollTrigger: InstanceType<typeof ScrollTrigger> | null = null
+      let animationCompleted = false
+
+      scrollTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=300%",
         pin: stickyRef.current,
-        scrub: 1,
-        animation: tl,
-        onLeave: () => {
-          // Lock final state once animation completes
-          if (!hasCompletedRef.current) {
-            hasCompletedRef.current = true
-            gsap.set(cardRef.current, { scale: 1 })
-            gsap.set(
-              [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
-              { opacity: 1, y: 0 }
-            )
-            gsap.set(cursorRef.current, { opacity: 0 })
-            if (userTextRef.current) userTextRef.current.textContent = USER_MSG
-            // Kill the scrub animation to prevent reverse scroll
-            scrollTrigger.disable()
+        onUpdate: (self) => {
+          if (!animationCompleted) {
+            // Play animation based on scroll progress
+            tl.progress(self.progress)
+
+            // Lock animation when fully complete (progress >= 0.8)
+            if (self.progress >= 0.8) {
+              animationCompleted = true
+              tl.progress(1) // Set to final frame
+              // Kill the scroll trigger to prevent reverse scroll
+              self.disable()
+              hasCompletedRef.current = true
+            }
           }
         },
       })
