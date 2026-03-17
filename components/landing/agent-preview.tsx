@@ -96,7 +96,7 @@ export function AgentPreview() {
       scrollTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=300%",
+        end: "+=80%",
         pin: stickyRef.current,
         onUpdate: (self) => {
           if (!animationCompleted) {
@@ -107,8 +107,6 @@ export function AgentPreview() {
             if (self.progress >= 0.8) {
               animationCompleted = true
               tl.progress(1) // Set to final frame
-              // Kill the scroll trigger to prevent reverse scroll
-              self.disable()
               hasCompletedRef.current = true
             }
           }
@@ -120,10 +118,11 @@ export function AgentPreview() {
   }, [])
 
   return (
-    // Outer section is 350vh so ScrollTrigger has scroll distance to work with
-    <div ref={sectionRef} className="relative" style={{ height: "350vh" }}>
-      {/* Sticky container — stays fixed while user scrolls through the 350vh */}
-      <div ref={stickyRef} className="w-full py-12 lg:py-16">
+    // Outer section is 80vh so ScrollTrigger has minimal scroll distance
+    // Animation completes early and locks, allowing next sections to appear
+    <div ref={sectionRef} className="relative" style={{ height: "80vh" }}>
+      {/* Sticky container — stays fixed while user scrolls through the 80vh */}
+      <div ref={stickyRef} className="w-full py-8 lg:py-12">
         <div className="mx-auto max-w-7xl px-6">
           <div className="max-w-5xl mx-auto">
             <div ref={cardRef} className="rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/[0.08] overflow-hidden">
