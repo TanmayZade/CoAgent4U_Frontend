@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react"
 import { useTheme } from "next-themes"
 import gsap from "gsap"
 import { GridScan } from "@/components/ui/grid-scan"
-import { StarField } from "@/components/ui/starfield"
+import { GalaxyBackground } from "@/components/ui/galaxy-background"
 
 const HEADLINE =
   "Your Personal Agent That Assists You and Collaborates with Other User's Agent"
@@ -110,8 +110,8 @@ export function HeroSection() {
 
   return (
     <section data-section="hero" className="relative min-h-screen flex flex-col justify-start overflow-hidden pt-32 pb-16">
-      {/* StarField Background */}
-      <StarField className="-z-30 pointer-events-none" />
+      {/* Galaxy Background Animation */}
+      <GalaxyBackground className="-z-30 pointer-events-none" />
 
       {/* GridScan background overlay */}
       <GridScan
