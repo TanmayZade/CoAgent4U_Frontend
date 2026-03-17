@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTheme } from 'next-themes'
 
 interface GalaxyProps {
   starSpeed?: number
@@ -44,11 +45,16 @@ export function Galaxy({
   transparent = true,
   className = '',
 }: GalaxyProps) {
+  const { theme, systemTheme } = useTheme()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [mounted, setMounted] = useState(false)
   const starsRef = useRef<Star[]>([])
   const mouseRef = useRef({ x: 0, y: 0 })
   const animationFrameRef = useRef<number | null>(null)
+
+  // Determine current theme
+  const currentTheme = theme === 'system' ? systemTheme : theme
+  const isDark = currentTheme === 'dark'
 
   useEffect(() => {
     setMounted(true)
@@ -79,22 +85,25 @@ export function Galaxy({
       window.addEventListener('mousemove', handleMouseMove)
     }
 
-    // Initialize stars
-    const starCount = Math.floor(200 * density)
+    // Initialize stars with theme-aware colors
+    const starCount = Math.floor(250 * density)
     const stars: Star[] = []
+
+    // Adjust hue shift based on theme for better visibility
+    const adjustedHueShift = isDark ? hueShift : hueShift + 20
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         z: Math.random() * 100,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.5 + 0.5,
-        vx: (Math.random() - 0.5) * starSpeed,
-        vy: (Math.random() - 0.5) * starSpeed,
-        hue: hueShift + Math.random() * 40 - 20,
+        size: Math.random() * 2.5 + 0.8,
+        opacity: isDark ? Math.random() * 0.6 + 0.6 : Math.random() * 0.5 + 0.4,
+        vx: (Math.random() - 0.5) * starSpeed * 0.8,
+        vy: (Math.random() - 0.5) * starSpeed * 0.8,
+        hue: adjustedHueShift + Math.random() * 50 - 25,
         twinkle: Math.random(),
-        twinkleSpeed: Math.random() * 0.02 + 0.01,
+        twinkleSpeed: Math.random() * 0.025 + 0.01,
       })
     }
 
@@ -103,8 +112,9 @@ export function Galaxy({
     let rotation = 0
 
     const animate = () => {
-      // Clear canvas
-      ctx.fillStyle = transparent ? 'rgba(0, 0, 0, 0)' : 'rgba(10, 10, 20, 0.1)'
+      // Clear canvas - use semi-transparent for trail effect
+      const clearAlpha = isDark ? 0.15 : 0.05
+      ctx.fillStyle = `rgba(${isDark ? '15, 15, 25' : '240, 240, 250'}, ${clearAlpha})`
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       rotation += rotationSpeed * 0.1
@@ -115,17 +125,19 @@ export function Galaxy({
           const dx = star.x - mouseRef.current.x
           const dy = star.y - mouseRef.current.y
           const distance = Math.sqrt(dx * dx + dy * dy)
-          const minDistance = 100
+          const minDistance = 120
 
           if (distance < minDistance) {
             const angle = Math.atan2(dy, dx)
             const force = (minDistance - distance) / minDistance
-            star.vx += Math.cos(angle) * force * repulsionStrength
-            star.vy += Math.sin(angle) * force * repulsionStrength
+            star.vx += Math.cos(angle) * force * repulsionStrength * 0.5
+            star.vy += Math.sin(angle) * force * repulsionStrength * 0.5
           }
         }
 
-        // Apply velocity
+        // Apply velocity with damping
+        star.vx *= 0.98
+        star.vy *= 0.98
         star.x += star.vx * speed
         star.y += star.vy * speed
 
@@ -137,48 +149,28 @@ export function Galaxy({
 
         // Twinkling effect
         star.twinkle += star.twinkleSpeed
-        const twinkleValue =
-          Math.sin(star.twinkle) * twinkleIntensity +
-          (1 - twinkleIntensity)
+        const twinkleValue = Math.sin(star.twinkle) * twinkleIntensity + (1 - twinkleIntensity)
+
+        // Theme-aware brightness
+        const baseLightness = isDark ? 75 : 65
 
         // Draw star with glow
-        const gradient = ctx.createRadialGradient(
-          star.x,
-          star.y,
-          0,
-          star.x,
-          star.y,
-          star.size * (2 + glowIntensity * 5)
-        )
+        const glowRadius = star.size * (2.2 + glowIntensity * 6)
+        const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, glowRadius)
 
-        gradient.addColorStop(
-          0,
-          `hsla(${star.hue}, ${100 - saturation}%, 70%, ${
-            star.opacity * twinkleValue * 0.8
-          })`
-        )
-        gradient.addColorStop(
-          1,
-          `hsla(${star.hue}, ${100 - saturation}%, 70%, 0)`
-        )
+        gradient.addColorStop(0, `hsla(${star.hue}, ${95 - saturation}%, ${baseLightness}%, ${star.opacity * twinkleValue * 0.9})`)
+        gradient.addColorStop(0.5, `hsla(${star.hue}, ${90 - saturation}%, ${baseLightness - 10}%, ${star.opacity * twinkleValue * 0.4})`)
+        gradient.addColorStop(1, `hsla(${star.hue}, ${85 - saturation}%, ${baseLightness - 20}%, 0)`)
 
         ctx.fillStyle = gradient
         ctx.beginPath()
-        ctx.arc(
-          star.x,
-          star.y,
-          star.size * (2 + glowIntensity * 5),
-          0,
-          Math.PI * 2
-        )
+        ctx.arc(star.x, star.y, glowRadius, 0, Math.PI * 2)
         ctx.fill()
 
-        // Core star
-        ctx.fillStyle = `hsla(${star.hue}, ${100 - saturation}%, 80%, ${
-          star.opacity * twinkleValue
-        })`
+        // Core star - brighter in dark mode
+        ctx.fillStyle = `hsla(${star.hue}, ${100 - saturation}%, ${baseLightness + 5}%, ${star.opacity * twinkleValue})`
         ctx.beginPath()
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
+        ctx.arc(star.x, star.y, Math.max(star.size * 0.6, 0.5), 0, Math.PI * 2)
         ctx.fill()
       })
 
@@ -209,6 +201,7 @@ export function Galaxy({
     twinkleIntensity,
     rotationSpeed,
     transparent,
+    isDark,
   ])
 
   if (!mounted) {

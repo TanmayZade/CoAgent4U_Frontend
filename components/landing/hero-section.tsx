@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
-import { useTheme } from "next-themes"
 import gsap from "gsap"
 import { GridScan } from "@/components/ui/grid-scan"
 import { GalaxyBackground } from "@/components/ui/galaxy-background"
@@ -13,8 +12,6 @@ const HEADLINE =
   "Your Personal Agent That Assists You and Collaborates with Other User's Agent"
 
 export function HeroSection() {
-  const { theme, systemTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
@@ -22,13 +19,6 @@ export function HeroSection() {
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
   const cta1Ref = useRef<HTMLAnchorElement>(null)
   const cta2Ref = useRef<HTMLAnchorElement>(null)
-
-  // Determine current theme (handle 'system' theme)
-  const currentTheme = theme === "system" ? systemTheme : theme
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     // Dynamically import TextPlugin to avoid SSR issues
@@ -140,15 +130,13 @@ export function HeroSection() {
             className="flex items-center justify-center gap-5 mb-12"
             style={{ opacity: 0 }}
           >
-            {mounted && (
-              <Image
-                src={currentTheme === "dark" ? "/images/logo-dark.png" : "/images/logo-light.png"}
-                alt="CoAgent4U Logo"
-                width={72}
-                height={72}
-                style={{ width: "72px", height: "72px" }}
-              />
-            )}
+            <Image
+              src="/images/logo-dark.png"
+              alt="CoAgent4U Logo"
+              width={72}
+              height={72}
+              style={{ width: "72px", height: "72px" }}
+            />
             <span className="text-3xl font-serif font-medium text-foreground tracking-tight italic">
               CoAgent4U
             </span>
