@@ -96,7 +96,7 @@ export function AgentPreview() {
       scrollTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=80%",
+        end: "+=65%",
         pin: stickyRef.current,
         onUpdate: (self) => {
           if (!animationCompleted) {
@@ -118,11 +118,11 @@ export function AgentPreview() {
   }, [])
 
   return (
-    // Outer section is 80vh so ScrollTrigger has minimal scroll distance
-    // Animation completes early and locks, allowing next sections to appear
-    <div ref={sectionRef} className="relative" style={{ height: "80vh" }}>
-      {/* Sticky container — stays fixed while user scrolls through the 80vh */}
-      <div ref={stickyRef} className="w-full py-8 lg:py-12">
+    // Outer section is 65vh so ScrollTrigger unpins before coordination section starts
+    // Animation completes at ~50% progress and locks, allowing next sections to appear
+    <div ref={sectionRef} className="relative" style={{ height: "65vh" }}>
+      {/* Sticky container — stays fixed while user scrolls through the 65vh */}
+      <div ref={stickyRef} className="w-full py-6 lg:py-8">
         <div className="mx-auto max-w-7xl px-6">
           <div className="max-w-5xl mx-auto">
             <div ref={cardRef} className="rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/[0.08] overflow-hidden">
