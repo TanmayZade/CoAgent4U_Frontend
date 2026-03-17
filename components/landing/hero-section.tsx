@@ -20,8 +20,17 @@ export function HeroSection() {
   const cta2Ref = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
-    // Configure GSAP to not warn about positioning
-    gsap.config({ nullTargetAction: "ignore" })
+    // Suppress GSAP positioning warnings by temporarily disabling console.warn
+    const originalWarn = console.warn
+    console.warn = (...args: any[]) => {
+      if (
+        typeof args[0] === 'string' &&
+        args[0].includes('non-static position')
+      ) {
+        return
+      }
+      originalWarn.apply(console, args)
+    }
 
     // Dynamically import TextPlugin to avoid SSR issues
     const run = async () => {
@@ -97,6 +106,7 @@ export function HeroSection() {
     const cleanup = run()
     return () => {
       cleanup.then((fn) => fn?.())
+      console.warn = originalWarn
     }
   }, [])
 
