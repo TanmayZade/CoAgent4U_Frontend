@@ -91,7 +91,7 @@ export function AgentPreview() {
       // Pin + scrub
       let isCompleted = false;
 
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=300%",
@@ -100,16 +100,18 @@ export function AgentPreview() {
         animation: tl,
 
         onUpdate: (self) => {
-          // ✅ Mark as completed when reaching end
           if (self.progress >= 0.999 && !isCompleted) {
             isCompleted = true;
+
+            // 🔥 Force final state
             tl.progress(1);
             tl.pause();
-          }
 
-          // ✅ If completed → prevent reverse ONLY then
-          if (isCompleted && self.direction === -1) {
-            tl.progress(1);
+            // 🔥 Detach scrub control COMPLETELY
+            self.animation = null;
+
+            // 🔥 Kill ONLY the scrub behavior (keep pin)
+            self.disable(false);
           }
         }
       });
