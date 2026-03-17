@@ -96,7 +96,7 @@ export function AgentPreview() {
       scrollTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=70%",
+        end: "+=300%",
         pin: stickyRef.current,
         onUpdate: (self) => {
           if (!animationCompleted) {
@@ -107,6 +107,8 @@ export function AgentPreview() {
             if (self.progress >= 0.8) {
               animationCompleted = true
               tl.progress(1) // Set to final frame
+              // Kill the scroll trigger to prevent reverse scroll
+              self.disable()
               hasCompletedRef.current = true
             }
           }
@@ -118,11 +120,10 @@ export function AgentPreview() {
   }, [])
 
   return (
-    // Outer section is 70vh so ScrollTrigger has scroll distance to work with
-    // Animation completes at 80% progress, then content below loads normally
-    <div ref={sectionRef} className="relative" style={{ height: "70vh" }}>
-      {/* Sticky container — stays fixed while user scrolls through the 120vh */}
-      <div ref={stickyRef} className="w-full py-8 lg:py-12">
+    // Outer section is 350vh so ScrollTrigger has scroll distance to work with
+    <div ref={sectionRef} className="relative" style={{ height: "350vh" }}>
+      {/* Sticky container — stays fixed while user scrolls through the 350vh */}
+      <div ref={stickyRef} className="w-full py-12 lg:py-16">
         <div className="mx-auto max-w-7xl px-6">
           <div className="max-w-5xl mx-auto">
             <div ref={cardRef} className="rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/[0.08] overflow-hidden">
@@ -226,15 +227,17 @@ export function AgentPreview() {
                       <div className="flex items-center gap-2">
                         <button
                           ref={approveButtonRef}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${approveClicked ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
-                            }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
+                            approveClicked ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
+                          }`}
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           {approveClicked ? "Approved" : "Approve"}
                         </button>
                         <button
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${approveClicked ? "opacity-40 cursor-not-allowed bg-red-700" : "bg-red-600 hover:bg-red-700"
-                            }`}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
+                            approveClicked ? "opacity-40 cursor-not-allowed bg-red-700" : "bg-red-600 hover:bg-red-700"
+                          }`}
                           disabled={approveClicked}
                         >
                           <span>✕</span>
