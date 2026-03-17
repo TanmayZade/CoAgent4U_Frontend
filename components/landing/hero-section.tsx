@@ -5,7 +5,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
-import { GridScan } from "@/components/ui/grid-scan"
 import { GalaxyBackground } from "@/components/ui/galaxy-background"
 
 const HEADLINE =
@@ -103,22 +102,6 @@ export function HeroSection() {
       {/* Galaxy Background Animation */}
       <GalaxyBackground className="-z-30 pointer-events-none" />
 
-      {/* GridScan background overlay */}
-      <GridScan
-        lineThickness={1}
-        linesColor="#392e4e"
-        scanColor="#ffffff"
-        scanOpacity={0.4}
-        gridScale={0.1}
-        lineStyle="solid"
-        scanDirection="pingpong"
-        scanGlow={0.5}
-        scanSoftness={2}
-        scanDuration={2}
-        scanDelay={2}
-        scanOnClick={false}
-        className="absolute inset-0 w-full h-full -z-20"
-      />
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
       <div ref={containerRef} className="relative mx-auto max-w-7xl px-6 w-full">
