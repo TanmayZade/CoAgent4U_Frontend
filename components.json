@@ -19,6 +19,6 @@
   },
   "iconLibrary": "lucide",
   "registries": {
-    "@react-bits": "https://registry.react-bits.dev"
+    "@react-bits": "https://raw.githubusercontent.com/aleksandardon996/react-bits/main"
   }
 }
