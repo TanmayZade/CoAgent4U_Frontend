@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
 import { GridScan } from "@/components/ui/grid-scan"
+import { useTheme } from "next-themes"
 
 const HEADLINE =
   "Your Personal Agent That Assists You and Collaborates with Other User's Agent"
@@ -18,6 +19,13 @@ export function HeroSection() {
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
   const cta1Ref = useRef<HTMLAnchorElement>(null)
   const cta2Ref = useRef<HTMLAnchorElement>(null)
+  const { theme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     // Dynamically import TextPlugin to avoid SSR issues
@@ -126,14 +134,16 @@ export function HeroSection() {
             className="flex items-center justify-center gap-5 mb-12"
             style={{ opacity: 0 }}
           >
-            <Image
-              src="/images/logo.png"
-              alt="CoAgent4U Logo"
-              width={72}
-              height={72}
-              className="drop-shadow-md"
-              style={{ width: "72px", height: "72px" }}
-            />
+            {mounted && (
+              <Image
+                src={isDark ? "/images/logo-dark.png" : "/images/logo-light.png"}
+                alt="CoAgent4U Logo"
+                width={72}
+                height={72}
+                className="drop-shadow-md"
+                style={{ width: "72px", height: "72px" }}
+              />
+            )}
             <span className="text-3xl font-serif font-medium text-foreground tracking-tight italic">
               CoAgent4U
             </span>

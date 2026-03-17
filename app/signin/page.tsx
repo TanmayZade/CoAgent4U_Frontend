@@ -2,16 +2,25 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Shield, Slack, AlertCircle } from "lucide-react"
 import gsap from "gsap"
 import { authAPI, integrationAPI } from "@/lib/api"
+import { useTheme } from "next-themes"
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const { theme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // On mount: check session and redirect if already authenticated
   useEffect(() => {
@@ -94,10 +103,17 @@ export default function SignInPage() {
         {/* Logo Section */}
         <div className="text-center mb-12">
           <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center group-hover:border-cyan-400/60 transition-colors backdrop-blur-sm">
-              <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">⚡</span>
-            </div>
-            <span className="text-xl font-semibold text-slate-100 hidden sm:inline">CoAgent4U</span>
+            {mounted && (
+              <Image 
+                src={isDark ? "/images/logo-dark.png" : "/images/logo-light.png"} 
+                alt="CoAgent4U Logo" 
+                width={40} 
+                height={40}
+                className="transition-transform duration-300 group-hover:scale-105"
+                style={{ width: '40px', height: '40px' }}
+              />
+            )}
+            <span className="text-xl font-semibold text-slate-100 hidden sm:inline italic font-serif">CoAgent4U</span>
           </Link>
           <h1 className="text-3xl font-bold text-slate-50 mb-2">Sign In</h1>
           <p className="text-slate-400">Connect with Slack to access your scheduling agent</p>

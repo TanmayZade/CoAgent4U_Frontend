@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
@@ -17,6 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import gsap from "gsap"
 import { authAPI, integrationAPI, APIError } from "@/lib/api"
+import { useTheme } from "next-themes"
 
 const steps = [
   { id: 1, title: "Choose Username", description: "Pick your unique handle" },
@@ -48,6 +50,13 @@ export default function OnboardingPage() {
   const [isSubmittingUsername, setIsSubmittingUsername] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const { theme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Username validation regex
   const usernameRegex = /^[a-zA-Z0-9_-]{3,32}$/
@@ -200,10 +209,17 @@ export default function OnboardingPage() {
         {/* Logo */}
         <div className="text-center mb-12">
           <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group justify-center">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-cyan-400/40 flex items-center justify-center group-hover:border-cyan-400/60 transition-colors backdrop-blur-sm">
-              <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">⚡</span>
-            </div>
-            <span className="text-xl font-semibold text-slate-100">CoAgent4U</span>
+            {mounted && (
+              <Image 
+                src={isDark ? "/images/logo-dark.png" : "/images/logo-light.png"} 
+                alt="CoAgent4U Logo" 
+                width={40} 
+                height={40}
+                className="transition-transform duration-300 group-hover:scale-105"
+                style={{ width: '40px', height: '40px' }}
+              />
+            )}
+            <span className="text-xl font-semibold text-slate-100 italic font-serif">CoAgent4U</span>
           </Link>
           <h1 className="text-3xl font-bold text-slate-50 mb-2">Complete Your Setup</h1>
           <p className="text-slate-400">Get your scheduling agent live in 4 quick steps</p>

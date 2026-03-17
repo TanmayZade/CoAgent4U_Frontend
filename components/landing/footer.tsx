@@ -1,9 +1,11 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Github, Twitter } from "lucide-react"
 import { useScrollReveal, useStaggerReveal } from "@/hooks/use-gsap-animations"
+import { useTheme } from "next-themes"
 
 const footerLinks = {
   product: [
@@ -31,6 +33,13 @@ export function Footer() {
     duration: 0.6,
     childSelector: "li"
   })
+  const { theme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <footer ref={footerRef} className="border-t border-border/40 bg-muted/20">
@@ -39,14 +48,16 @@ export function Footer() {
           {/* Logo & Description */}
           <div className="col-span-2">
             <Link href="/" className="inline-flex items-center gap-4 mb-6 group">
-              <Image 
-                src="/images/logo.png" 
-                alt="CoAgent4U Logo" 
-                width={48} 
-                height={48}
-                className="transition-transform duration-300 group-hover:scale-105"
-                style={{ width: '40px', height: '40px' }}
-              />
+              {mounted && (
+                <Image 
+                  src={isDark ? "/images/logo-dark.png" : "/images/logo-light.png"} 
+                  alt="CoAgent4U Logo" 
+                  width={48} 
+                  height={48}
+                  className="transition-transform duration-300 group-hover:scale-105"
+                  style={{ width: '40px', height: '40px' }}
+                />
+              )}
               <span className="text-2xl font-serif font-medium text-foreground tracking-tight italic">
                 CoAgent4U
               </span>

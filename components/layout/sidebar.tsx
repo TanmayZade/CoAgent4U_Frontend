@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { 
   Home, 
@@ -37,6 +39,13 @@ const navItems = [
 export function Sidebar({ user, isLoading }: { user: UserData | null, isLoading: boolean }) {
   const pathname = usePathname()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { theme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -69,10 +78,17 @@ export function Sidebar({ user, isLoading }: { user: UserData | null, isLoading:
       {/* Logo */}
       <div className="p-4 border-b border-border/50">
         <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <span className="text-sm font-bold text-primary">⚡</span>
-          </div>
-          <span className="text-lg font-semibold text-foreground">CoAgent4U</span>
+          {mounted && (
+            <Image 
+              src={isDark ? "/images/logo-dark.png" : "/images/logo-light.png"} 
+              alt="CoAgent4U Logo" 
+              width={32} 
+              height={32}
+              className="transition-transform duration-300"
+              style={{ width: '32px', height: '32px' }}
+            />
+          )}
+          <span className="text-lg font-semibold text-foreground italic font-serif">CoAgent4U</span>
         </Link>
       </div>
 
