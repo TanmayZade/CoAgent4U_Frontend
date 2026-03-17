@@ -89,8 +89,8 @@ export function AgentPreview() {
       // Phase 4: meeting confirmed (0.72 → 0.80)
       tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.72)
 
-      // Pin + scrub
-      ScrollTrigger.create({
+      // Pin + scrub - lock state once completed
+      const scrollTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=300%",
@@ -108,18 +108,8 @@ export function AgentPreview() {
             )
             gsap.set(cursorRef.current, { opacity: 0 })
             if (userTextRef.current) userTextRef.current.textContent = USER_MSG
-          }
-        },
-        onEnterBack: () => {
-          // Keep final state when scrolling back after completion
-          if (hasCompletedRef.current) {
-            gsap.set(cardRef.current, { scale: 1 })
-            gsap.set(
-              [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
-              { opacity: 1, y: 0 }
-            )
-            gsap.set(cursorRef.current, { opacity: 0 })
-            if (userTextRef.current) userTextRef.current.textContent = USER_MSG
+            // Kill the scrub animation to prevent reverse scroll
+            scrollTrigger.disable()
           }
         },
       })
@@ -153,26 +143,26 @@ export function AgentPreview() {
               </div>
 
               {/* Slack-style thread */}
-              <div className="bg-zinc-900 p-4 lg:p-6 space-y-1 min-h-[420px]">
+              <div className="bg-background p-4 lg:p-6 space-y-1 min-h-[420px]">
 
                 {/* User message */}
                 <div
                   ref={userMessageRef}
-                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="w-9 h-9 rounded-md bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
                     TZ
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-white font-bold text-sm">Tanmay Zade</span>
-                      <span className="text-zinc-500 text-xs">4:24 PM</span>
+                      <span className="text-foreground font-bold text-sm">Tanmay Zade</span>
+                      <span className="text-muted-foreground text-xs">4:24 PM</span>
                     </div>
-                    <p className="text-zinc-200 text-sm mt-0.5 break-words">
+                    <p className="text-foreground text-sm mt-0.5 break-words">
                       <span ref={userTextRef} />
                       <span
                         ref={cursorRef}
-                        className="inline-block w-[2px] h-[14px] bg-zinc-300 align-middle ml-px"
+                        className="inline-block w-[2px] h-[14px] bg-foreground align-middle ml-px"
                       />
                     </p>
                   </div>
@@ -181,21 +171,21 @@ export function AgentPreview() {
                 {/* Agent response */}
                 <div
                   ref={agentResponseRef}
-                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-white font-bold text-sm">CoAgent4U</span>
-                      <span className="bg-zinc-700 text-zinc-300 text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
-                      <span className="text-zinc-500 text-xs">4:24 PM</span>
+                      <span className="text-foreground font-bold text-sm">CoAgent4U</span>
+                      <span className="bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
+                      <span className="text-muted-foreground text-xs">4:24 PM</span>
                     </div>
-                    <p className="text-zinc-200 text-sm mt-0.5">
+                    <p className="text-foreground text-sm mt-0.5">
                       Coordinating with Sarah&apos;s agent. Common availability found: 2:00 PM – 5:00 PM. Awaiting Sarah&apos;s approval before confirming.
                     </p>
-                    <div className="mt-2 flex items-center gap-2 text-xs text-emerald-400">
+                    <div className="mt-2 flex items-center gap-2 text-xs text-emerald-600">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Agent-to-agent coordination in progress
                     </div>
@@ -205,39 +195,39 @@ export function AgentPreview() {
                 {/* Meeting approval request */}
                 <div
                   ref={approvalRequestRef}
-                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-white font-bold text-sm">CoAgent4U</span>
-                      <span className="bg-zinc-700 text-zinc-300 text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
-                      <span className="text-zinc-500 text-xs">4:25 PM</span>
+                      <span className="text-foreground font-bold text-sm">CoAgent4U</span>
+                      <span className="bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
+                      <span className="text-muted-foreground text-xs">4:25 PM</span>
                     </div>
-                    <div className="mt-2 border-l-4 border-amber-500 bg-zinc-800/60 rounded-r-lg p-3">
+                    <div className="mt-2 border-l-4 border-amber-500 bg-amber-50 rounded-r-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-base">📋</span>
-                        <h4 className="text-white font-semibold text-sm">Meeting Approval Request</h4>
+                        <h4 className="text-foreground font-semibold text-sm">Meeting Approval Request</h4>
                       </div>
-                      <p className="text-zinc-300 text-sm mb-2">
-                        <span className="text-blue-400">@Sarah</span> selected a meeting slot.
+                      <p className="text-foreground text-sm mb-2">
+                        <span className="text-blue-600">@Sarah</span> selected a meeting slot.
                       </p>
-                      <div className="flex items-center gap-2 text-zinc-400 text-xs mb-1">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>Fri, 14 Mar 2026</span>
                       </div>
-                      <div className="flex items-center gap-2 text-zinc-400 text-xs mb-3">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-3">
                         <span>🕐</span>
                         <span>03:00 PM – 04:00 PM</span>
                       </div>
-                      <p className="text-zinc-500 text-xs mb-3">Approve or reject this meeting time.</p>
+                      <p className="text-muted-foreground text-xs mb-3">Approve or reject this meeting time.</p>
                       <div className="flex items-center gap-2">
                         <button
                           ref={approveButtonRef}
                           className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
-                            approveClicked ? "bg-green-800" : "bg-green-700 hover:bg-green-600"
+                            approveClicked ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
                           }`}
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -245,7 +235,7 @@ export function AgentPreview() {
                         </button>
                         <button
                           className={`flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-medium rounded transition-colors ${
-                            approveClicked ? "opacity-40 cursor-not-allowed bg-zinc-700" : "bg-red-700 hover:bg-red-600"
+                            approveClicked ? "opacity-40 cursor-not-allowed bg-red-700" : "bg-red-600 hover:bg-red-700"
                           }`}
                           disabled={approveClicked}
                         >
@@ -260,38 +250,38 @@ export function AgentPreview() {
                 {/* Meeting confirmed */}
                 <div
                   ref={meetingConfirmedRef}
-                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+                  className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-white font-bold text-sm">CoAgent4U</span>
-                      <span className="bg-zinc-700 text-zinc-300 text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
-                      <span className="text-zinc-500 text-xs">4:26 PM</span>
+                      <span className="text-foreground font-bold text-sm">CoAgent4U</span>
+                      <span className="bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
+                      <span className="text-muted-foreground text-xs">4:26 PM</span>
                     </div>
-                    <div className="mt-2 border-l-4 border-green-500 bg-zinc-800/60 rounded-r-lg p-3">
+                    <div className="mt-2 border-l-4 border-green-500 bg-green-50 rounded-r-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-green-400">✓</span>
-                        <h4 className="text-white font-semibold text-sm">Meeting Confirmed</h4>
+                        <span className="text-green-600">✓</span>
+                        <h4 className="text-foreground font-semibold text-sm">Meeting Confirmed</h4>
                       </div>
-                      <p className="text-zinc-500 text-xs mb-1">Participants:</p>
+                      <p className="text-muted-foreground text-xs mb-1">Participants:</p>
                       <ul className="text-xs mb-2 space-y-0.5">
-                        <li className="flex items-center gap-2 text-zinc-300">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-                          <span className="text-blue-400">@Tanmay Zade</span>
+                        <li className="flex items-center gap-2 text-foreground">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                          <span className="text-blue-600">@Tanmay Zade</span>
                         </li>
-                        <li className="flex items-center gap-2 text-zinc-300">
-                          <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-                          <span className="text-blue-400">@Sarah</span>
+                        <li className="flex items-center gap-2 text-foreground">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                          <span className="text-blue-600">@Sarah</span>
                         </li>
                       </ul>
-                      <div className="flex items-center gap-2 text-zinc-400 text-xs mb-1">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>Fri, 14 Mar 2026</span>
                       </div>
-                      <div className="flex items-center gap-2 text-zinc-400 text-xs">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs">
                         <span>🕐</span>
                         <span>03:00 PM – 04:00 PM</span>
                       </div>
