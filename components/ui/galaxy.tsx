@@ -61,12 +61,10 @@ export function Galaxy({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size to parent container size
+    // Set canvas size to viewport
     const resizeCanvas = () => {
-      if (!canvas.parentElement) return
-      const rect = canvas.parentElement.getBoundingClientRect()
-      canvas.width = Math.max(rect.width, window.innerWidth)
-      canvas.height = Math.max(rect.height, window.innerHeight)
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
     }
 
     resizeCanvas()
@@ -194,11 +192,9 @@ export function Galaxy({
   ])
 
   if (!mounted) {
-    console.log("[v0] Galaxy not mounted yet")
     return null
   }
 
-  console.log("[v0] Galaxy rendering canvas")
   return (
     <canvas
       ref={canvasRef}
