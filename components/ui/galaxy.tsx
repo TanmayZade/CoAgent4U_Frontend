@@ -60,7 +60,7 @@ export function Galaxy({
     }
 
     const particles: Particle[] = []
-    const particleCount = Math.floor(100 * density)
+    const particleCount = Math.floor(200 * density)
     let rotation = 0
     let mouseX = canvas.width / 2
     let mouseY = canvas.height / 2
@@ -100,10 +100,8 @@ export function Galaxy({
 
     // Animation loop
     const animate = () => {
-      // Clear with semi-transparent background for trail effect
-      ctx.fillStyle = transparent
-        ? "rgba(0, 0, 0, 0)"
-        : "rgba(15, 15, 15, 0.1)"
+      // Clear canvas - use transparent background for better blending
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       // Update and draw particles
@@ -163,11 +161,11 @@ export function Galaxy({
         )
         gradient.addColorStop(
           0,
-          `hsla(${particle.hue}, ${100 - saturation}%, 60%, ${particle.opacity})`
+          `hsla(${particle.hue}, ${100 - saturation}%, 70%, ${particle.opacity * 0.8})`
         )
         gradient.addColorStop(
           1,
-          `hsla(${particle.hue}, ${100 - saturation}%, 60%, 0)`
+          `hsla(${particle.hue}, ${100 - saturation}%, 70%, 0)`
         )
 
         ctx.fillStyle = gradient
