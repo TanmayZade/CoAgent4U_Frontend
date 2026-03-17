@@ -5,21 +5,10 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { useTheme } from "next-themes"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const { theme, systemTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  const isDark = theme === "dark" || (theme === "system" && systemTheme === "dark")
-
-  // Mount check for hydration
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Scroll detection for navbar background
   useEffect(() => {
@@ -55,17 +44,15 @@ export function Navbar() {
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-4 group">
-            {mounted && (
-              <Image 
-                src={isDark ? "/images/logo-dark.png" : "/images/logo-light.png"} 
-                alt="CoAgent4U Logo" 
-                width={56} 
-                height={56}
-                className="transition-all duration-300 group-hover:scale-105"
-                style={{ width: '48px', height: '48px' }}
-                priority
-              />
-            )}
+            <Image 
+              src="/images/logo-light.png" 
+              alt="CoAgent4U Logo" 
+              width={56} 
+              height={56}
+              className="transition-all duration-300 group-hover:scale-105"
+              style={{ width: '48px', height: '48px' }}
+              priority
+            />
             <span className="text-2xl font-serif font-medium tracking-tight text-foreground italic">
               CoAgent4U
             </span>
@@ -101,7 +88,6 @@ export function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <ThemeToggle />
             <Button variant="ghost" size="lg" className="text-base transition-all duration-300 hover:scale-105" asChild>
               <Link href="/signin">Sign In</Link>
             </Button>
