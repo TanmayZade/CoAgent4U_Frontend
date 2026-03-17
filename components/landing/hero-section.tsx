@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import gsap from "gsap"
 import { GridScan } from "@/components/ui/grid-scan"
@@ -11,6 +12,7 @@ const HEADLINE =
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const logoRef = useRef<HTMLDivElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
@@ -58,6 +60,14 @@ export function HeroSection() {
         blinkTween.kill()
         gsap.to(cursor, { opacity: 0, duration: 0.3 })
       }, DURATION + 0.1)
+
+      // Logo pop-in
+      tl.fromTo(
+        logoRef.current,
+        { opacity: 0, scale: 0.85, y: 10 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
+        DURATION + 0.3
+      )
 
       // Subheadline slide-up
       tl.fromTo(
@@ -109,6 +119,25 @@ export function HeroSection() {
 
       <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
         <div className="mx-auto max-w-5xl text-center">
+
+          {/* Logo + Brand — hidden until animation reveals */}
+          <div
+            ref={logoRef}
+            className="flex items-center justify-center gap-5 mb-12"
+            style={{ opacity: 0 }}
+          >
+            <Image
+              src="/images/logo-light.png"
+              alt="CoAgent4U Logo"
+              width={72}
+              height={72}
+              className="drop-shadow-md"
+              style={{ width: "72px", height: "72px" }}
+            />
+            <span className="text-3xl font-serif font-medium text-foreground tracking-tight italic">
+              CoAgent4U
+            </span>
+          </div>
 
           {/* Headline — inline cursor follows typed characters naturally */}
           <h1
