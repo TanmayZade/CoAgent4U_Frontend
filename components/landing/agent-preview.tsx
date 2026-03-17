@@ -97,6 +97,12 @@ export function AgentPreview() {
         pin: stickyRef.current,
         scrub: 1,
         animation: tl,
+        onUpdate: (self) => {
+          // If the animation has ever reached the end, lock the timeline at 100%
+          if (hasCompletedRef.current) {
+            tl.progress(1)
+          }
+        },
         onLeave: () => {
           // Lock final state once animation completes
           if (!hasCompletedRef.current) {
@@ -111,16 +117,9 @@ export function AgentPreview() {
           }
         },
         onEnterBack: () => {
-          // Keep final state when scrolling back after completion
-          if (hasCompletedRef.current) {
-            gsap.set(cardRef.current, { scale: 1 })
-            gsap.set(
-              [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
-              { opacity: 1, y: 0 }
-            )
-            gsap.set(cursorRef.current, { opacity: 0 })
-            if (userTextRef.current) userTextRef.current.textContent = USER_MSG
-          }
+          // Keep final state when scrolling back after completion by ensuring flag is set
+          hasCompletedRef.current = true
+          tl.progress(1) // Force timeline to end state immediately
         },
       })
     })
