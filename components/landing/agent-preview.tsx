@@ -122,7 +122,7 @@ export function AgentPreview() {
   return (
     // Outer section is 120vh so ScrollTrigger has scroll distance to work with
     // Animation completes at 80% progress, then scroll trigger is disabled
-    <div ref={sectionRef} className="relative" style={{ height: "80vh" }}>
+    <div ref={sectionRef} className="relative" style={{ height: "120vh" }}>
       {/* Sticky container — stays fixed while user scrolls through the 120vh */}
       <div ref={stickyRef} className="w-full py-8 lg:py-12">
         <div className="mx-auto max-w-7xl px-6">
