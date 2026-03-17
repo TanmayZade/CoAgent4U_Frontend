@@ -14,7 +14,7 @@ import { ScrollProgressBar } from "@/components/ui/parallax-wrapper"
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="relative min-h-screen bg-background">
       <ScrollProgressBar />
       <Navbar />
       <HeroSection />

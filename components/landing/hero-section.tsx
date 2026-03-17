@@ -20,6 +20,9 @@ export function HeroSection() {
   const cta2Ref = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
+    // Configure GSAP to not warn about positioning
+    gsap.config({ nullTargetAction: "ignore" })
+
     // Dynamically import TextPlugin to avoid SSR issues
     const run = async () => {
       const { TextPlugin } = await import("gsap/TextPlugin")
