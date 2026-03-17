@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
@@ -14,6 +14,7 @@ const HEADLINE =
 
 export function HeroSection() {
   const { theme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
@@ -24,6 +25,10 @@ export function HeroSection() {
 
   // Determine current theme (handle 'system' theme)
   const currentTheme = theme === "system" ? systemTheme : theme
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     // Dynamically import TextPlugin to avoid SSR issues
@@ -135,13 +140,15 @@ export function HeroSection() {
             className="flex items-center justify-center gap-5 mb-12"
             style={{ opacity: 0 }}
           >
-            <Image
-              src={currentTheme === "dark" ? "/images/logo-dark.png" : "/images/logo-light.png"}
-              alt="CoAgent4U Logo"
-              width={72}
-              height={72}
-              style={{ width: "72px", height: "72px" }}
-            />
+            {mounted && (
+              <Image
+                src={currentTheme === "dark" ? "/images/logo-dark.png" : "/images/logo-light.png"}
+                alt="CoAgent4U Logo"
+                width={72}
+                height={72}
+                style={{ width: "72px", height: "72px" }}
+              />
+            )}
             <span className="text-3xl font-serif font-medium text-foreground tracking-tight italic">
               CoAgent4U
             </span>
