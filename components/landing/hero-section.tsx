@@ -33,7 +33,7 @@ export function HeroSection() {
       gsap.set(h1, { opacity: 1 })
       gsap.set(cursor, { opacity: 1 })
 
-      const HEADLINE = "A Personal Agent That Collaborates for You"
+      const HEADLINE = "Your Personal Agent That Collaborates for You"
       const CHAR_SPEED = 0.10 // seconds per character
       const DURATION = HEADLINE.length * CHAR_SPEED
 
@@ -96,7 +96,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section data-section="hero" className="relative min-h-screen flex flex-col justify-start overflow-hidden pt-32 pb-16">
+    <section data-section="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden pb-16 pt-20">
       {/* GridScan background */}
       <GridScan
         lineThickness={1}
