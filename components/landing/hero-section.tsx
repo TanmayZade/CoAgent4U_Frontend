@@ -15,28 +15,9 @@ export function HeroSection() {
   const cursorRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const logoRef = useRef<HTMLDivElement>(null)
-  const logoImageRef = useRef<HTMLImageElement>(null)
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
   const cta1Ref = useRef<HTMLAnchorElement>(null)
   const cta2Ref = useRef<HTMLAnchorElement>(null)
-  const bgRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    // Parallax scroll effect
-    const handleScroll = () => {
-      if (bgRef.current) {
-        const scrollY = window.scrollY
-        gsap.to(bgRef.current, {
-          y: scrollY * 0.5,
-          duration: 0.1,
-          overwrite: "auto",
-        })
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
 
   useEffect(() => {
     // Dynamically import TextPlugin to avoid SSR issues
@@ -80,35 +61,12 @@ export function HeroSection() {
         gsap.to(cursor, { opacity: 0, duration: 0.3 })
       }, DURATION + 0.1)
 
-      // Logo pop-in with floating animation
+      // Logo pop-in
       tl.fromTo(
         logoRef.current,
         { opacity: 0, scale: 0.85, y: 10 },
         { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
         DURATION + 0.3
-      )
-
-      // Floating animation for logo image
-      if (logoImageRef.current) {
-        gsap.to(logoImageRef.current, {
-          y: -12,
-          duration: 3,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: DURATION + 0.8,
-        })
-      }
-
-      // Glow effect on headline
-      tl.to(
-        h1,
-        {
-          textShadow: "0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.3)",
-          duration: 0.6,
-          ease: "power2.inOut",
-        },
-        DURATION + 0.4
       )
 
       // Subheadline slide-up
@@ -119,24 +77,13 @@ export function HeroSection() {
         DURATION + 0.55
       )
 
-      // CTA buttons with stagger and pulse effect
+      // CTA buttons with stagger
       tl.fromTo(
         [cta1Ref.current, cta2Ref.current].filter(Boolean),
         { opacity: 0, scale: 0.9, y: 8 },
         { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.7)", stagger: 0.12 },
         DURATION + 0.75
       )
-
-      // Add subtle pulse effect to primary CTA
-      if (cta1Ref.current) {
-        gsap.to(cta1Ref.current, {
-          boxShadow: "0 0 0 0 rgba(139, 92, 246, 0.7)",
-          duration: 2,
-          repeat: -1,
-          ease: "power1.inOut",
-          delay: DURATION + 1.3,
-        })
-      }
 
       return () => {
         tl.kill()
@@ -153,23 +100,21 @@ export function HeroSection() {
   return (
     <section data-section="hero" className="relative min-h-screen flex flex-col justify-start overflow-hidden pt-32 pb-16">
       {/* GridScan background */}
-      <div ref={bgRef}>
-        <GridScan
-          lineThickness={1}
-          linesColor="#392e4e"
-          scanColor="#ffffff"
-          scanOpacity={0.4}
-          gridScale={0.1}
-          lineStyle="solid"
-          scanDirection="pingpong"
-          scanGlow={0.5}
-          scanSoftness={2}
-          scanDuration={2}
-          scanDelay={2}
-          scanOnClick={false}
-          className="absolute inset-0 w-full h-full -z-20"
-        />
-      </div>
+      <GridScan
+        lineThickness={1}
+        linesColor="#392e4e"
+        scanColor="#ffffff"
+        scanOpacity={0.4}
+        gridScale={0.1}
+        lineStyle="solid"
+        scanDirection="pingpong"
+        scanGlow={0.5}
+        scanSoftness={2}
+        scanDuration={2}
+        scanDelay={2}
+        scanOnClick={false}
+        className="absolute inset-0 w-full h-full -z-20"
+      />
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--background)_70%)]" />
 
       <div ref={containerRef} className="mx-auto max-w-7xl px-6 w-full">
@@ -182,7 +127,6 @@ export function HeroSection() {
             style={{ opacity: 0 }}
           >
             <Image
-              ref={logoImageRef}
               src="/images/logo.png"
               alt="CoAgent4U Logo"
               width={72}
