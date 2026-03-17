@@ -96,7 +96,7 @@ export function AgentPreview() {
       scrollTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=120%",
+        end: "+=100%",
         pin: stickyRef.current,
         onUpdate: (self) => {
           if (!animationCompleted) {
@@ -107,8 +107,6 @@ export function AgentPreview() {
             if (self.progress >= 0.8) {
               animationCompleted = true
               tl.progress(1) // Set to final frame
-              // Kill the scroll trigger to prevent reverse scroll
-              self.disable()
               hasCompletedRef.current = true
             }
           }
@@ -120,9 +118,9 @@ export function AgentPreview() {
   }, [])
 
   return (
-    // Outer section is 120vh so ScrollTrigger has scroll distance to work with
-    // Animation completes at 80% progress, then scroll trigger is disabled
-    <div ref={sectionRef} className="relative" style={{ height: "120vh" }}>
+    // Outer section is 100vh so ScrollTrigger has scroll distance to work with
+    // Animation completes at 80% progress, then content below loads normally
+    <div ref={sectionRef} className="relative" style={{ height: "100vh" }}>
       {/* Sticky container — stays fixed while user scrolls through the 120vh */}
       <div ref={stickyRef} className="w-full py-8 lg:py-12">
         <div className="mx-auto max-w-7xl px-6">
