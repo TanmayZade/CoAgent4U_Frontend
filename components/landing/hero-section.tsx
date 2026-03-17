@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { ArrowRight } from "lucide-react"
-import gsap from "gsap"
 import { GridScan } from "@/components/ui/grid-scan"
+import gsap from "gsap"
+import { ArrowRight } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useRef } from "react"
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -33,19 +33,9 @@ export function HeroSection() {
       gsap.set(h1, { opacity: 1 })
       gsap.set(cursor, { opacity: 1 })
 
-      const PART_1 = "Your Personal Agent That Assists You"
-      const PART_2 = "Your Personal Agent That "
-      const PART_3 = "Your Personal Agent That Collaborates with Other User's Agent"
-      
-      const CHAR_SPEED = 0.08 // slightly faster typing
-      const ERASE_SPEED = 0.04 // fast erasing
-      const PAUSE = 0.6 // pause before erasing
-
-      const duration_1 = PART_1.length * CHAR_SPEED
-      const duration_erase = (PART_1.length - PART_2.length) * ERASE_SPEED
-      const duration_3 = (PART_3.length - PART_2.length) * CHAR_SPEED
-
-      const totalTypingTime = duration_1 + PAUSE + duration_erase + duration_3
+      const HEADLINE = "A Personal Agent That Collaborates for You"
+      const CHAR_SPEED = 0.10 // seconds per character
+      const DURATION = HEADLINE.length * CHAR_SPEED
 
       const tl = gsap.timeline()
 
@@ -56,39 +46,25 @@ export function HeroSection() {
         { opacity: 0, duration: 0.7, repeat: -1, yoyo: true, ease: "none" }
       )
 
-      // Step 1: Type out "Your Personal Agent That Assists You"
+      // Type text into the h1 span (cursor is a sibling <span> — it auto-follows inline flow)
       tl.to(h1, {
-        duration: duration_1,
-        text: { value: PART_1, delimiter: "" },
+        duration: DURATION,
+        text: { value: HEADLINE, delimiter: "" },
         ease: "none",
       }, 0)
-
-      // Step 2: Erase back to "Your Personal Agent That "
-      tl.to(h1, {
-        duration: duration_erase,
-        text: { value: PART_2, delimiter: "" },
-        ease: "none",
-      }, duration_1 + PAUSE)
-
-      // Step 3: Type the rest "Collaborates with Other User's Agent"
-      tl.to(h1, {
-        duration: duration_3,
-        text: { value: PART_3, delimiter: "" },
-        ease: "none",
-      }, duration_1 + PAUSE + duration_erase)
 
       // After typing: stop blink, hide cursor
       tl.add(() => {
         blinkTween.kill()
         gsap.to(cursor, { opacity: 0, duration: 0.3 })
-      }, totalTypingTime + 0.1)
+      }, DURATION + 0.1)
 
       // Logo pop-in
       tl.fromTo(
         logoRef.current,
         { opacity: 0, scale: 0.85, y: 10 },
         { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" },
-        totalTypingTime + 0.3
+        DURATION + 0.3
       )
 
       // Subheadline slide-up
@@ -96,7 +72,7 @@ export function HeroSection() {
         subheadlineRef.current,
         { opacity: 0, y: 18 },
         { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" },
-        totalTypingTime + 0.55
+        DURATION + 0.55
       )
 
       // CTA buttons with stagger
@@ -104,7 +80,7 @@ export function HeroSection() {
         [cta1Ref.current, cta2Ref.current].filter(Boolean),
         { opacity: 0, scale: 0.9, y: 8 },
         { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.7)", stagger: 0.12 },
-        totalTypingTime + 0.75
+        DURATION + 0.75
       )
 
       return () => {
