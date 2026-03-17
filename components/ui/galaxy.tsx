@@ -198,7 +198,7 @@ export function Galaxy({
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed inset-0 ${className}`}
+      className={`absolute inset-0 ${className}`}
       style={{ pointerEvents: 'none', zIndex: -30 }}
     />
   )
