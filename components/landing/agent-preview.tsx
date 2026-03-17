@@ -18,7 +18,7 @@ export function AgentPreview() {
   const approveButtonRef = useRef<HTMLButtonElement>(null)
   const meetingConfirmedRef = useRef<HTMLDivElement>(null)
   const [approveClicked, setApproveClicked] = useState(false)
-  const hasCompletedRef = useRef(false)
+  const maxProgressRef = useRef(0)
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -89,37 +89,23 @@ export function AgentPreview() {
       // Phase 4: meeting confirmed (0.72 → 0.80)
       tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.72)
 
-      // Pin + scrub
+      // Pin + custom forward-only scrub
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=300%",
         pin: stickyRef.current,
-        scrub: 1,
-        animation: tl,
         onUpdate: (self) => {
-          // If the animation has ever reached the end, lock the timeline at 100%
-          if (hasCompletedRef.current) {
-            tl.progress(1)
+          // Strictly force timeline forward; never backward
+          if (self.progress > maxProgressRef.current) {
+            maxProgressRef.current = self.progress
+            gsap.to(tl, {
+              progress: maxProgressRef.current,
+              duration: 1, // matches the 1-second scrub smoothness
+              ease: "power3.out",
+              overwrite: true,
+            })
           }
-        },
-        onLeave: () => {
-          // Lock final state once animation completes
-          if (!hasCompletedRef.current) {
-            hasCompletedRef.current = true
-            gsap.set(cardRef.current, { scale: 1 })
-            gsap.set(
-              [userMessageRef.current, agentResponseRef.current, approvalRequestRef.current, meetingConfirmedRef.current],
-              { opacity: 1, y: 0 }
-            )
-            gsap.set(cursorRef.current, { opacity: 0 })
-            if (userTextRef.current) userTextRef.current.textContent = USER_MSG
-          }
-        },
-        onEnterBack: () => {
-          // Keep final state when scrolling back after completion by ensuring flag is set
-          hasCompletedRef.current = true
-          tl.progress(1) // Force timeline to end state immediately
         },
       })
     })
