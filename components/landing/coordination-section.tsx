@@ -104,7 +104,7 @@ export function CoordinationSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="how-it-works" className="py-24 lg:py-32 bg-muted/30">
+    <section ref={sectionRef} id="how-it-works" className="py-16 lg:py-24 bg-muted/30">
       <div className="mx-auto max-w-6xl px-6">
         {/* Section header */}
         <div ref={headerRef} className="max-w-2xl mx-auto text-center mb-16">
