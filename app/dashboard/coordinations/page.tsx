@@ -97,15 +97,15 @@ export default function CoordinationsPage() {
         )}
 
         {!isLoading && displayData && displayData.length > 0 && (
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-4 max-w-2xl mx-auto">
             {displayData.map((coord: any) => (
               <div 
                 key={coord.coordinationId} 
-                className="flex items-center gap-4 px-4 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
+                className="flex items-center gap-5 px-5 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
               >
-                {/* Left: Avatar & Name */}
-                <div className="flex flex-col items-center justify-center w-16 shrink-0">
-                  <div className="w-10 h-10 rounded-full border-2 border-foreground/20 bg-muted flex items-center justify-center overflow-hidden mb-1">
+                {/* Left: Avatar & Name (horizontal below photo) */}
+                <div className="flex flex-col items-center justify-center shrink-0">
+                  <div className="w-16 h-16 rounded-full border-2 border-foreground/15 bg-muted flex items-center justify-center overflow-hidden">
                     {coord.withAvatarUrl ? (
                       <img 
                         src={coord.withAvatarUrl} 
@@ -113,28 +113,28 @@ export default function CoordinationsPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : coord.withUsername ? (
-                      <span className="text-xs font-semibold text-foreground/70">
+                      <span className="text-lg font-semibold text-foreground/70">
                         {(coord.withDisplayName || coord.withUsername).substring(0, 2).toUpperCase()}
                       </span>
                     ) : (
-                      <User className="w-4 h-4 text-foreground/40" />
+                      <User className="w-6 h-6 text-foreground/40" />
                     )}
                   </div>
-                  <span className="text-[10px] font-medium text-foreground/70 text-center leading-tight">
+                  <span className="text-xs font-medium text-foreground/70 text-center mt-1.5 whitespace-nowrap">
                     {coord.withDisplayName || coord.withUsername || "Unknown"}
                   </span>
                 </div>
 
-                {/* Center: Details */}
-                <div className="flex-grow py-0.5 border-l border-border/20 pl-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-medium text-foreground">
+                {/* Center: Title, Status, Times */}
+                <div className="flex-grow min-w-0 py-0.5">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <h3 className="text-base font-semibold text-foreground truncate">
                       {coord.meetingTitle || "Active Sync Session"}
                     </h3>
                     <StatusChip state={coord.state} />
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-xs text-foreground/50">
+
+                  <div className="flex flex-col gap-1 text-sm text-foreground/55">
                     <span>
                       {coord.meetingTime 
                         ? (() => {
@@ -146,15 +146,34 @@ export default function CoordinationsPage() {
                         : "Pending Time"
                       }
                     </span>
-                    <span className="text-foreground/20">•</span>
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                      coord.role === 'REQUESTER' 
-                        ? 'bg-foreground/10 text-foreground/70' 
-                        : 'bg-foreground/5 text-foreground/50'
-                    }`}>
-                      {coord.role === 'REQUESTER' ? '↗ Initiated' : '↙ Received'}
+                    <span className="text-xs text-foreground/40">
+                      {coord.role === 'REQUESTER' ? '↗ Initiated' : '↙ Received'}{' '}
+                      {coord.createdAt
+                        ? (() => {
+                            const dt = new Date(coord.createdAt)
+                            const datePart = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                            const timePart = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                            return `${datePart}, ${timePart}`
+                          })()
+                        : ""
+                      }
                     </span>
                   </div>
+                </div>
+
+                {/* Right: View Detailed Status */}
+                <div className="shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs font-medium whitespace-nowrap rounded-full px-4"
+                    onClick={() => {
+                      // Placeholder — will navigate to detail view later
+                      console.log('View detail:', coord.coordinationId)
+                    }}
+                  >
+                    View Detailed Status
+                  </Button>
                 </div>
               </div>
             ))}

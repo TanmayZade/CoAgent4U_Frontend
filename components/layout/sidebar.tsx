@@ -68,12 +68,13 @@ export function Sidebar({ user, isLoading }: { user: UserData | null, isLoading:
     <aside className="w-60 h-screen bg-card border-r border-border/50 flex flex-col fixed left-0 top-0 z-40">
       {/* Logo */}
       <div className="p-4 border-b border-border/50">
-        <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <img 
             src="/images/logo-light.png" 
             alt="CoAgent4U" 
             className="h-8 w-auto" 
           />
+          <span className="text-lg font-semibold text-foreground tracking-tight">CoAgent4U</span>
         </Link>
       </div>
 
