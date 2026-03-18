@@ -28,6 +28,8 @@ export type CoordinationState =
 export interface CoordinationSummaryDto {
   coordinationId: string
   withUsername: string
+  withDisplayName: string | null
+  withAvatarUrl: string | null
   state: CoordinationState
   createdAt: string
   meetingTitle: string | null

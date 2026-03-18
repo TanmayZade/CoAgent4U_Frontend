@@ -104,18 +104,24 @@ export default function CoordinationsPage() {
                 className="flex items-center gap-6 p-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
               >
                 {/* Left: Avatar & Name */}
-                <div className="flex flex-col items-center justify-center min-w[80px] w-20 shrink-0 border-r border-border/20 pr-6">
+                <div className="flex flex-col items-center justify-center w-20 shrink-0 border-r border-border/20 pr-6">
                   <div className="w-14 h-14 rounded-full border-2 border-foreground/20 bg-muted flex items-center justify-center overflow-hidden mb-2">
-                    {coord.withUsername ? (
+                    {coord.withAvatarUrl ? (
+                      <img 
+                        src={coord.withAvatarUrl} 
+                        alt={coord.withDisplayName || coord.withUsername || "User"} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : coord.withUsername ? (
                       <span className="text-lg font-semibold text-foreground/70">
-                        {coord.withUsername.substring(0, 2).toUpperCase()}
+                        {(coord.withDisplayName || coord.withUsername).substring(0, 2).toUpperCase()}
                       </span>
                     ) : (
                       <User className="w-6 h-6 text-foreground/40" />
                     )}
                   </div>
                   <span className="text-xs font-medium text-foreground/80 text-center truncate w-full">
-                    {coord.withUsername || "Unknown"}
+                    {coord.withDisplayName || coord.withUsername || "Unknown"}
                   </span>
                 </div>
 
