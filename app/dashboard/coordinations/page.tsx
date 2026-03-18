@@ -97,15 +97,15 @@ export default function CoordinationsPage() {
         )}
 
         {!isLoading && displayData && displayData.length > 0 && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2.5">
             {displayData.map((coord: any) => (
               <div 
                 key={coord.coordinationId} 
-                className="flex items-center gap-6 p-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
+                className="flex items-center gap-4 px-4 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
               >
                 {/* Left: Avatar & Name */}
-                <div className="flex flex-col items-center justify-center w-20 shrink-0 border-r border-border/20 pr-6">
-                  <div className="w-14 h-14 rounded-full border-2 border-foreground/20 bg-muted flex items-center justify-center overflow-hidden mb-2">
+                <div className="flex flex-col items-center justify-center w-16 shrink-0">
+                  <div className="w-10 h-10 rounded-full border-2 border-foreground/20 bg-muted flex items-center justify-center overflow-hidden mb-1">
                     {coord.withAvatarUrl ? (
                       <img 
                         src={coord.withAvatarUrl} 
@@ -113,43 +113,48 @@ export default function CoordinationsPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : coord.withUsername ? (
-                      <span className="text-lg font-semibold text-foreground/70">
+                      <span className="text-xs font-semibold text-foreground/70">
                         {(coord.withDisplayName || coord.withUsername).substring(0, 2).toUpperCase()}
                       </span>
                     ) : (
-                      <User className="w-6 h-6 text-foreground/40" />
+                      <User className="w-4 h-4 text-foreground/40" />
                     )}
                   </div>
-                  <span className="text-xs font-medium text-foreground/80 text-center truncate w-full">
+                  <span className="text-[10px] font-medium text-foreground/70 text-center leading-tight">
                     {coord.withDisplayName || coord.withUsername || "Unknown"}
                   </span>
                 </div>
 
                 {/* Center: Details */}
-                <div className="flex-grow py-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-medium text-foreground">
+                <div className="flex-grow py-0.5 border-l border-border/20 pl-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-sm font-medium text-foreground">
                       {coord.meetingTitle || "Active Sync Session"}
                     </h3>
                     <StatusChip state={coord.state} />
                   </div>
                   
-                  <div className="flex items-center text-sm text-foreground/60 font-medium tracking-tight">
-                    {coord.meetingTime 
-                      ? (() => {
-                          const dt = new Date(coord.meetingTime)
-                          const datePart = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                          const timePart = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-                          return `${datePart}, ${timePart}`
-                        })()
-                      : "Pending Time"
-                    }
+                  <div className="flex items-center gap-2 text-xs text-foreground/50">
+                    <span>
+                      {coord.meetingTime 
+                        ? (() => {
+                            const dt = new Date(coord.meetingTime)
+                            const datePart = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                            const timePart = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                            return `${datePart}, ${timePart}`
+                          })()
+                        : "Pending Time"
+                      }
+                    </span>
+                    <span className="text-foreground/20">•</span>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                      coord.role === 'REQUESTER' 
+                        ? 'bg-foreground/10 text-foreground/70' 
+                        : 'bg-foreground/5 text-foreground/50'
+                    }`}>
+                      {coord.role === 'REQUESTER' ? '↗ Initiated' : '↙ Received'}
+                    </span>
                   </div>
-                </div>
-
-                {/* Right: Empty for now (View Detailed Status removed per instruction) */}
-                <div className="shrink-0 w-32">
-                  {/* Reserved space to maintain layout balance, matching mockup right-side alignment without the button */}
                 </div>
               </div>
             ))}

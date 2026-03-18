@@ -30,6 +30,7 @@ export interface CoordinationSummaryDto {
   withUsername: string
   withDisplayName: string | null
   withAvatarUrl: string | null
+  role: 'REQUESTER' | 'INVITEE'
   state: CoordinationState
   createdAt: string
   meetingTitle: string | null
