@@ -15,6 +15,9 @@ import { FinalCTA } from "@/components/landing/final-cta"
 import { Footer } from "@/components/landing/footer"
 import { ScrollProgressBar } from "@/components/ui/parallax-wrapper"
 
+import { ScaleInScroll } from "@/components/landing/scale-in-scroll"
+import { SmoothScroll } from "@/components/landing/smooth-scroll"
+
 export default function LandingPage() {
   
   useEffect(() => {
@@ -42,20 +45,26 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-background text-foreground light">
-      <ScrollProgressBar />
-      <Navbar />
-      <HeroSection />
-      <AgentPreview />
-      <ProductExplanation />
-      <AgentCapabilities />
-      <CoordinationSection />
-      <UseCaseExamples />
-      <ApprovalSystem />
-      <PlatformBenefits />
-      <SecurityTrust />
-      <FinalCTA />
-      <Footer />
-    </main>
+    <SmoothScroll>
+      <main className="min-h-screen bg-background text-foreground light overflow-hidden">
+        <ScrollProgressBar />
+        <Navbar />
+        <HeroSection />
+        <AgentPreview />
+        
+        <div className="flex flex-col gap-24 lg:gap-32 mt-24 pb-24">
+          <ScaleInScroll><ProductExplanation /></ScaleInScroll>
+          <ScaleInScroll><AgentCapabilities /></ScaleInScroll>
+          <ScaleInScroll><CoordinationSection /></ScaleInScroll>
+          <ScaleInScroll><UseCaseExamples /></ScaleInScroll>
+          {/* <ScaleInScroll><ApprovalSystem /></ScaleInScroll> */}
+          <ScaleInScroll><PlatformBenefits /></ScaleInScroll>
+          <ScaleInScroll><SecurityTrust /></ScaleInScroll>
+          <ScaleInScroll><FinalCTA /></ScaleInScroll>
+        </div>
+
+        <Footer />
+      </main>
+    </SmoothScroll>
   )
 }

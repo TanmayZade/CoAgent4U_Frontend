@@ -11,14 +11,16 @@ export function ProductExplanation() {
   const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null)
   
   useEffect(() => {
+    // Framer Motion wave effect
     if (isInView) {
-      // Smooth left-to-right highlight sequence like a "wave"
       const t1 = setTimeout(() => setActiveCardIndex(0), 800)
       const t2 = setTimeout(() => setActiveCardIndex(1), 2000)
       const t3 = setTimeout(() => setActiveCardIndex(2), 3200)
       const t4 = setTimeout(() => setActiveCardIndex(null), 4400)
       
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
+      return () => { 
+        clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+      }
     }
   }, [isInView])
 
@@ -89,8 +91,8 @@ export function ProductExplanation() {
               animate={{ y: [0, -8, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 0 }}
             >
-              <Bot className={`w-8 h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 group-hover:text-blue-500 ${
-                activeCardIndex === 0 ? "scale-110 rotate-6 text-blue-500" : "text-foreground"
+              <Bot className={`w-8 h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 text-blue-500 ${
+                activeCardIndex === 0 ? "scale-110 rotate-6" : ""
               }`} />
             </motion.div>
             <h3 className="text-xl font-semibold text-foreground mb-4">
@@ -123,8 +125,8 @@ export function ProductExplanation() {
               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 0.5 }}
               whileHover={{ rotate: [0, -10, 10, -10, 10, 0], transition: { duration: 0.5, repeat: Infinity } }}
             >
-              <Users className={`w-8 h-8 transition-all duration-300 group-hover:scale-110 group-hover:text-amber-500 ${
-                activeCardIndex === 1 ? "scale-110 text-amber-500" : "text-foreground"
+              <Users className={`w-8 h-8 transition-all duration-300 group-hover:scale-110 text-amber-500 ${
+                activeCardIndex === 1 ? "scale-110" : ""
               }`} />
             </motion.div>
             <h3 className="text-xl font-semibold text-foreground mb-4">
@@ -156,8 +158,8 @@ export function ProductExplanation() {
               animate={{ y: [0, -8, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 1.0 }}
             >
-              <CheckCircle className={`w-8 h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:text-green-500 ${
-                activeCardIndex === 2 ? "scale-110 rotate-12 text-green-500" : "text-foreground"
+              <CheckCircle className={`w-8 h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 text-green-500 ${
+                activeCardIndex === 2 ? "scale-110 rotate-12" : ""
               }`} />
             </motion.div>
             <h3 className="text-xl font-semibold text-foreground mb-4">
