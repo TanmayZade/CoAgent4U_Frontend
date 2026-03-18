@@ -27,12 +27,11 @@ export type CoordinationState =
 
 export interface CoordinationSummaryDto {
   coordinationId: string
-  contactName: string
-  contactType: string
-  status: CoordinationState
-  proposalTime: string | null
+  withUsername: string
+  state: CoordinationState
   createdAt: string
-  updatedAt: string
+  meetingTitle: string | null
+  meetingTime: string | null
 }
 
 export interface DashboardSummaryResponse {
