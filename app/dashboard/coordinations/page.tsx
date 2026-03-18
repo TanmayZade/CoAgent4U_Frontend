@@ -1,24 +1,33 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useUser } from "../layout"
-import { coordinationsAPI } from "@/lib/api/coordinations"
+import { coordinationsAPI, CoordinationDetailDto } from "@/lib/api/coordinations"
+import { CoordinationDetailModal } from "@/components/coordination/coordination-detail-modal"
 import { StatusChip } from "@/components/ui/status-chip"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { User, Calendar, Loader2 } from "lucide-react"
 
 export default function CoordinationsPage() {
   const { user } = useUser()
+  const queryClient = useQueryClient()
   const [page, setPage] = useState(0)
   const [statusFilter, setStatusFilter] = useState("ALL")
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCoordId, setSelectedCoordId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['coordinations', user?.username, page, statusFilter],
     queryFn: () => coordinationsAPI.getHistory(user!.username, page, 20, statusFilter),
     enabled: !!user?.username
+  })
+
+  // Fetch detail when a coordination is selected
+  const { data: detailData } = useQuery({
+    queryKey: ['coordination-detail', selectedCoordId, user?.username],
+    queryFn: () => coordinationsAPI.getDetail(selectedCoordId!, user!.username),
+    enabled: !!selectedCoordId && !!user?.username
   })
 
   // Basic client-side search across the current page results
@@ -167,10 +176,7 @@ export default function CoordinationsPage() {
                     variant="outline"
                     size="sm"
                     className="text-xs font-medium whitespace-nowrap rounded-full px-4"
-                    onClick={() => {
-                      // Placeholder — will navigate to detail view later
-                      console.log('View detail:', coord.coordinationId)
-                    }}
+                    onClick={() => setSelectedCoordId(coord.coordinationId)}
                   >
                     View Detailed Status
                   </Button>
@@ -211,6 +217,22 @@ export default function CoordinationsPage() {
             </Button>
           </div>
         </div>
+      )}
+      {selectedCoordId && detailData && (
+        <CoordinationDetailModal
+          detail={detailData}
+          onClose={() => setSelectedCoordId(null)}
+          onCancel={async () => {
+            await coordinationsAPI.cancel(selectedCoordId, user!.username)
+            setSelectedCoordId(null)
+            queryClient.invalidateQueries({ queryKey: ['coordinations'] })
+          }}
+          onApprove={async (approved) => {
+            await coordinationsAPI.approve(selectedCoordId, user!.username, approved)
+            setSelectedCoordId(null)
+            queryClient.invalidateQueries({ queryKey: ['coordinations'] })
+          }}
+        />
       )}
     </div>
   )
