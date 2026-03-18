@@ -221,6 +221,7 @@ export default function CoordinationsPage() {
       {selectedCoordId && detailData && (
         <CoordinationDetailModal
           detail={detailData}
+          username={user!.username}
           onClose={() => setSelectedCoordId(null)}
           onCancel={async () => {
             await coordinationsAPI.cancel(selectedCoordId, user!.username)
@@ -229,6 +230,11 @@ export default function CoordinationsPage() {
           }}
           onApprove={async (approved) => {
             await coordinationsAPI.approve(selectedCoordId, user!.username, approved)
+            setSelectedCoordId(null)
+            queryClient.invalidateQueries({ queryKey: ['coordinations'] })
+          }}
+          onSelectSlot={async (slot) => {
+            await coordinationsAPI.selectSlot(selectedCoordId, user!.username, slot)
             setSelectedCoordId(null)
             queryClient.invalidateQueries({ queryKey: ['coordinations'] })
           }}

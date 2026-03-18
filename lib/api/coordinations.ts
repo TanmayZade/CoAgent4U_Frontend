@@ -44,6 +44,11 @@ export interface CoordinationDetailDto {
   stateLog: StateLogEntryDto[]
 }
 
+export interface TimeSlotDto {
+  start: string
+  end: string
+}
+
 export const coordinationsAPI = {
   getHistory: async (
     username: string, 
@@ -72,5 +77,16 @@ export const coordinationsAPI = {
     return apiRequest<{ status: string }>(`/api/coordinations/${encodeURIComponent(id)}/approve?username=${encodeURIComponent(username)}&approved=${approved}`, {
       method: 'POST'
     })
+  },
+
+  getSlots: async (id: string, username: string): Promise<TimeSlotDto[]> => {
+    return apiRequest<TimeSlotDto[]>(`/api/coordinations/${encodeURIComponent(id)}/slots?username=${encodeURIComponent(username)}`)
+  },
+
+  selectSlot: async (id: string, username: string, slot: TimeSlotDto): Promise<{ status: string }> => {
+    return apiRequest<{ status: string }>(
+      `/api/coordinations/${encodeURIComponent(id)}/select-slot?username=${encodeURIComponent(username)}&start=${encodeURIComponent(slot.start)}&end=${encodeURIComponent(slot.end)}`,
+      { method: 'POST' }
+    )
   }
 }
