@@ -27,7 +27,7 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
   // Format the data for the chart, shortening date strings 
   const formattedData = data?.map(d => ({
     ...d,
-    day: new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })
+    day: new Date(d.day).toLocaleDateString('en-US', { weekday: 'short' })
   })) || []
 
   return (
@@ -42,6 +42,14 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
               <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorRejected" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorFailed" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -72,12 +80,12 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
                         {payload[0].payload.completed} completed
                       </p>
                       {payload[0].payload.rejected > 0 && (
-                        <p className="text-sm font-semibold text-rose-500">
+                        <p className="text-sm font-semibold text-amber-500">
                           {payload[0].payload.rejected} rejected
                         </p>
                       )}
                       {payload[0].payload.failed > 0 && (
-                        <p className="text-sm font-semibold text-red-500">
+                        <p className="text-sm font-semibold text-rose-500">
                           {payload[0].payload.failed} failed
                         </p>
                       )}
@@ -90,10 +98,29 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
             <Area
               type="monotone"
               dataKey="completed"
+              stackId="1"
               stroke="#10b981"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorCompleted)"
+            />
+            <Area
+              type="monotone"
+              dataKey="rejected"
+              stackId="1"
+              stroke="#f59e0b"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#colorRejected)"
+            />
+            <Area
+              type="monotone"
+              dataKey="failed"
+              stackId="1"
+              stroke="#ef4444"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#colorFailed)"
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -64,7 +64,6 @@ export default function DashboardPage() {
         {/* Agent Status Card */}
         <AgentStatusCard 
           status={summary?.agentStatus} 
-          services={summary?.services}
           isLoading={isSummaryLoading} 
         />
 
@@ -211,7 +210,7 @@ export default function DashboardPage() {
           {/* Activity Chart */}
           <div>
             <h3 className="text-lg font-semibold tracking-tight mb-4">7-Day Activity</h3>
-            <ActivityChart data={summary?.activityChart} isLoading={isSummaryLoading} />
+            <ActivityChart data={summary?.activitySummary} isLoading={isSummaryLoading} />
           </div>
         </div>
       </div>
