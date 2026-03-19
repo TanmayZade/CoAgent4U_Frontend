@@ -18,8 +18,8 @@ interface ActivityChartProps {
 export function ActivityChart({ data, isLoading }: ActivityChartProps) {
   if (isLoading) {
     return (
-      <div className="p-6 bg-charcoal-light rounded-xl border border-border h-[264px] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-accent border-r-transparent animate-spin" />
+      <div className="p-6 bg-card/40 backdrop-blur-xl rounded-2xl border border-border/40 h-[264px] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
       </div>
     )
   }
@@ -31,8 +31,8 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
   })) || []
 
   return (
-    <div className="p-6 bg-charcoal-light rounded-xl border border-border">
-      <h3 className="text-lg font-semibold text-cream mb-4 font-[family-name:var(--font-display)]">
+    <div className="p-6 bg-card/40 backdrop-blur-xl rounded-2xl border border-border/40 shadow-sm">
+      <h3 className="text-lg font-semibold text-foreground mb-4 tracking-tight">
         Coordination Activity
       </h3>
       <div className="h-48">
@@ -46,13 +46,15 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
             </defs>
             <XAxis
               dataKey="day"
-              stroke="#6B6966"
+              stroke="currentColor"
+              className="text-foreground/40"
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              stroke="#6B6966"
+              stroke="currentColor"
+              className="text-foreground/40"
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -62,20 +64,20 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="bg-charcoal border border-border rounded-lg p-3 shadow-lg">
-                      <p className="text-xs text-foreground-muted mb-1">
+                    <div className="bg-card/95 backdrop-blur-md border border-border/40 rounded-xl p-3 shadow-xl">
+                      <p className="text-xs text-foreground/40 mb-1 font-medium">
                         {payload[0].payload.day}
                       </p>
-                      <p className="text-sm font-medium text-emerald-500">
+                      <p className="text-sm font-semibold text-emerald-500">
                         {payload[0].payload.completed} completed
                       </p>
                       {payload[0].payload.rejected > 0 && (
-                        <p className="text-sm font-medium text-rose-500">
+                        <p className="text-sm font-semibold text-rose-500">
                           {payload[0].payload.rejected} rejected
                         </p>
                       )}
                       {payload[0].payload.failed > 0 && (
-                        <p className="text-sm font-medium text-red-500">
+                        <p className="text-sm font-semibold text-red-500">
                           {payload[0].payload.failed} failed
                         </p>
                       )}
