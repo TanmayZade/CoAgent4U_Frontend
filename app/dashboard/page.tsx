@@ -1,21 +1,24 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AgentStatusCard } from "@/components/agent/agent-status-card"
 import { ActiveCoordinationBanner } from "@/components/dashboard/active-coordination-banner"
-import { CoordinationTable } from "@/components/coordination/coordination-table"
 import { ActivityChart } from "@/components/dashboard/activity-chart"
 import { SlackInstallationGuard } from "@/components/dashboard/slack-installation-guard"
 import { useUser } from "./layout"
 import { dashboardAPI } from "@/lib/api/dashboard"
+import { coordinationsAPI } from "@/lib/api/coordinations"
+import { CoordinationDetailModal } from "@/components/coordination/coordination-detail-modal"
 import { StatusChip } from "@/components/ui/status-chip"
 import { Button } from "@/components/ui/button"
-import { Calendar, Check, X } from "lucide-react"
+import { Calendar, Check, X, User, Loader2 } from "lucide-react"
 
 export default function DashboardPage() {
   const { user, isLoading: isUserLoading } = useUser()
+  const queryClient = useQueryClient()
   const [slackGuardDismissed, setSlackGuardDismissed] = useState(false)
+  const [selectedCoordId, setSelectedCoordId] = useState<string | null>(null)
 
   // Fetch dashboard summary
   const { data: summary, isLoading: isSummaryLoading } = useQuery({
@@ -31,6 +34,13 @@ export default function DashboardPage() {
     queryFn: () => dashboardAPI.getPendingApprovals(user!.username),
     enabled: !!user?.username,
     refetchInterval: 15000 // refresh every 15s
+  })
+  
+  // Fetch detail when a coordination is selected
+  const { data: detailData, isLoading: isDetailLoading } = useQuery({
+    queryKey: ['coordination-detail', selectedCoordId, user?.username],
+    queryFn: () => coordinationsAPI.getDetail(selectedCoordId!, user!.username),
+    enabled: !!selectedCoordId && !!user?.username
   })
 
   // Show Slack installation guard if not installed and not dismissed
@@ -108,34 +118,63 @@ export default function DashboardPage() {
           {/* Recent Coordinations */}
           <div className="xl:col-span-2">
             <h3 className="text-lg font-semibold tracking-tight mb-4">Recent Coordinations</h3>
-            <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
-              <div className="divide-y divide-border/50">
+            <div className="space-y-4">
                 {summary?.recentCoordinations?.slice(0, 5).map(coord => (
-                  <div key={coord.coordinationId} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
+                  <div 
+                    key={coord.coordinationId} 
+                    className="flex items-center gap-5 px-5 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
+                  >
+                    {/* Left: Avatar & Initials */}
+                    <div className="flex flex-col items-center justify-center shrink-0">
+                      <div className="w-16 h-16 rounded-full border-2 border-foreground/15 bg-muted flex items-center justify-center overflow-hidden">
                         {(coord.withUsername || '?').substring(0, 2).toUpperCase()}
                       </div>
-                      <div>
-                        <div className="font-medium text-foreground">
+                      <span className="text-xs font-medium text-foreground/70 text-center mt-1.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px]">
+                        {coord.withUsername}
+                      </span>
+                    </div>
+
+                    {/* Center: Title & Times */}
+                    <div className="flex-grow min-w-0 py-0.5">
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <h3 className="text-base font-semibold text-foreground truncate">
                           Meeting with {coord.withUsername}
-                        </div>
-                        <div className="text-xs text-foreground/60 font-mono mt-1">
-                          {new Date(coord.createdAt).toLocaleDateString()}
-                        </div>
+                        </h3>
+                        <StatusChip state={coord.state} />
+                      </div>
+
+                      <div className="flex flex-col gap-1 text-sm text-foreground/55">
+                        <span className="text-xs text-foreground/40 font-mono">
+                          Initiated: {new Date(coord.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
-                    <div>
-                      <StatusChip state={coord.state} />
+
+                    {/* Right: Actions */}
+                    <div className="shrink-0">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs font-medium whitespace-nowrap rounded-full px-4"
+                        onClick={() => setSelectedCoordId(coord.coordinationId)}
+                      >
+                        View Detailed Status
+                      </Button>
                     </div>
                   </div>
                 ))}
                 {!summary?.recentCoordinations?.length && !isSummaryLoading && (
-                  <div className="p-8 text-center text-foreground/60 font-mono text-sm">
+                  <div className="p-12 text-center text-foreground/40 bg-muted/10 border border-dashed border-border/50 rounded-2xl font-mono text-sm">
+                    <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30" />
                     No recent coordinations found.
                   </div>
                 )}
-              </div>
+                {isSummaryLoading && (
+                  <div className="p-12 text-center text-foreground/40 bg-muted/5 border border-border/20 rounded-2xl">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">Loading recent activity...</p>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -146,6 +185,37 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      {selectedCoordId && detailData && (
+        <CoordinationDetailModal
+          detail={detailData}
+          username={user!.username}
+          onClose={() => setSelectedCoordId(null)}
+          onCancel={async () => {
+            if (selectedCoordId) {
+              await coordinationsAPI.cancel(selectedCoordId, user!.username)
+              setSelectedCoordId(null)
+              queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+              queryClient.invalidateQueries({ queryKey: ['coordination-detail'] })
+            }
+          }}
+          onApprove={async (approved) => {
+            if (selectedCoordId) {
+              await coordinationsAPI.approve(selectedCoordId, user!.username, approved)
+              setSelectedCoordId(null)
+              queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+              queryClient.invalidateQueries({ queryKey: ['coordination-detail'] })
+            }
+          }}
+          onSelectSlot={async (slot) => {
+            if (selectedCoordId) {
+              await coordinationsAPI.selectSlot(selectedCoordId, user!.username, slot)
+              setSelectedCoordId(null)
+              queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+              queryClient.invalidateQueries({ queryKey: ['coordination-detail'] })
+            }
+          }}
+        />
+      )}
     </>
   )
 }
