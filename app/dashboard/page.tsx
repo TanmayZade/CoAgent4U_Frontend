@@ -124,33 +124,63 @@ export default function DashboardPage() {
                     key={coord.coordinationId} 
                     className="flex items-center gap-5 px-5 py-5 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-xl shadow-sm hover:border-foreground/20 transition-colors"
                   >
-                    {/* Left: Avatar & Initials */}
+                    {/* Left: Avatar & Name (horizontal below photo) */}
                     <div className="flex flex-col items-center justify-center shrink-0">
                       <div className="w-16 h-16 rounded-full border-2 border-foreground/15 bg-muted flex items-center justify-center overflow-hidden">
-                        {(coord.withUsername || '?').substring(0, 2).toUpperCase()}
+                        {coord.withAvatarUrl ? (
+                          <img 
+                            src={coord.withAvatarUrl} 
+                            alt={coord.withDisplayName || coord.withUsername || "User"} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-lg font-semibold text-foreground/70">
+                            {(coord.withDisplayName || coord.withUsername || "?").substring(0, 2).toUpperCase()}
+                          </span>
+                        )}
                       </div>
-                      <span className="text-xs font-medium text-foreground/70 text-center mt-1.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px]">
-                        {coord.withUsername}
+                      <span className="text-xs font-medium text-foreground/70 text-center mt-1.5 whitespace-nowrap">
+                        {coord.withDisplayName || coord.withUsername || "Unknown"}
                       </span>
                     </div>
 
-                    {/* Center: Title & Times */}
+                    {/* Center: Title, Status, Times */}
                     <div className="flex-grow min-w-0 py-0.5">
                       <div className="flex items-center gap-2.5 mb-2">
                         <h3 className="text-base font-semibold text-foreground truncate">
-                          Meeting with {coord.withUsername}
+                          {coord.meetingTitle || "Active Sync Session"}
                         </h3>
                         <StatusChip state={coord.state} />
                       </div>
 
                       <div className="flex flex-col gap-1 text-sm text-foreground/55">
-                        <span className="text-xs text-foreground/40 font-mono">
-                          Initiated: {new Date(coord.createdAt).toLocaleDateString()}
+                        <span>
+                          {coord.meetingTime 
+                            ? (() => {
+                                const dt = new Date(coord.meetingTime)
+                                const datePart = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                                const timePart = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                                return `${datePart}, ${timePart}`
+                              })()
+                            : "Pending Time"
+                          }
+                        </span>
+                        <span className="text-xs text-foreground/40">
+                          {coord.role === 'REQUESTER' ? '↗ Initiated' : '↙ Received'}{' '}
+                          {coord.createdAt
+                            ? (() => {
+                                const dt = new Date(coord.createdAt)
+                                const datePart = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                                const timePart = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                                return `${datePart}, ${timePart}`
+                              })()
+                            : ""
+                          }
                         </span>
                       </div>
                     </div>
 
-                    {/* Right: Actions */}
+                    {/* Right: View Detailed Status */}
                     <div className="shrink-0">
                       <Button
                         variant="outline"
