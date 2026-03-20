@@ -1,25 +1,28 @@
 "use client"
 
 import { Calendar, CheckCircle2 } from "lucide-react"
-import Image from "next/image"
-import { useState, useRef, useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
+import {
+  SlackAttachment,
+  SlackColor,
+  SlackMessage as SlackMsgComp,
+  SlackWindow,
+} from "./slack-ui"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type SlackMessage = {
+type SlackMessageData = {
   from: "user" | "agent"
-  userName?: string     // override user name per-window
-  userInitials?: string // override avatar initials per-window
+  userName?: string
+  userInitials?: string
   time: string
   text?: string
-  attachment?: SlackAttachment
-}
-
-type SlackAttachment = {
-  color: "amber" | "green" | "blue" | "red"
-  header: string
-  emoji: string
-  body: React.ReactNode
+  attachment?: {
+    color: SlackColor
+    header: string
+    emoji: string
+    body: React.ReactNode
+  }
 }
 
 // ── Slot pill helpers ─────────────────────────────────────────────────────────
@@ -31,7 +34,6 @@ const SLOTS = [
   "07:30 pm – 08:30 pm",
 ]
 
-// Read-only slot pills (requestee view — preview only, no action)
 function SlotPillsReadOnly() {
   return (
     <div className="grid grid-cols-2 gap-1.5 mt-2">
@@ -47,7 +49,6 @@ function SlotPillsReadOnly() {
   )
 }
 
-// Clickable slot pills (invitee view)
 function SlotPillsClickable() {
   return (
     <div className="grid grid-cols-2 gap-1.5 mt-2">
@@ -65,7 +66,7 @@ function SlotPillsClickable() {
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
-const viewScheduleThread: SlackMessage[] = [
+const viewScheduleThread: SlackMessageData[] = [
   { from: "user", time: "11:33 AM", text: "show my schedule" },
   {
     from: "agent", time: "11:33 AM",
@@ -74,11 +75,11 @@ const viewScheduleThread: SlackMessage[] = [
       body: (
         <ul className="mt-1 space-y-1 text-xs text-zinc-700">
           {[
-            { name: "Team Standup",   date: "Mon, Mar 20", time: "09:00 am – 09:30 am" },
-            { name: "Design Review",  date: "Mon, Mar 20", time: "10:30 am – 11:30 am" },
-            { name: "Lunch with Alex",date: "Mon, Mar 20", time: "01:00 pm – 02:00 pm" },
-            { name: "Sprint Planning",date: "Mon, Mar 20", time: "03:00 pm – 05:00 pm" },
-            { name: "Team Lunch",     date: "Tue, Mar 21", time: "12:00 pm – 01:00 pm" },
+            { name: "Team Standup", date: "Mon, Mar 20", time: "09:00 am – 09:30 am" },
+            { name: "Design Review", date: "Mon, Mar 20", time: "10:30 am – 11:30 am" },
+            { name: "Lunch with Alex", date: "Mon, Mar 20", time: "01:00 pm – 02:00 pm" },
+            { name: "Sprint Planning", date: "Mon, Mar 20", time: "03:00 pm – 05:00 pm" },
+            { name: "Team Lunch", date: "Tue, Mar 21", time: "12:00 pm – 01:00 pm" },
           ].map((e, i) => (
             <li key={i} className="flex flex-col">
               <span className="font-semibold text-zinc-900">• {e.name}</span>
@@ -92,7 +93,7 @@ const viewScheduleThread: SlackMessage[] = [
   },
 ]
 
-const addEventThread: SlackMessage[] = [
+const addEventThread: SlackMessageData[] = [
   { from: "user", time: "2:10 PM", text: "@CoAgent4U add team lunch next Tuesday at 12 pm" },
   { from: "agent", time: "2:10 PM", text: "Checking your calendar for Tuesday at 12:00 PM…" },
   {
@@ -133,13 +134,7 @@ const addEventThread: SlackMessage[] = [
   },
 ]
 
-// ── Requestee thread (Tanmay's Slack DM with CoAgent4U) ────────────────────────
-// Strictly mirrors the actual backend flow:
-//   1. User sends command
-//   2. Agent: Coordinating + Proposed Slots card (view-only pills)
-//   3. After Sarah selects → Agent: Meeting Approval Request (Approve/Reject)
-//   4. After Tanmay approves → Agent: Meeting Confirmed
-const requesterThread: SlackMessage[] = [
+const requesterThread: SlackMessageData[] = [
   {
     from: "user",
     userName: "Tanmay Zade", userInitials: "TZ",
@@ -207,11 +202,7 @@ const requesterThread: SlackMessage[] = [
   },
 ]
 
-// ── Invitee thread (Sarah's Slack DM with CoAgent4U) ─────────────────────────
-// Strictly mirrors the actual backend flow:
-//   1. Agent: "@Tanmay Zade invited you…" + Available Time Slots card (selectable pills + Reject)
-//   2. After Sarah selects → Agent: Confirmation of selected slot
-const inviteeThread: SlackMessage[] = [
+const inviteeThread: SlackMessageData[] = [
   {
     from: "agent", time: "4:24 PM",
     text: "<@Tanmay Zade> invited you to a meeting.",
@@ -265,27 +256,19 @@ const inviteeThread: SlackMessage[] = [
 // ── Use case config ───────────────────────────────────────────────────────────
 
 const useCases = [
-  { id: "view",       label: "Show Schedule", thread: viewScheduleThread },
-  { id: "add",        label: "Add Event",     thread: addEventThread },
-  { id: "coordinate", label: "Coordinate",    thread: null }, // handled separately
+  { id: "view", label: "Show Schedule", thread: viewScheduleThread },
+  { id: "add", label: "Add Event", thread: addEventThread },
+  { id: "coordinate", label: "Coordinate", thread: null },
 ]
 
-// ── Attachment border colors ──────────────────────────────────────────────────
-const borderColor: Record<string, string> = {
-  amber: "border-amber-500",
-  green: "border-green-500",
-  blue:  "border-blue-500",
-  red:   "border-red-500",
-}
-
-// ── SlackThread component ─────────────────────────────────────────────────────
+// ── Components ────────────────────────────────────────────────────────────────
 
 function SlackThread({
   messages,
   userName = "Tanmay Zade",
   userInitials = "TZ",
 }: {
-  messages: SlackMessage[]
+  messages: SlackMessageData[]
   userName?: string
   userInitials?: string
 }) {
@@ -300,7 +283,6 @@ function SlackThread({
       const canScrollUp = scrollTop > 0
       const canScrollDown = scrollTop + clientHeight < scrollHeight
 
-      // If scrolling up and we can scroll up, or scrolling down and we can scroll down
       if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
         el.scrollTop += e.deltaY
         e.preventDefault()
@@ -313,100 +295,37 @@ function SlackThread({
   }, [])
 
   return (
-    <div 
+    <div
       ref={scrollRef}
-      className="bg-white p-4 space-y-1 rounded-b-2xl flex-1" 
+      className="flex-1 space-y-1 py-4 lg:py-6"
       style={{ overflowY: 'auto', overscrollBehavior: 'contain' }}
     >
       {messages.map((msg, i) => {
-        if (msg.from === "user") {
-          const name     = msg.userName     ?? userName
-          const initials = msg.userInitials ?? userInitials
-          return (
-            <div key={i} className="flex items-start gap-3 px-2 py-1.5 rounded-lg hover:bg-zinc-100 transition-colors">
-              <div className="w-9 h-9 rounded-md bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
-                {initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-zinc-900 font-bold text-sm">{name}</span>
-                  <span className="text-zinc-500 text-xs">{msg.time}</span>
-                </div>
-                <p className="text-zinc-700 text-sm mt-0.5">{msg.text}</p>
-              </div>
-            </div>
-          )
-        }
-
-        const prevMsg    = messages[i - 1]
-        const showHeader = !prevMsg || prevMsg.from !== "agent" ||
-          (prevMsg.from === "agent" && prevMsg.time !== msg.time)
+        const prevMsg = messages[i - 1]
+        const showHeader = !prevMsg || prevMsg.from !== msg.from || (prevMsg.from === msg.from && prevMsg.time !== msg.time)
 
         return (
-          <div key={i} className="flex items-start gap-3 px-2 py-1 rounded-lg hover:bg-zinc-100 transition-colors">
-            <div className="w-9 h-9 shrink-0">
-              {showHeader ? (
-                <div className="w-9 h-9 rounded-md bg-white border border-zinc-200 flex items-center justify-center">
-                  <Image src="/images/logo-light.png" alt="CoAgent4U" width={20} height={20} className="object-contain" />
-                </div>
-              ) : <div className="w-9 h-full" />}
-            </div>
-            <div className="flex-1 min-w-0">
-              {showHeader && (
-                <div className="flex items-baseline gap-2">
-                  <span className="text-zinc-900 font-bold text-sm">CoAgent4U</span>
-                  <span className="bg-zinc-200 text-zinc-600 text-[10px] px-1.5 py-0.5 rounded font-medium">APP</span>
-                  <span className="text-zinc-500 text-xs">{msg.time}</span>
-                </div>
-              )}
-              {msg.text && <p className="text-zinc-700 text-sm mt-0.5">{msg.text}</p>}
-              {msg.attachment && (
-                <div className={`mt-2 border-l-4 ${borderColor[msg.attachment.color]} bg-zinc-50 rounded-r-lg p-3`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-base">{msg.attachment.emoji}</span>
-                    <h4 className="text-zinc-900 font-semibold text-sm">{msg.attachment.header}</h4>
-                  </div>
-                  {msg.attachment.body}
-                </div>
-              )}
-            </div>
-          </div>
+          <SlackMsgComp
+            key={i}
+            sender={msg.from === "user" ? (msg.userName ?? userName) : "CoAgent4U"}
+            time={msg.time}
+            isApp={msg.from === "agent"}
+            initials={msg.from === "user" ? (msg.userInitials ?? userInitials) : undefined}
+            showHeader={showHeader}
+          >
+            {msg.text && <p className="text-zinc-700 text-sm mt-0.5">{msg.text}</p>}
+            {msg.attachment && (
+              <SlackAttachment
+                color={msg.attachment.color}
+                emoji={msg.attachment.emoji}
+                header={msg.attachment.header}
+              >
+                {msg.attachment.body}
+              </SlackAttachment>
+            )}
+          </SlackMsgComp>
         )
       })}
-    </div>
-  )
-}
-
-// ── Slack Window wrapper ──────────────────────────────────────────────────────
-
-function SlackWindow({
-  channel,
-  messages,
-  userName,
-  userInitials,
-}: {
-  channel: string
-  messages: SlackMessage[]
-  userName?: string
-  userInitials?: string
-}) {
-  return (
-    <div className="rounded-2xl border border-border/60 shadow-lg shadow-black/[0.04] flex flex-col" style={{ height: '520px' }}>
-      <div className="flex-none flex items-center justify-between px-5 py-3 border-b border-zinc-200 bg-zinc-50 rounded-t-2xl">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-400" />
-            <div className="w-3 h-3 rounded-full bg-yellow-400" />
-            <div className="w-3 h-3 rounded-full bg-green-400" />
-          </div>
-          <span className="text-zinc-700 text-sm font-medium ml-2">{channel}</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-green-600">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          Live Preview
-        </div>
-      </div>
-      <SlackThread messages={messages} userName={userName} userInitials={userInitials} />
     </div>
   )
 }
@@ -414,20 +333,20 @@ function SlackWindow({
 // ── Main Section ──────────────────────────────────────────────────────────────
 
 export function UseCaseExamples() {
-  const [activeCase, setActiveCase]     = useState("view")
+  const [activeCase, setActiveCase] = useState("view")
   const [coordinateView, setCoordinateView] = useState<"requester" | "invitee">("requester")
 
   const active = useCases.find((uc) => uc.id === activeCase)!
 
   return (
-    <section id="use-cases" className="py-24 lg:py-32">
+    <section id="use-cases" className="py-24 lg:py-32 text-left">
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
-        <div className="max-w-2xl mx-auto text-center mb-16">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
+        <div className="max-w-2xl mx-auto text-center mb-4">
+          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">
             Real Use Case Examples
           </p>
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-2">
             See it in action
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -436,7 +355,7 @@ export function UseCaseExamples() {
         </div>
 
         {/* Tab selector */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           {useCases.map((uc) => (
             <button
               key={uc.id}
@@ -444,80 +363,56 @@ export function UseCaseExamples() {
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${activeCase === uc.id
                 ? "bg-foreground text-background shadow-lg"
                 : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
-              }`}
+                }`}
             >
               {uc.label}
             </button>
           ))}
         </div>
 
-        {/* Single-window cases */}
-        {activeCase !== "coordinate" && (
-          <div className="max-w-2xl mx-auto">
-            <SlackWindow
-              key={activeCase}
-              channel="# coagent4u-demo"
-              messages={active.thread!}
-            />
-          </div>
-        )}
-
-        {/* Coordinate case — dual view with toggle */}
-        {activeCase === "coordinate" && (
-          <div className="max-w-2xl mx-auto">
-            {/* Toggle */}
-            <div className="flex justify-center mb-6">
+        <div className="max-w-[800px] mx-auto">
+          {activeCase === "coordinate" && (
+            <div className="flex justify-center mb-4">
               <div className="inline-flex items-center bg-muted rounded-full p-1 gap-1">
-                <button
-                  onClick={() => setCoordinateView("requester")}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    coordinateView === "requester"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  👤 Tanmay&apos;s View
-                </button>
-                <button
-                  onClick={() => setCoordinateView("invitee")}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    coordinateView === "invitee"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  👤 Sarah&apos;s View
-                </button>
+                {([
+                  { id: "requester", label: "👤 Requester's View" },
+                  { id: "invitee", label: "👤 Invitee's View" },
+                ] as const).map((v) => (
+                  <button
+                    key={v.id}
+                    onClick={() => setCoordinateView(v.id)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${coordinateView === v.id
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    {v.label}
+                  </button>
+                ))}
               </div>
             </div>
+          )}
 
-            {/* Label */}
-            <p className="text-center text-xs text-muted-foreground mb-4">
-              {coordinateView === "requester"
-                ? "Tanmay's Slack DM — what the requester sees"
-                : "Sarah's Slack DM — what the invitee sees"}
-            </p>
-
-            {/* Slack window */}
-            {coordinateView === "requester" ? (
-              <SlackWindow
-                key="requester"
-                channel="# coagent4u (Tanmay Zade)"
-                messages={requesterThread}
-                userName="Tanmay Zade"
-                userInitials="TZ"
-              />
-            ) : (
-              <SlackWindow
-                key="invitee"
-                channel="# coagent4u (Sarah)"
-                messages={inviteeThread}
-                userName="Sarah"
-                userInitials="SR"
-              />
-            )}
-          </div>
-        )}
+          <SlackWindow
+            height="580px"
+            channel={
+              activeCase === "coordinate"
+                ? `# coagent4u (${coordinateView === "requester" ? "Requester" : "Invitee"})`
+                : "# coagent4u-demo"
+            }
+          >
+            <SlackThread
+              key={`${activeCase}-${coordinateView}`}
+              messages={
+                activeCase === "coordinate"
+                  ? (coordinateView === "requester" ? requesterThread : inviteeThread)
+                  : active.thread!
+              }
+              userName={coordinateView === "invitee" ? "Sarah" : "Tanmay Zade"}
+              userInitials={coordinateView === "invitee" ? "SR" : "TZ"}
+            />
+          </SlackWindow>
+        </div>
       </div>
     </section>
   )
