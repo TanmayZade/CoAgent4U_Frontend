@@ -2,11 +2,38 @@
 
 import { GridScan } from "@/components/ui/grid-scan"
 import gsap from "gsap"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Lock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+
+function HeroDisabledCTA({ refProp, style }: { refProp: React.Ref<HTMLDivElement>, style?: React.CSSProperties }) {
+  const [show, setShow] = useState(false)
+  return (
+    <div ref={refProp} style={style} className="relative inline-flex" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      <button
+        disabled
+        className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground/50 text-background/70 shadow-lg cursor-not-allowed select-none gap-2"
+      >
+        <Lock className="h-4 w-4" />
+        Get Started
+        <ArrowRight className="ml-1 h-5 w-5" />
+      </button>
+      {show && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-72 rounded-xl border border-border/60 bg-background/95 backdrop-blur-md p-3 shadow-xl text-sm">
+          <div className="flex items-start gap-2">
+            <Lock className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+            <span className="text-muted-foreground leading-snug">
+              Available to <span className="font-semibold text-foreground">test users only</span>. Interested? Contact{" "}
+              <a href="mailto:easychat148@gmail.com" className="text-primary underline underline-offset-2 hover:text-primary/80 break-all">easychat148@gmail.com</a>
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -17,7 +44,7 @@ export function HeroSection() {
   const cur1Ref = useRef<HTMLSpanElement>(null)
   const cur2Ref = useRef<HTMLSpanElement>(null)
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
-  const cta1Ref = useRef<HTMLAnchorElement>(null)
+  const cta1Ref = useRef<HTMLDivElement>(null)
   const cta2Ref = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
@@ -39,8 +66,8 @@ export function HeroSection() {
       gsap.set(cur1, { opacity: 1 })
       gsap.set(cur2, { opacity: 0 })
 
-      const HEADLINE_1 = "Your Personal Agent That"
-      const HEADLINE_2 = "Collaborates for You"
+      const HEADLINE_1 = "The Governance Protocol"
+      const HEADLINE_2 = "for Autonomous Agents"
       const CHAR_SPEED = 0.098 // slowed down by another 10%
       const DUR_1 = HEADLINE_1.length * CHAR_SPEED
       const DUR_2 = HEADLINE_2.length * CHAR_SPEED
@@ -199,20 +226,15 @@ export function HeroSection() {
             className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
             style={{ opacity: 0 }}
           >
-            The Coordination Platform for Personal Agents
+            The A2A Governance Layer for Policy-Driven Agent Interactions
           </p>
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              ref={cta1Ref}
-              href="/signin"
-              className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            <HeroDisabledCTA
+              refProp={cta1Ref}
               style={{ opacity: 0 }}
-            >
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+            />
             <Link
               ref={cta2Ref}
               href="#use-cases"

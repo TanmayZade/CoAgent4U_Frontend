@@ -122,13 +122,13 @@ export function CoordinationSection() {
         {/* Section header */}
         <div ref={headerRef} className="max-w-2xl mx-auto text-center mb-8">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-            Agent Coordination Visualization
+            Autonomous Governance Protocol
           </p>
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-4">
-            Agents coordinate so you don&apos;t have to
+            Agents negotiate and govern so you don&apos;t have to
           </h2>
           <p className="text-muted-foreground text-lg">
-            Personal agents collaborate through a coordination network, eliminating manual back-and-forth communication.
+            Personal agents collaborate through a secure A2A governance layer, ensuring all interactions follow your specific business rules.
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export function CoordinationSection() {
           <div ref={containerRef} className="rounded-xl border border-border/60 bg-card p-6 lg:p-8 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:border-foreground/20 [&.is-elevated]:scale-[1.02] [&.is-elevated]:shadow-[0_20px_40px_rgba(0,0,0,0.08)] [&.is-elevated]:border-foreground/20">
             {/* Mental model text */}
             <p className="text-center text-xs text-muted-foreground mb-6">
-              Human → Personal Agent → Agent Coordination Network → Coordinated Outcome
+              Policy Intent → Agent Negotiation → Protocol Consensus → Verified Execution
             </p>
 
             {/* Flow diagram - 9 Steps Grid */}
@@ -149,8 +149,8 @@ export function CoordinationSection() {
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">1</div>
                   <User className="w-4 h-4 text-blue-500" />
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">User Intent</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">User A requests a meeting using natural language.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Policy Intent</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">User A declares a goal or policy trigger (e.g. "Draft Contract").</p>
                 {/* Connector Arrow -> Right */}
                 <div className="flow-arrow hidden lg:block absolute top-1/2 -right-12 w-12 h-[2px] bg-foreground z-[-1] -translate-y-1/2" data-index="1" data-dir="right">
                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] w-2 h-2 border-t-2 border-r-2 border-foreground rotate-45" />
@@ -163,8 +163,8 @@ export function CoordinationSection() {
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">2</div>
                   <Bot className="w-4 h-4 text-purple-500" />
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Parse & Retrieve</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Agent A parses the request and retrieves available slots.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Intent Analysis</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Agent A parses intent and verifies policy-alignment.</p>
                 {/* Connector Arrow -> Right */}
                 <div className="flow-arrow hidden lg:block absolute top-1/2 -right-12 w-12 h-[2px] bg-foreground z-[-1] -translate-y-1/2" data-index="2" data-dir="right">
                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] w-2 h-2 border-t-2 border-r-2 border-foreground rotate-45" />
@@ -177,8 +177,8 @@ export function CoordinationSection() {
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">3</div>
                   <Bot className="w-4 h-4 text-purple-500" />
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Initiate Request</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Agent A sends proposed slots to the Engine.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Protocol Initiation</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Agent A initiates A2A governance session with Agent B.</p>
                 {/* Connector Arrow -> Down */}
                 <div className="flow-arrow hidden lg:block absolute -bottom-8 left-1/2 w-[2px] h-8 bg-foreground z-[-1] -translate-x-1/2" data-index="3" data-dir="down">
                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[2px] w-2 h-2 border-b-2 border-r-2 border-foreground rotate-45" />
@@ -191,8 +191,8 @@ export function CoordinationSection() {
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">6</div>
                   <User className="w-4 h-4 text-blue-500" />
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Invitee Action</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">User B selects a preferred slot or rejects the meeting.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Peer Negotiation</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">User B evaluates consensus proposals based on local policy.</p>
                 {/* Connector Arrow -> Down */}
                 <div className="flow-arrow hidden lg:block absolute -bottom-8 left-1/2 w-[2px] h-8 bg-foreground z-[-1] -translate-x-1/2" data-index="6" data-dir="down">
                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[2px] w-2 h-2 border-b-2 border-r-2 border-foreground rotate-45" />
@@ -203,10 +203,10 @@ export function CoordinationSection() {
               <div className="flow-item flex flex-col p-3 rounded-lg border border-border/50 bg-background/50 hover:bg-muted/50 transition-colors relative isolate" data-index="5">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">5</div>
-                  <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center"><span className="text-[9px] font-bold text-white">CE</span></div>
+                  <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center"><span className="text-[9px] font-bold text-white">GE</span></div>
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Propose Options</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Engine sends overlapping slots for User A to view and User B to select/reject via their agents.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Consensus Proposals</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Governance Engine proposes valid states that satisfy both agents&apos; policies.</p>
                 {/* Connector Arrow -> Left */}
                 <div className="flow-arrow hidden lg:block absolute top-1/2 -left-12 w-12 h-[2px] bg-foreground z-[-1] -translate-y-1/2" data-index="5" data-dir="left">
                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[2px] w-2 h-2 border-b-2 border-l-2 border-foreground rotate-45" />
@@ -217,10 +217,10 @@ export function CoordinationSection() {
               <div className="flow-item flex flex-col p-3 rounded-lg border border-border/50 bg-background/50 hover:bg-muted/50 transition-colors relative isolate" data-index="4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">4</div>
-                  <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center"><span className="text-[9px] font-bold text-white">CE</span></div>
+                  <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center"><span className="text-[9px] font-bold text-white">GE</span></div>
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Find Overlaps</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Engine asks for free slots from Agent B and identifies mutual free time.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Conflict Analysis</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Governance Engine identifies constraints and mutual availability.</p>
                 {/* Connector Arrow -> Left */}
                 <div className="flow-arrow hidden lg:block absolute top-1/2 -left-12 w-12 h-[2px] bg-foreground z-[-1] -translate-y-1/2" data-index="4" data-dir="left">
                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[2px] w-2 h-2 border-b-2 border-l-2 border-foreground rotate-45" />
@@ -231,10 +231,10 @@ export function CoordinationSection() {
               <div className="flow-item flex flex-col p-3 rounded-lg border border-border/50 bg-background/50 hover:bg-muted/50 transition-colors relative isolate" data-index="7">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">7</div>
-                  <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center"><span className="text-[9px] font-bold text-white">CE</span></div>
+                  <div className="w-5 h-5 rounded bg-zinc-800 flex items-center justify-center"><span className="text-[9px] font-bold text-white">GE</span></div>
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Relay Selection</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Engine routes the confirmed choice back to Agent A.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Commitment Relay</h4>
+                <p className="text-[11px] text-muted-relaxed leading-relaxed">Confirmed decision is relayed through the A2A protocol.</p>
                 {/* Connector Arrow -> Right */}
                 <div className="flow-arrow hidden lg:block absolute top-1/2 -right-12 w-12 h-[2px] bg-foreground z-[-1] -translate-y-1/2" data-index="7" data-dir="right">
                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] w-2 h-2 border-t-2 border-r-2 border-foreground rotate-45" />
@@ -247,8 +247,8 @@ export function CoordinationSection() {
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-background text-foreground border shadow-sm font-bold text-[10px]">8</div>
                   <User className="w-4 h-4 text-blue-500" />
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Final Approval</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">User A reviews the selection and provides final approval.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Final Validation</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">User A provides final validation or policy check.</p>
                 {/* Connector Arrow -> Right */}
                 <div className="flow-arrow hidden lg:block absolute top-1/2 -right-12 w-12 h-[2px] bg-foreground z-[-1] -translate-y-1/2" data-index="8" data-dir="right">
                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] w-2 h-2 border-t-2 border-r-2 border-foreground rotate-45" />
@@ -261,8 +261,8 @@ export function CoordinationSection() {
                   <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-700 font-bold text-[10px]">9</div>
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
                 </div>
-                <h4 className="font-semibold text-foreground text-[13px] mb-1">Success & Sync</h4>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">Engine finalizes state. Both agents automatically update calendars.</p>
+                <h4 className="font-semibold text-foreground text-[13px] mb-1">Verified Execution</h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">Governor finalizes state. Both agents automatically synchronize outcomes.</p>
               </div>
             </div>
 

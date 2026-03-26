@@ -2,12 +2,39 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Lock, Mail } from "lucide-react"
 import { motion, useScroll, useTransform, useSpring, Variants } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { useScrollAnimation, fadeSlideUpVariants, staggerContainerVariants } from "@/hooks/use-framer-animations"
 import { FloatingIcons } from "@/components/landing/floating-icons"
 import { toast } from "sonner"
+
+function DisabledCTAButton() {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative inline-flex" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      <button
+        disabled
+        className="h-14 px-10 text-lg font-medium rounded-full bg-foreground/50 text-background/70 shadow-xl cursor-not-allowed select-none inline-flex items-center gap-2"
+      >
+        <Lock className="h-5 w-5" />
+        Start Using CoAgent4U
+        <ArrowRight className="ml-1 h-5 w-5" />
+      </button>
+      {show && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-72 rounded-xl border border-border/60 bg-background/95 backdrop-blur-md p-3 shadow-xl text-sm">
+          <div className="flex items-start gap-2">
+            <Lock className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+            <span className="text-muted-foreground leading-snug">
+              Available to <span className="font-semibold text-foreground">test users only</span>. Interested? Contact{" "}
+              <a href="mailto:easychat148@gmail.com" className="text-primary underline underline-offset-2 hover:text-primary/80 break-all">easychat148@gmail.com</a>
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function FinalCTA() {
   const { ref: sectionRef, isInView } = useScrollAnimation()
@@ -81,20 +108,11 @@ export function FinalCTA() {
             animate={isInView ? "visible" : "hidden"}
           >
             <motion.div variants={indicatorVariants}>
-              <Button 
-                size="lg" 
-                className="h-14 px-10 text-lg font-medium rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 group" 
-                asChild
-              >
-                <Link href="/signin">
-                  Start Using CoAgent4U
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </Link>
-              </Button>
+              <DisabledCTAButton />
             </motion.div>
           </motion.div>
 
-          {/* Trust indicators */}
+          {/* Access info */}
           <motion.div 
             className="mt-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-5 text-base text-muted-foreground"
             variants={staggerContainerVariants}
@@ -102,16 +120,12 @@ export function FinalCTA() {
             animate={isInView ? "visible" : "hidden"}
           >
             <motion.span className="flex items-center gap-3 transition-colors duration-300 hover:text-foreground" variants={indicatorVariants}>
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              Free to start
+              <Lock className="w-4 h-4 text-amber-500" />
+              Test users only
             </motion.span>
             <motion.span className="flex items-center gap-3 transition-colors duration-300 hover:text-foreground" variants={indicatorVariants}>
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              No credit card required
-            </motion.span>
-            <motion.span className="flex items-center gap-3 transition-colors duration-300 hover:text-foreground" variants={indicatorVariants}>
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              Setup in 2 minutes
+              <Mail className="w-4 h-4 text-primary" />
+              <a href="mailto:easychat148@gmail.com" className="underline underline-offset-2 hover:text-foreground">easychat148@gmail.com</a>
             </motion.span>
           </motion.div>
         </motion.div>

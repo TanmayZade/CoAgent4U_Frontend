@@ -11,6 +11,29 @@ import {
   SlackAttachment,
 } from "./slack-ui"
 
+// ── Slot pill helper ─────────────────────────────────────────────────────────
+
+function SlotPillsReadOnly() {
+  const slots = [
+    "06:00 pm – 07:00 pm",
+    "06:30 pm – 07:30 pm",
+    "07:00 pm – 08:00 pm",
+    "07:30 pm – 08:30 pm",
+  ]
+  return (
+    <div className="grid grid-cols-2 gap-1.5 mt-2">
+      {slots.map((t, i) => (
+        <button key={i} disabled className="px-2 py-1.5 text-[11px] bg-zinc-100 border border-zinc-300 rounded text-zinc-800 font-medium whitespace-nowrap cursor-default">
+          {t}
+        </button>
+      ))}
+      <button disabled className="px-2 py-1.5 text-[11px] bg-zinc-100 border border-zinc-300 rounded text-zinc-800 font-medium cursor-default">
+        + 1 more
+      </button>
+    </div>
+  )
+}
+
 export function AgentPreview() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
@@ -19,6 +42,7 @@ export function AgentPreview() {
   const userTextRef = useRef<HTMLSpanElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const agentResponseRef = useRef<HTMLDivElement>(null)
+  const proposedSlotsRef = useRef<HTMLDivElement>(null)
   const approvalRequestRef = useRef<HTMLDivElement>(null)
   const approveButtonRef = useRef<HTMLButtonElement>(null)
   const meetingConfirmedRef = useRef<HTMLDivElement>(null)
@@ -35,6 +59,7 @@ export function AgentPreview() {
       // Hide all messages initially
       gsap.set(userMessageRef.current, { opacity: 0, y: 24 })
       gsap.set(agentResponseRef.current, { opacity: 0, y: 24 })
+      gsap.set(proposedSlotsRef.current, { opacity: 0, y: 24 })
       gsap.set(approvalRequestRef.current, { opacity: 0, y: 24 })
       gsap.set(meetingConfirmedRef.current, { opacity: 0, y: 24 })
       gsap.set(cursorRef.current, { opacity: 0 })
@@ -69,14 +94,15 @@ export function AgentPreview() {
       )
       tl.to(cursorRef.current, { opacity: 0, duration: 0.1 }, 1.6)
       tl.to(agentResponseRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 1.8)
-      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.3)
-      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.15 }, 3.0)
+      tl.to(proposedSlotsRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.3)
+      tl.to(approvalRequestRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 2.8)
+      tl.to(approveButtonRef.current, { scale: 0.92, duration: 0.15 }, 3.5)
       tl.to(approveButtonRef.current, {
         scale: 1,
         duration: 0.15,
         onComplete: () => setApproveClicked(true),
-      }, 3.15)
-      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.6)
+      }, 3.65)
+      tl.to(meetingConfirmedRef.current, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 4.1)
 
       tl.timeScale(0.4)
 
@@ -92,13 +118,13 @@ export function AgentPreview() {
   }, [])
 
   return (
-    <div ref={sectionRef} className="relative">
-      <div ref={stickyRef} className="w-full py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="max-w-[85rem] mx-auto">
+    <div ref={sectionRef} className="relative h-screen flex flex-col justify-center">
+      <div ref={stickyRef} className="w-full py-6">
+        <div className="mx-auto max-w-[65rem] px-6">
+          <div className="max-w-[68rem] mx-auto">
             <SlackWindow ref={cardRef} channel="CoAgent4U" height="auto">
               {/* Slack-style thread content */}
-              <div className="flex-1 space-y-1 min-h-[420px] transition-colors py-4 lg:py-6">
+              <div className="flex-1 space-y-1 transition-colors py-2">
                 
                 {/* User message */}
                 <SlackMessage
@@ -129,6 +155,26 @@ export function AgentPreview() {
                   <div className="mt-2 flex items-center gap-2 text-xs text-emerald-600">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Agent-to-Agent coordination in progress
+                  </div>
+                </SlackMessage>
+
+                {/* Proposed slots */}
+                <SlackMessage
+                  ref={proposedSlotsRef}
+                  sender="CoAgent4U"
+                  time="4:24 PM"
+                  isApp
+                >
+                  <div className="md:max-w-[50%]">
+                    <SlackAttachment color="blue" emoji="📅" header="Proposed Slots">
+                      <div className="text-xs text-zinc-600">
+                        <p className="mb-2">I&apos;ve proposed these available time slots to <span className="text-blue-600">@Sarah</span>. Waiting for their selection...</p>
+                        <div className="flex items-center gap-1 mb-1">
+                          <span>🗓️</span><span className="font-semibold text-zinc-800">Fri, Mar 21, 2026</span>
+                        </div>
+                        <SlotPillsReadOnly />
+                      </div>
+                    </SlackAttachment>
                   </div>
                 </SlackMessage>
 
