@@ -137,7 +137,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-10">
             {[
               { id: "#capabilities", label: "Capabilities" },
-              { id: "#how-it-works", label: "How It Works" },
+              { id: "#architecture", label: "Architecture" },
               { id: "#use-cases", label: "Use Cases" },
               { id: "#security", label: "Security" },
             ].map((link) => (
@@ -184,7 +184,7 @@ export function Navbar() {
             <div className="flex flex-col gap-2">
               {[
                 { id: "#capabilities", label: "Capabilities" },
-                { id: "#how-it-works", label: "How It Works" },
+                { id: "#architecture", label: "Architecture" },
                 { id: "#use-cases", label: "Use Cases" },
                 { id: "#security", label: "Security" },
               ].map((link) => (

@@ -44,6 +44,7 @@ export function HeroSection() {
   const cur1Ref = useRef<HTMLSpanElement>(null)
   const cur2Ref = useRef<HTMLSpanElement>(null)
   const subheadlineRef = useRef<HTMLParagraphElement>(null)
+  const techBadgesRef = useRef<HTMLDivElement>(null)
   const cta1Ref = useRef<HTMLDivElement>(null)
   const cta2Ref = useRef<HTMLAnchorElement>(null)
 
@@ -66,8 +67,8 @@ export function HeroSection() {
       gsap.set(cur1, { opacity: 1 })
       gsap.set(cur2, { opacity: 0 })
 
-      const HEADLINE_1 = "The Governance Protocol"
-      const HEADLINE_2 = "for Autonomous Agents"
+      const HEADLINE_1 = "Your Personal AI Agent"
+      const HEADLINE_2 = "Powered by A2A & MCP"
       const CHAR_SPEED = 0.098 // slowed down by another 10%
       const DUR_1 = HEADLINE_1.length * CHAR_SPEED
       const DUR_2 = HEADLINE_2.length * CHAR_SPEED
@@ -142,12 +143,20 @@ export function HeroSection() {
         TOTAL_DUR + 0.55
       )
 
+      // Tech badges slide-up
+      tl.fromTo(
+        techBadgesRef.current,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+        TOTAL_DUR + 0.7
+      )
+
       // CTA buttons with stagger
       tl.fromTo(
         [cta1Ref.current, cta2Ref.current].filter(Boolean),
         { opacity: 0, scale: 0.9, y: 8 },
         { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(1.7)", stagger: 0.12 },
-        TOTAL_DUR + 0.75
+        TOTAL_DUR + 0.85
       )
 
       return () => {
@@ -226,8 +235,32 @@ export function HeroSection() {
             className="mt-8 text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto"
             style={{ opacity: 0 }}
           >
-            The A2A Governance Layer for Policy-Driven Agent Interactions
+            A privacy-centric personal agent that manages your calendar, tasks, and productivity through MCP tools — and coordinates with other agents via A2A protocol.
           </p>
+
+          {/* Tech Badges */}
+          <div
+            ref={techBadgesRef}
+            className="mt-6 flex flex-wrap items-center justify-center gap-3"
+            style={{ opacity: 0 }}
+          >
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground/5 border border-foreground/10 text-sm font-medium text-foreground/80">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              MCP Protocol
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground/5 border border-foreground/10 text-sm font-medium text-foreground/80">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              A2A Protocol
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground/5 border border-foreground/10 text-sm font-medium text-foreground/80">
+              <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              LLM-Driven Planning
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-foreground/5 border border-foreground/10 text-sm font-medium text-foreground/80">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              32 MCP Tools
+            </span>
+          </div>
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -237,11 +270,11 @@ export function HeroSection() {
             />
             <Link
               ref={cta2Ref}
-              href="#use-cases"
+              href="#architecture"
               className="inline-flex items-center justify-center h-13 px-8 text-base font-medium rounded-full border-2 border-foreground/20 hover:border-foreground/40 hover:bg-muted/50 transition-all duration-300 hover:scale-105"
               style={{ opacity: 0 }}
             >
-              View Demo
+              View Architecture
             </Link>
           </div>
 

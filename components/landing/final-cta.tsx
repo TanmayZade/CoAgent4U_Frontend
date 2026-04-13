@@ -87,10 +87,10 @@ export function FinalCTA() {
             Get Started Today
           </p>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight text-foreground mb-10 leading-[1.1] text-balance">
-            Let Your Personal Agent Coordinate Your Commitments
+            Your Personal Agent, Powered by MCP & A2A
           </h2>
           <p className="text-xl lg:text-2xl text-muted-foreground mb-14 max-w-2xl mx-auto leading-relaxed">
-            Stop wasting time on manual coordination. Let your agent collaborate with others while you focus on what matters.
+            Stop managing calendars manually. Let your personal agent access tools via MCP, coordinate with others via A2A, and keep you in control.
           </p>
 
           <motion.div 
